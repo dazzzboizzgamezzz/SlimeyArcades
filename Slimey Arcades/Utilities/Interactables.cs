@@ -96,20 +96,20 @@ namespace Slimey_Arcades.Utilities
                 for (int i = 0; i < ChildContainers.Count; i++)
                 {
                     IContainer ChildContainer = ChildContainers[i];
-                    foreach (IDraw SubObject in ChildContainer.Obj.Draws)
+                    foreach (IDraw SubObject in ChildContainer.Draws)
                     {
                         if (!typeof(Button).IsAssignableFrom(SubObject.GetType()))
                         {
                             SubObject.Pos = SubObject.Pos + Offset;
                         }
                     }
-                    foreach (Text SubObject in ChildContainer.Obj.Texts)
+                    foreach (Text SubObject in ChildContainer.Texts)
                     {
                         SubObject.Pos = SubObject.Pos + (Object.Pos - OldObjectPos);
                     }
-                    if (ChildContainer.Obj.Containers.Count > 0)
+                    if (ChildContainer.Containers.Count > 0)
                     {
-                        ChildContainers.AddRange(ChildContainer.Obj.Containers);
+                        ChildContainers.AddRange(ChildContainer.Containers);
                     }
                 }
             }

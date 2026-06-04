@@ -24,7 +24,7 @@ namespace Slimey_Arcades.Objects
             SelectedButton = "GSlime";
             Outline = new Polygon(new Transform(X - 5, Y - 5, 60, 60), Color.Gold);
             Outline.Sprite.Texture = Shapes.MakeOutline(new Rectangle(X + 5, Y + 5, 50, 50));
-            SubObjects.Add(Outline);
+            Container.ObjectsToLoad.Add(Outline);
             for (int i = 0; i < 10; i++)
             {
                 Cells[0, i].Sprite.Color = ColorManager.None;
@@ -78,7 +78,7 @@ namespace Slimey_Arcades.Objects
                 };
                 NewButton.Sprite.Color = ButtonColor;
                 NewButton.Highlightable = false;
-                SubObjects.Add(NewButton);
+                Container.ObjectsToLoad.Add(NewButton);
             }
             SlimeClicker = new Clicker(Cells[0, 0].Transform);
             GoalClicker = new Clicker(Cells[0, 1].Transform);
@@ -141,7 +141,7 @@ namespace Slimey_Arcades.Objects
             Clicker = new Clicker(Transform);
             Pointer = new Polygon(new Transform(0, 0, 10, 10), ColorManager.None, "Circle");
             //Pointer.Sprite.Layer = 100f;
-            SubObjects.Add(Pointer);
+            Container.ObjectsToLoad.Add(Pointer);
             foreach (Cell Cell in Cells)
             {
                 if (Cell.Col == 0 || Cell.Row == 0 || Cell.Col == 10 || Cell.Row == 10)
@@ -165,7 +165,7 @@ namespace Slimey_Arcades.Objects
                 Slime.Transform.Pos = new Vector2(-100, -100);
                 //Slime.Sprite.Layer = 0.0001f;
                 Slimes.Add(Slime);
-                SubObjects.Add(Slime);
+                Container.ObjectsToLoad.Add(Slime);
             }
         }
         public override void Update()

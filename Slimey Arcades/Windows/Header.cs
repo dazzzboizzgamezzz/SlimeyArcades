@@ -7,11 +7,11 @@ namespace Slimey_Arcades.Windows
 {
     public class Header : IContainer, IDraw, IUpdate
     {
+        public Container Container { get; init; } = new();
         public int LoadedCount { get; set; }
-        public ArrayList SubObjects { get; set; } = new();
+        public ArrayList SubObjects { get => Container.ObjectsToLoad; }
         public Sprite Sprite { get; set; }
         public Transform Transform { get; set; }
-        public Sorter Obj { get => new Sorter(SubObjects); }
         private Button MinButton { get; set; }
         private Button CloseButton { get; set; }
         public bool Closed { get; set; } = false;
@@ -30,7 +30,7 @@ namespace Slimey_Arcades.Windows
         }
         public virtual void Update()
         {
-            foreach (IUpdate Object in Obj.Updates)
+            foreach (IUpdate Object in Container.Updates)
             {
                 Object.Update();
             } 

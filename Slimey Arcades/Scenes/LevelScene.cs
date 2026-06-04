@@ -9,49 +9,37 @@ namespace Slimey_Arcades.Scenes
     public class LevelScene :Scene
     {
         public int Level { get; set; }
-        public bool DebugMode { get; set; } = false;
         public static Window WinWindow { get; set; }
+        Button MenuButton { get; set; }
         public LevelScene() : base (Color.CornflowerBlue)
         {
-        }
 
+        }
         public override void Load()
         {
             LevelGrid Grid = new LevelGrid(200, 100, Level);
+            Container.ObjectsToLoad.Add(Grid);
 
-            SubObjects.Add(Grid);
-
-            Action MenuButtonAction = null;
-            string MenuButtonText = null;   
-            Transform MenuButtonTransform = null;   
-            if (DebugMode)
-            {
-                MenuButtonText = "Return to debug";
-                MenuButtonTransform = new Transform(800, 200, 200, 50);
-                MenuButtonAction = () =>
-                {
-                    DebugScene NewScene = new DebugScene() { LoadLevel = true };
-                    NewScene.Load();
-                    NextScene = NewScene;
-                };
-            }
-            else
-            {
-                MenuButtonText = "Return to level select";
-                MenuButtonTransform = new Transform(800, 300, 200, 50);
-                MenuButtonAction = () =>
-                {
-                    LevelSelectScene NewScene = new LevelSelectScene();
-                    NewScene.Load();
-                    NextScene = NewScene;
-                };
-            }
-            Button MenuButton = new Button(MenuButtonTransform, Shapes.Square, Color.Gray, MenuButtonText);
+            MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to level select");
             MenuButton.Sprite.Color = Color.Gray;
-            MenuButton.Function = MenuButtonAction;
-            SubObjects.Add(MenuButton);
-
-            //LoadObjects();
+            MenuButton.Function = () =>
+            {
+                LevelSelectScene NewScene = new LevelSelectScene();
+                NewScene.Load();
+                NextScene = NewScene;
+            }; 
+            Container.ObjectsToLoad.Add(MenuButton);
+        }
+        public void EnterDebug()
+        {
+            MenuButton.Text = "Return to debug";
+            //MenuButton.Transform = new Transform(800, 200, 200, 50);
+            MenuButton.Function = () =>
+            {
+                DebugScene NewScene = new DebugScene() { LoadLevel = true };
+                NewScene.Load();
+                NextScene = NewScene;
+            };
         }
     }
 }

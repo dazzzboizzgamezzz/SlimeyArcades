@@ -47,7 +47,7 @@ namespace Slimey_Arcades.Objects
             WallOutline = new Polygon(new Transform(-300, -200, 50, 50), Color.Red);
             WallOutline.Sprite.Texture = Shapes.MakeOutline(Cells[0, 0].Transform.Rect);
             //WallOutline.Sprite.Layer = 100f;
-            SubObjects.Add(WallOutline);
+            Container.ObjectsToLoad.Add(WallOutline);
         }
         public override void Update()
         {
@@ -267,7 +267,7 @@ namespace Slimey_Arcades.Objects
             if (Winning)
             {
                 PauseWindow WinWindow = new PauseWindow(new Vector2(400, 300));
-                SubObjects.Add(WinWindow);
+                Container.ObjectsToLoad.Add(WinWindow);
             }
         }
         /// <summary>

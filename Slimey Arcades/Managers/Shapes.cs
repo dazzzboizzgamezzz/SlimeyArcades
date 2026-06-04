@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Slimey_Arcades.Managers;
 
-namespace Slimey_Arcades.Objects
+namespace Slimey_Arcades
 {
     public static class Shapes
     {

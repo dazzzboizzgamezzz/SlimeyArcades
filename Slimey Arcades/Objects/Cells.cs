@@ -18,7 +18,8 @@ namespace Slimey_Arcades.Objects
         public int Index { get; set; }
         //public Dictionary<string, bool> Properties { get; set; }
         public List<string> Properties { get; set; } = new();
-        public ArrayList SubObjects { get; set; } = new();
+        public Container Container { get; init; } = new();
+        public ArrayList SubObjects { get => Container.ObjectsToLoad; }
         public Cell(Transform NewTransform, Color BGColor, int NewCol = 0, int NewRow = 0, int Newindex = 0) : base(NewTransform, BGColor, "Square")
         {
             Row = NewRow;

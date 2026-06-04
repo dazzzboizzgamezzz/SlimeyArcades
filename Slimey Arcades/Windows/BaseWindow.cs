@@ -9,11 +9,11 @@ namespace Slimey_Arcades.Windows
     public class Window : IContainer, IDraw, IUpdate
     {
         public int LoadedCount { get; set; }
-        public ArrayList SubObjects { get; set; } = new();
+        public ArrayList SubObjects { get => Container.ObjectsToLoad; } 
         private ArrayList MinimizedObjects { get; set; } = new();
         public Sprite Sprite { get; set; }
         public Transform Transform { get; set; }
-        public Sorter Obj { get => new Sorter(SubObjects); }
+        public Container Container { get; init; } = new();
         public Header Header { get; set; }
         protected Color Color {  get; init; }
         public bool Destroy {  get; set; }
@@ -31,7 +31,7 @@ namespace Slimey_Arcades.Windows
             {
                 MinimizeWindow();
             }
-            foreach (IUpdate Object in Obj.Updates)
+            foreach (IUpdate Object in Container.Updates)
             {
                 if (Header != null && Header.Closed == true) Destroy = true;
                 else Object.Update();

@@ -1,30 +1,23 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Slimey_Arcades.Managers;
-using Slimey_Arcades.Utilities;
+using Slimey_Arcades.Objects;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Slimey_Arcades.Objects
+namespace Slimey_Arcades
 {
     public class Grid : IDraw, IContainer, IUpdate
     {
-        public int LoadedCount { get; set; }
         public Cell[,] Cells { get; set; }
         public Transform Transform { get; set; }
         public Sprite Sprite { get; set; }
-        public ArrayList SubObjects { get; set; } = new();
-        public Sorter Obj { get => new Sorter(SubObjects); }
+        public Container Container { get; init; } = new();
         public bool Destroy { get; set; } = false;
-        public List<Slime> Slimes { get; set; } = new(); 
-        public List<Cell> Goals { get; set; } = new();
-        private int Rows { get; init; }
-        private int Cols { get; init; }
-        public Grid(int X, int Y, int NewCols, int NewRows, Color BGColor, int CellGap = 5, int CellSize = 50, int BorderWidth = 5)
+        protected int Rows { get; init; }
+        protected int Cols { get; init; }
+        protected List<Slime> Slimes { get; init; } = new();
+        public Grid(int X, int Y, int NewCols, int NewRows, Color BGColor, int CellGap = 5, int CellSize = 50, int BorderWidth = 5, Color? CellColor = null)
         {
             Rows = NewRows;
             Cols = NewCols;
@@ -41,15 +34,13 @@ namespace Slimey_Arcades.Objects
                     int CellX = X + (i * (CellSize + CellGap));
                     int CellY = Y + (j * (CellSize + CellGap));
                     Transform CellPosition = new Transform(CellX, CellY, CellSize, CellSize);
-                    Cells[i, j] = new Cell(CellPosition, Color.Gray, i, j, i + j);
-                    SubObjects.Add(Cells[i, j]);
+                    Color NewCellColor = CellColor == null ? Color.Gray : (Color)CellColor;
+                    Cells[i, j] = new Cell(CellPosition, NewCellColor, i, j, i + j);
+                    Container.ObjectsToLoad.Add(Cells[i, j]);
                 }
             }
         }
-        public virtual void Update()
-        {
-
-        }
+        public virtual void Update() { }
         public virtual Cell GetCell(int Col, int Row)
         {
             Cell TargetCell = null;
@@ -135,13 +126,9 @@ namespace Slimey_Arcades.Objects
                         }
                     }
                 }
-                SubObjects.AddRange(Slimes);
+                Container.ObjectsToLoad.AddRange(Slimes);
             }
-            else 
-            {
-                SaveLevel(Level);
-                LoadLevel(Level);
-            }
+            else throw new Exception("This level doesn't exist!!!");
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Slimey_Arcades.Scenes
         public override void Load()
         {
             PauseWindow PauseWindow = new(new Vector2(100, 100));
-            SubObjects.Add(PauseWindow);
+            Container.ObjectsToLoad.Add(PauseWindow);
             //LoadObjects();
         }
     }

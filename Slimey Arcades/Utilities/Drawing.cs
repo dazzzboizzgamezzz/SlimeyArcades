@@ -3,8 +3,25 @@ using Microsoft.Xna.Framework.Graphics;
 using Slimey_Arcades.Managers;
 using System;
 
-namespace Slimey_Arcades.Utilities
+namespace Slimey_Arcades
 {
+    public interface IDraw
+    {
+        protected Transform Transform { get; set; }
+        protected Sprite Sprite { get; set; }
+        public Texture2D Texture { get => Sprite.Texture; }
+        public Color Color { get => Sprite.Color; }
+        public float Layer { get => Sprite.Layer; }
+        public int LayerIndex { get => Sprite.LayerData.LayerIndex; set => Sprite.LayerData.LayerIndex = value; }
+        public int LayerDepth { get => Sprite.LayerData.LayerDepth; set => Sprite.LayerData.LayerDepth = value; }
+        public SpriteEffects Effect { get => Sprite.Effect; }
+        public float Rotation { get => Transform.Rotation; }
+        public Vector2 Origin { get => Transform.Origin; }
+        public Rectangle Rect { get => Transform.Rect; }
+        public Vector2 Pos { get => Transform.Pos; set { Transform.X = (int)value.X; Transform.Y = (int)value.Y; } }
+        public float Scale { get => Transform.Scale; }
+        public void ScaleObject() { Transform.ScaleObject(); }
+    }
     public class Sprite
     {
         public Texture2D Texture { get; set; }
