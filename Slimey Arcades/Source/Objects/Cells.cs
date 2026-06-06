@@ -1,12 +1,6 @@
 ﻿using Slimey_Arcades.Managers;
-using Slimey_Arcades.Utilities;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Slimey_Arcades.Objects
 {
@@ -16,10 +10,8 @@ namespace Slimey_Arcades.Objects
         public int Row { get; set; }
         public int Col { get; set; }
         public int Index { get; set; }
-        //public Dictionary<string, bool> Properties { get; set; }
         public List<string> Properties { get; set; } = new();
         public Container Container { get; init; } = new();
-        public ArrayList SubObjects { get => Container.ObjectsToLoad; }
         public Cell(Transform NewTransform, Color BGColor, int NewCol = 0, int NewRow = 0, int Newindex = 0) : base(NewTransform, BGColor, "Square")
         {
             Row = NewRow;
@@ -28,14 +20,13 @@ namespace Slimey_Arcades.Objects
         }
         public void ParseProperties()
         {
-            SubObjects.Clear();
             for (int i = 0; i < Properties.Count; i++)
             {
                 string Type = Properties[i];
-                Polygon Cutter;
-                Polygon Hole;
-                Polygon Switch;
-                Polygon RedBlueMarker;
+                Polygon Cutter = null;
+                Polygon Hole = null;
+                Polygon Switch = null;
+                Polygon RedBlueMarker = null;
                 switch (Type)
                 {
                     case "Wall":
@@ -47,39 +38,39 @@ namespace Slimey_Arcades.Objects
                     case "Pit":
                         Hole = new Polygon(Transform, ColorManager.Colors["Pit"]);
                         Hole.Sprite.Texture = Shapes.BackedCircle;
-                        SubObjects.Add(Hole);
+                        Container.ObjectsToLoad.Add(Hole);
                         break;
                     case "Switch":
                         Switch = new Polygon(new Transform(Transform.X + 15, Transform.Y + 15, 20, 20), Color.Red, "Circle");
-                        SubObjects.Add(Switch);
+                        Container.ObjectsToLoad.Add(Switch);
                         break;
                     case "LCutter":
                         Cutter = new Polygon(new Transform(Transform.X + 45, Transform.Y, 12, 50), Color.Black);
                         Cutter.Sprite.Texture = Shapes.XCross;
-                        SubObjects.Add(Cutter);
+                        Container.ObjectsToLoad.Add(Cutter);
                         break;
                     case "RCutter":
                         Cutter = new Polygon(new Transform(Transform.X - 7, Transform.Y, 12, 50), Color.Black);
                         Cutter.Sprite.Texture = Shapes.XCross;
-                        SubObjects.Add(Cutter);
+                        Container.ObjectsToLoad.Add(Cutter);
                         break;
                     case "UCutter":
                         Cutter = new Polygon(new Transform(Transform.X, Transform.Y - 7, 50, 12), Color.Black);
                         Cutter.Sprite.Texture = Shapes.XCross;
-                        SubObjects.Add(Cutter);
+                        Container.ObjectsToLoad.Add(Cutter);
                         break;
                     case "DCutter":
                         Cutter = new Polygon(new Transform(Transform.X, Transform.Y + 45, 50, 12), Color.Black);
                         Cutter.Sprite.Texture = Shapes.XCross;
-                        SubObjects.Add(Cutter);
+                        Container.ObjectsToLoad.Add(Cutter);
                         break;
                     case "Red":
                         RedBlueMarker = new Polygon(Transform, new Color(255, 0, 0, 0.5f));
-                        SubObjects.Add(RedBlueMarker);
+                        Container.ObjectsToLoad.Add(RedBlueMarker);
                         break;
                     case "Blue":
                         RedBlueMarker = new Polygon(Transform, new Color(0, 0, 255, 0.5f));
-                        SubObjects.Add(RedBlueMarker);
+                        Container.ObjectsToLoad.Add(RedBlueMarker);
                         break;
                 }
                 if (Type.Contains("Goal"))
@@ -100,122 +91,22 @@ namespace Slimey_Arcades.Objects
                     GoalText.Pos = new Vector2(Transform.Center.X - (GoalText.TextWidth / 2), Transform.Center.Y - (GoalText.TextHeight / 2));
                     Polygon GoalOutline = new Polygon(new Transform(Transform.X - 4, Transform.Y - 4, Transform.Width + 8, Transform.Height + 8), TextColor);
                     GoalOutline.Sprite.Texture = Shapes.MakeOutline(GoalOutline.Transform.Rect, 6);
-                    SubObjects.Add(GoalText);
-                    SubObjects.Add(GoalOutline);
+                    Container.ObjectsToLoad.Add(GoalText);
+                    Container.ObjectsToLoad.Add(GoalOutline);
                 }
             }
         }
-        //public void OldParseProperties()
-        //{
-        //    SubObjects.Clear();
-        //    for (int i = 0; i < Properties.Count; i++)
-        //    {
-        //        string Type = Properties[i];
-        //        Polygon Cutter;
-        //        Polygon Hole;
-        //        Polygon Switch;
-        //        Polygon RedBlueMarker;
-        //        switch (Type)
-        //        {
-        //            case "Wall":
-        //                for (int j = 0; j < Properties.Count; j++)
-        //                {
-        //                    string OtherType = Properties[j];
-        //                    if (!(OtherType == "Wall" || OtherType == "Red" || OtherType == "Blue")) { Properties.Remove(OtherType); j--; };
-        //                }
-        //                Sprite.Color = ColorManager.Colors["Wall"];
-        //                break;
-        //            case "Ice":
-        //                for (int j = 0; j < Properties.Count; j++)
-        //                {
-        //                    string OtherType = Properties[j];
-        //                    if ((OtherType == "Wall" || OtherType == "Pit" || OtherType == "Switch")) { Properties.Remove(OtherType); j--; };
-        //                }
-        //                Sprite.Color = ColorManager.Colors["Ice"];
-        //                break;
-        //            case "Pit":
-        //                for (int j = 0; j < Properties.Count; j++)
-        //                {
-        //                    string OtherType = Properties[j];
-        //                    if ((OtherType == "Wall" || OtherType == "Ice" || OtherType == "Switch")) { Properties.Remove(OtherType); j--; };
-        //                }
-        //                Hole = new Polygon(Transform, ColorManager.Colors["Pit"]);
-        //                Hole.Sprite.Texture = Shapes.BackedCircle;
-        //                SubObjects.Add(Hole);
-        //                break;
-        //            case "Switch":
-        //                for (int j = 0; j < Properties.Count; j++)
-        //                {
-        //                    string OtherType = Properties[j];
-        //                    if ((OtherType == "Wall" || OtherType == "Ice" || OtherType == "Switch")) { Properties.Remove(OtherType); j--; };
-        //                }
-        //                Switch = new Polygon(new Transform(Transform.X + 15, Transform.Y + 15, 20, 20), Color.Red, "Circle");
-        //                SubObjects.Add(Switch);
-        //                break;
-        //            case "LCutter":
-        //                Cutter = new Polygon(new Transform(Transform.X + 45, Transform.Y, 12, 50), Color.Black);
-        //                Cutter.Sprite.Texture = Shapes.XCross;
-        //                SubObjects.Add(Cutter);
-        //                break;
-        //            case "RCutter":
-        //                Cutter = new Polygon(new Transform(Transform.X - 7, Transform.Y, 12, 50), Color.Black);
-        //                Cutter.Sprite.Texture = Shapes.XCross;
-        //                SubObjects.Add(Cutter);
-        //                break;
-        //            case "UCutter":
-        //                Cutter = new Polygon(new Transform(Transform.X, Transform.Y - 7, 50, 12), Color.Black);
-        //                Cutter.Sprite.Texture = Shapes.XCross;
-        //                SubObjects.Add(Cutter);
-        //                break;
-        //            case "DCutter":
-        //                Cutter = new Polygon(new Transform(Transform.X, Transform.Y + 45, 50, 12), Color.Black);
-        //                Cutter.Sprite.Texture = Shapes.XCross;
-        //                SubObjects.Add(Cutter);
-        //                break;
-        //            case "Red":
-        //                RedBlueMarker = new Polygon(Transform, new Color(255, 0, 0, 0.5f));
-        //                SubObjects.Add(RedBlueMarker);
-        //                break;
-        //            case "Blue":
-        //                RedBlueMarker = new Polygon(Transform, new Color(0, 0, 255, 0.5f));
-        //                SubObjects.Add(RedBlueMarker);
-        //                break;
-        //        }
-        //    }
-        //}
-
-        //public void ResetProperties()
-        //{
-        //    Properties = new()
-        //    {
-        //        {"GSlime", false},
-        //        {"RSlime", false},
-        //        {"BSlime", false},
-        //        {"PSlime", false},
-        //        {"YSlime", false},
-        //        {"Wall", false},
-        //        {"Ice", false},
-        //        {"Pit", false},
-        //        {"Button", false},
-        //        {"Cutter", false},
-        //        {"Barrel", false},
-        //        {"Red", false},
-        //        {"Blue", false},
-        //    };
-        //}
     }
 
     public class Slime : Cell
     {
         public Cell TargetCell { get; set; }
-        //public Vector2 RelativePos { get; set; }
         public int Distance { get; set; }
         public string Type { get => Properties[0]; }
         public Slime(Cell Cell, string NewType) : base(new Transform(Cell.Transform.X + 5, Cell.Transform.Y + 5, Cell.Transform.Width - 10, Cell.Transform.Height - 10), Cell.Sprite.Color, Cell.Col, Cell.Row)
         {
             Properties.Add(NewType);
             Sprite.Color = ColorManager.Colors[NewType];
-            //Sprite.Layer = 10;
         }
         public void MoveToCell(Cell Cell)
         {

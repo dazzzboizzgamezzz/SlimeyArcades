@@ -140,7 +140,6 @@ namespace Slimey_Arcades.Objects
             Sprite.LayerData.LayerIndex = 9;
             Clicker = new Clicker(Transform);
             Pointer = new Polygon(new Transform(0, 0, 10, 10), ColorManager.None, "Circle");
-            //Pointer.Sprite.Layer = 100f;
             Container.ObjectsToLoad.Add(Pointer);
             foreach (Cell Cell in Cells)
             {
@@ -163,7 +162,6 @@ namespace Slimey_Arcades.Objects
                     case 4: Slime = new Slime(Cells[0, 0], "PSlime"); break;
                 }
                 Slime.Transform.Pos = new Vector2(-100, -100);
-                //Slime.Sprite.Layer = 0.0001f;
                 Slimes.Add(Slime);
                 Container.ObjectsToLoad.Add(Slime);
             }

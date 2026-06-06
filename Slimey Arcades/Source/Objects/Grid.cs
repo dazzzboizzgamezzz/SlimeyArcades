@@ -25,6 +25,7 @@ namespace Slimey_Arcades
             int Height = ((CellSize + CellGap) * Rows) - CellGap;
             Transform = new Transform(X - BorderWidth, Y - BorderWidth, Width + BorderWidth * 2, Height + BorderWidth * 2);
             Sprite = new Sprite(Shapes.Square, BGColor);
+            Sprite.LayerData.LayerIndex = 9;
 
             Cells = new Cell[Cols, Rows];
             for (int i = 0; i < Cols; i++)
@@ -36,6 +37,7 @@ namespace Slimey_Arcades
                     Transform CellPosition = new Transform(CellX, CellY, CellSize, CellSize);
                     Color NewCellColor = CellColor == null ? Color.Gray : (Color)CellColor;
                     Cells[i, j] = new Cell(CellPosition, NewCellColor, i, j, i + j);
+                    Cells[i, j].Sprite.LayerData.LayerIndex = 8;
                     Container.ObjectsToLoad.Add(Cells[i, j]);
                 }
             }
@@ -110,17 +112,11 @@ namespace Slimey_Arcades
                                     if (Slimes.Count > 0)
                                     {
                                         Slime OldSlime = GetSlimeByType(Property);
-                                        Slimes.Remove(OldSlime);
+                                        if (OldSlime != null) Slimes.Remove(OldSlime);
                                     }
                                     Slime NewSlime = new Slime(NextCell, Property);
                                     Slimes.Add(NewSlime);
                                 }
-                                //else
-                                //{
-                                //    NextCell.Sprite.Color = ColorManager.Colors.ContainsKey(Property) ? ColorManager.Colors[Property] : Color.Gray;
-                                //    if (Property == "Pit") NextCell.Sprite.Texture = Shapes.BackedCircle;
-                                //    else NextCell.Sprite.Texture = Shapes.Square;
-                                //}
                             }
                             NextCell.ParseProperties();
                         }
