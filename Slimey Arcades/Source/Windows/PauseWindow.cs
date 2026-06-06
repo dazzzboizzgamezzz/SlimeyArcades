@@ -2,13 +2,6 @@
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Slimey_Arcades.Utilities;
-using Slimey_Arcades.Objects;
 
 namespace Slimey_Arcades.Windows
 {
@@ -48,8 +41,12 @@ namespace Slimey_Arcades.Windows
             {
                 case "Paused": 
                     break;
-                case "Win": break;
-                case "Lose": break;
+                case "Win":
+                    WindowText = "You Win!";
+                    ContinueButton.Text = "Next Level";
+                    break;
+                case "Lose": 
+                    break;
             }
         }
         public void SetButtonFunctions(Action SaveButtonAction, Action LoadButtonAction, Action ContinueButtonAction)
@@ -58,15 +55,8 @@ namespace Slimey_Arcades.Windows
             RestartButton.Function = LoadButtonAction;
             ContinueButton.Function = ContinueButtonAction;
         }
-        public bool test { get; set; } = false;
         public override void Update()
         {
-            if (!test)
-            {
-                //Polygon Polygon = new Polygon(new Transform(0, 0, 100, 100), Color.White);
-                //SubObjects.Add(Polygon);
-                //test = true;
-            }
             base.Update();
         }
     }

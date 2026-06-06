@@ -13,7 +13,6 @@ namespace Slimey_Arcades
         public Transform Transform { get; set; }
         public Sprite Sprite { get; set; }
         public Container Container { get; init; } = new();
-        public bool Destroy { get; set; } = false;
         protected int Rows { get; init; }
         protected int Cols { get; init; }
         protected List<Slime> Slimes { get; init; } = new();

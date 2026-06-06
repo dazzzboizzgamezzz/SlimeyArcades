@@ -24,8 +24,6 @@ namespace Slimey_Arcades.Objects
         public LevelGrid(int X, int Y, int Level) : base(X, Y, 11, 11, Color.DarkMagenta, 2)
         {
             LoadLevel(Level);
-            Sprite.LayerData.LayerIndex = 9;
-            foreach (Cell Cell in Cells) Cell.Sprite.LayerData.LayerIndex = 8;
 
             //Get the green slime and set it as the player
             for(int i = 0; i < Slimes.Count; i++)
@@ -43,10 +41,8 @@ namespace Slimey_Arcades.Objects
                 }
             }
 
-            //initialize the wall outline for rotating wall collisions
             WallOutline = new Polygon(new Transform(-300, -200, 50, 50), Color.Red);
             WallOutline.Sprite.Texture = Shapes.MakeOutline(Cells[0, 0].Transform.Rect);
-            //WallOutline.Sprite.Layer = 100f;
             Container.ObjectsToLoad.Add(WallOutline);
         }
         public override void Update()
@@ -267,6 +263,7 @@ namespace Slimey_Arcades.Objects
             if (Winning)
             {
                 PauseWindow WinWindow = new PauseWindow(new Vector2(400, 300));
+                WinWindow.UpdateState("Win");
                 Container.ObjectsToLoad.Add(WinWindow);
             }
         }
