@@ -6,33 +6,53 @@ using System;
 
 namespace Slimey_Arcades.Scenes
 {
-    public class LevelScene :Scene
+    public class LevelScene : Scene
     {
         public int Level { get; set; }
-        public static Window WinWindow { get; set; }
-        Button MenuButton { get; set; }
-        public LevelScene() : base (Color.CornflowerBlue)
+        private PauseWindow PauseWindow { get; set; }
+        private Button MenuButton { get; set; }
+        private LevelGrid LevelGrid { get; set; } = null;
+        public static string PauseState = "";
+        public override Scene NextScene {  get => PauseWindow.NextScene ; set => PauseWindow.NextScene = value; }
+        public bool Debug { get; init; } = false;
+        public LevelScene(int NewLevel) : base (Color.CornflowerBlue)
         {
-
+            Level = NewLevel;
         }
         public override void Load()
         {
-            LevelGrid Grid = new LevelGrid(200, 100, Level);
-            Container.ObjectsToLoad.Add(Grid);
+            PauseWindow = new PauseWindow(new Vector2(400, 300), Level);
+            Container.ObjectsToLoad.Add(PauseWindow);
 
-            MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to level select");
-            MenuButton.Sprite.Color = Color.Gray;
-            MenuButton.Function = () =>
+            LevelGrid = new LevelGrid(200, 100, Level);
+            Container.ObjectsToLoad.Add(LevelGrid);
+
+            if (!Debug)
             {
-                LevelSelectScene NewScene = new LevelSelectScene();
-                NewScene.Load();
-                NextScene = NewScene;
-            }; 
+                MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to level select");
+                //MenuButton.Sprite.Color = Color.Gray;
+                MenuButton.Function = () =>
+                {
+                    LevelSelectScene NewScene = new LevelSelectScene();
+                    NewScene.Load();
+                    NextScene = NewScene;
+                };
+            }
+            else
+            {
+                EnterDebug();
+            }
             Container.ObjectsToLoad.Add(MenuButton);
+        }
+        public override void PostLoad()
+        {
+            PauseWindow.Container.IncreaseLayerDepth(PauseWindow, 3);
         }
         public void EnterDebug()
         {
-            MenuButton.Text = "Return to debug";
+            //MenuButton = null;
+            MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to debug");
+            //MenuButton.Text = "Return to debug";
             //MenuButton.Transform = new Transform(800, 200, 200, 50);
             MenuButton.Function = () =>
             {

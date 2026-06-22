@@ -8,16 +8,14 @@ namespace Slimey_Arcades.Scenes
 {
     public class TitleScene :Scene
     {
-        public int LoadedItemCount { get; set; }
         public TitleScene() : base (Color.CornflowerBlue)
         {
 
         }
         public override void Load()
         {
-            PauseWindow PauseWindow = new(new Vector2(100, 100));
-            Container.ObjectsToLoad.Add(PauseWindow);
-            //LoadObjects();
+            //PauseWindow PauseWindow = new(new Vector2(100, 100), 0);
+            //Container.ObjectsToLoad.Add(PauseWindow);
         }
     }
 }

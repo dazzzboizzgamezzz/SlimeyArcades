@@ -22,8 +22,8 @@ namespace Slimey_Arcades.Windows
             Transform = NewTransform;
             Sprite = new Sprite(Shapes.Square, BGColor);
             Color = BGColor;
-            Header = new Header(Transform);
-            SubObjects.Add(Header);
+            //Header = new Header(Transform);
+            //SubObjects.Add(Header);
         }
         public virtual void Update()
         {

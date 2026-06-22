@@ -14,7 +14,7 @@ namespace Slimey_Arcades.Scenes
         {
             for (int i = 0; i < 5; i++)
             {
-                for (int j = 0; j < 2; j++)
+                for (int j = 0; j < 1; j++)
                 {
                     int Col = i + 1;
                     int Row = j + 1;
@@ -33,9 +33,9 @@ namespace Slimey_Arcades.Scenes
         }
         private void SetLevel(int Level)
         {
-            LevelScene NewLevel = new();
-            NewLevel.Level = Level;
-            NewLevel.Load();
+            LevelScene NewLevel = new(Level);
+            //NewLevel.Level = Level;
+            //NewLevel.Load();
             NextScene = NewLevel;
         }
     }

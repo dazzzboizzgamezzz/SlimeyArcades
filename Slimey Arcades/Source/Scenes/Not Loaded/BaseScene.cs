@@ -11,14 +11,14 @@ namespace Slimey_Arcades
         public Transform Transform { get; set; }
         public Sprite Sprite { get; set; }
         public Container Container { get; init; } = new();
-        public Scene NextScene { get; set; } = null;
+        public virtual Scene NextScene { get; set; } = null;
         public Scene(Color BGColor)
         {
             Transform = new Transform(0, 0, (int)SETTINGS.SCREENWIDTH, (int)SETTINGS.SCREENHEIGHT);
             Sprite = new Sprite(Shapes.Square, BGColor);
             Sprite.LayerData.LayerIndex = 9;
-            Load();
-            LoadObjects(this);
+            //Load();
+            //LoadObjects(this);
         }
         public void LoadObjects(IContainer StartingContainer)
         {
@@ -34,11 +34,11 @@ namespace Slimey_Arcades
                 NewContainer.Container.LoadObjects();
                 foreach (IDraw ObjDraw in NewContainer.Container.Draws)
                 {
-                    ObjDraw.LayerDepth = CurrentDepth;
+                    ObjDraw.LayerDepth += CurrentDepth;
                 }
                 foreach (Text ObjText in NewContainer.Container.Texts)
                 {
-                    ObjText.LayerData.LayerDepth = CurrentDepth;
+                    ObjText.LayerData.LayerDepth += CurrentDepth;
                 }
                 foreach (IContainer SubContainer in NewContainer.Container.Containers)
                 {
@@ -54,5 +54,6 @@ namespace Slimey_Arcades
             Container.LoadObjects();
         }
         public abstract void Load();
+        public virtual void PostLoad() { }
     }
 }

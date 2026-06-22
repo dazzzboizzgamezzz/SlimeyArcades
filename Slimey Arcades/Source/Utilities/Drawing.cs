@@ -7,7 +7,7 @@ namespace Slimey_Arcades
 {
     public interface IDraw
     {
-        protected Transform Transform { get; set; }
+        public Transform Transform { get; set; }
         protected Sprite Sprite { get; set; }
         public Texture2D Texture { get => Sprite.Texture; }
         public Color Color { get => Sprite.Color; }
@@ -19,8 +19,6 @@ namespace Slimey_Arcades
         public Vector2 Origin { get => Transform.Origin; }
         public Rectangle Rect { get => Transform.Rect; }
         public Vector2 Pos { get => Transform.Pos; set { Transform.X = (int)value.X; Transform.Y = (int)value.Y; } }
-        public float Scale { get => Transform.Scale; }
-        public void ScaleObject() { Transform.ScaleObject(); }
     }
     public class Sprite
     {

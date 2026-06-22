@@ -34,9 +34,10 @@ namespace Slimey_Arcades.Scenes
             PlayLevel.Function = () =>
             {
                 Grid.SaveLevel(0);
-                LevelScene NewScene = new LevelScene();
-                NewScene.EnterDebug();
-                NewScene.Level = 0;
+                LevelScene NewScene = new LevelScene(0) { Debug = true };
+                NewScene.Load();
+                //NewScene.EnterDebug();
+                //NewScene.Level = 0;
                 NextScene = NewScene;
             };
             Container.ObjectsToLoad.Add(PlayLevel);

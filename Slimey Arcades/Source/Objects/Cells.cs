@@ -76,7 +76,7 @@ namespace Slimey_Arcades.Objects
                 if (Type.Contains("Goal"))
                 {
                     Color TextColor = ColorManager.None;
-                    string test = Type.Substring(0, 1);
+                    //string test = Type.Substring(0, 1);
                     switch (Type.Substring(0, 1))
                     {
                         case "G": TextColor = ColorManager.Colors["GSlime"]; break;

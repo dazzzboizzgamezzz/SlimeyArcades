@@ -20,7 +20,6 @@ namespace Slimey_Arcades.Objects
         private Slime Player { get; set; }
         private Polygon WallOutline { get; set; }
         private int Timer { get; set; } = 0;
-        private bool Winning { get; set; } = false;
         public LevelGrid(int X, int Y, int Level) : base(X, Y, 11, 11, Color.DarkMagenta, 2)
         {
             LoadLevel(Level);
@@ -47,7 +46,7 @@ namespace Slimey_Arcades.Objects
         }
         public override void Update()
         {
-            if (!Paused)
+            if (LevelScene.PauseState == "")
             {
                 List<Keys> CurrentKeys = Keyboard.GetState().GetPressedKeys().ToList();
                 foreach (Keys Key in CurrentKeys) 
@@ -211,11 +210,6 @@ namespace Slimey_Arcades.Objects
             }
             return false;
         }
-        /// <summary>
-        /// Checks each neighboring cell around StartingCell for the property of any of the present non-active slimes
-        /// Once a slime is fused up, the property is removed from the cell and all slime data is removed from the grid and stored in the slime itself
-        /// </summary>
-        /// <param name="StartingCell"></param>
         private void Fusion(Cell StartingCell)
         {
             if (Slimes.Count > 0)
@@ -250,7 +244,7 @@ namespace Slimey_Arcades.Objects
         {
             if (Slimes.Count == 0)
             {
-                Winning = true;
+                bool Winning = true;
                 foreach (Slime Slime in ActiveSlimes)
                 {
                     Cell SlimeCell = Cells[Slime.Col, Slime.Row];
@@ -259,13 +253,14 @@ namespace Slimey_Arcades.Objects
                     Winning = false;
                     break;
                 }
+                if (Winning) LevelScene.PauseState = "Winning";
             }
-            if (Winning)
-            {
-                PauseWindow WinWindow = new PauseWindow(new Vector2(400, 300));
-                WinWindow.UpdateState("Win");
-                Container.ObjectsToLoad.Add(WinWindow);
-            }
+            //if (Winning)
+            //{
+            //    PauseWindow WinWindow = new PauseWindow(new Vector2(400, 300));
+            //    WinWindow.UpdateState("Win");
+            //    Container.ObjectsToLoad.Add(WinWindow);
+            //}
         }
         /// <summary>
         /// 1. Sort each slime by their distance from the player (old code, can be depricated)

@@ -2,8 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using Slimey_Arcades.Objects;
-using Slimey_Arcades.Utilities;
+using Microsoft.Xna.Framework;
 
 namespace Slimey_Arcades
 {
@@ -112,6 +111,68 @@ namespace Slimey_Arcades
                     LoadedObjects.Remove(CurrentObject);
                     CurrentObject = null;
                     break;
+                }
+            }
+        }
+        public void IncreaseLayerDepth(IDraw Parent, int LayerIncrease)
+        {
+            Parent.LayerDepth += LayerIncrease;
+            foreach(IDraw Draw in Draws)
+            {
+                Draw.LayerDepth += LayerIncrease;
+            }
+            foreach (Text Text in Texts)
+            {
+                Text.LayerData.LayerDepth += LayerIncrease;
+            }
+            List<IContainer> SubContainers = new();
+            SubContainers.AddRange(Containers);
+            for (int i = 0; i < SubContainers.Count; i++)
+            {
+                IContainer SubContainer = SubContainers[i];
+                foreach (IDraw SubDraw in SubContainer.Draws)
+                {
+                    SubDraw.LayerDepth += LayerIncrease;
+                }
+                foreach (Text SubText in SubContainer.Texts)
+                {
+                    SubText.LayerData.LayerDepth += LayerIncrease;
+                }
+                foreach (IContainer SubSubContainer in SubContainer.Containers)
+                {
+                    SubContainers.Add(SubSubContainer);
+                }
+            }
+        }
+        public void MoveAllChildren(IDraw Parent, Vector2 NewPos)
+        {
+            Vector2 OldPos = Parent.Transform.Pos;
+            Vector2 Offset = Vector2.Zero;
+            Parent.Transform.Pos = NewPos;
+            foreach (IDraw Draw in Draws)
+            {
+                Offset = Draw.Transform.Pos - OldPos;
+                Draw.Transform.Pos = NewPos + Offset;
+            }
+            foreach (Text Text in Texts)
+            {
+                Offset = Text.Transform.Pos - OldPos;
+                Text.Transform.Pos = NewPos + Offset;
+            }
+            List<IContainer> SubContainers = new();
+            SubContainers.AddRange(Containers);
+            for (int i = 0; i < SubContainers.Count; i++)
+            {
+                IContainer SubContainer = SubContainers[i];
+                foreach (IDraw Draw in SubContainer.Draws)
+                {
+                    Offset = Draw.Transform.Pos - OldPos;
+                    Draw.Transform.Pos = NewPos + Offset;
+                }
+                foreach (Text Text in SubContainer.Texts)
+                {
+                    Offset = Text.Transform.Pos - OldPos;
+                    Text.Transform.Pos = NewPos + Offset;
                 }
             }
         }

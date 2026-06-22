@@ -11,6 +11,7 @@ namespace Slimey_Arcades
         {  
             GraphicsDevice = NewGraphicsDevice;
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            StartScene.Load();
             StartScene.LoadObjects(StartScene);
             ActiveScene = StartScene;
         }
@@ -39,10 +40,11 @@ namespace Slimey_Arcades
             {
                 Scene PreviousScene = ActiveScene;
                 ActiveScene = ActiveScene.NextScene;
+                ActiveScene.Load();
+                ActiveScene.LoadObjects(ActiveScene);
+                ActiveScene.PostLoad();
                 PreviousScene.NextScene = null;
                 PreviousScene = null;
-                //ActiveScene.Load();
-                //ActiveScene.LoadObjects(ActiveScene);
             }
             IContainer CurrentScene = ActiveScene;
             for (int i = 0; i < CurrentScene.Updates.Count; i++)
@@ -63,13 +65,13 @@ namespace Slimey_Arcades
             foreach (IDraw Object in CurrentScene.Draws)
             {
                 SpriteBatch.Draw(Object.Texture,
-                                 Object.Rect,
-                                 null,
-                                 Object.Color,
-                                 Object.Rotation,
-                                 Object.Origin,
-                                 Object.Effect,
-                                 Object.Layer); //Draw Objects
+                         Object.Rect,
+                         null,
+                         Object.Color,
+                         Object.Rotation,
+                         Object.Origin,
+                         Object.Effect,
+                         Object.Layer); //Draw Objects
             }
             foreach (Text Object in CurrentScene.Texts) 
             {
