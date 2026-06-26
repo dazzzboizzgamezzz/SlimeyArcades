@@ -34,8 +34,6 @@ namespace Slimey_Arcades.Scenes
         private void SetLevel(int Level)
         {
             LevelScene NewLevel = new(Level);
-            //NewLevel.Level = Level;
-            //NewLevel.Load();
             NextScene = NewLevel;
         }
     }

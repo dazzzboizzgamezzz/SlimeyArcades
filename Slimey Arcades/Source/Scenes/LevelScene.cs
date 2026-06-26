@@ -30,7 +30,6 @@ namespace Slimey_Arcades.Scenes
             if (!Debug)
             {
                 MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to level select");
-                //MenuButton.Sprite.Color = Color.Gray;
                 MenuButton.Function = () =>
                 {
                     LevelSelectScene NewScene = new LevelSelectScene();
@@ -40,7 +39,13 @@ namespace Slimey_Arcades.Scenes
             }
             else
             {
-                EnterDebug();
+                MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to debug");
+                MenuButton.Function = () =>
+                {
+                    DebugScene NewScene = new DebugScene() { LoadLevel = true };
+                    NewScene.Load();
+                    NextScene = NewScene;
+                };
             }
             Container.ObjectsToLoad.Add(MenuButton);
         }
@@ -48,18 +53,15 @@ namespace Slimey_Arcades.Scenes
         {
             PauseWindow.Container.IncreaseLayerDepth(PauseWindow, 3);
         }
-        public void EnterDebug()
-        {
-            //MenuButton = null;
-            MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to debug");
-            //MenuButton.Text = "Return to debug";
-            //MenuButton.Transform = new Transform(800, 200, 200, 50);
-            MenuButton.Function = () =>
-            {
-                DebugScene NewScene = new DebugScene() { LoadLevel = true };
-                NewScene.Load();
-                NextScene = NewScene;
-            };
-        }
+        //public void EnterDebug()
+        //{
+        //    MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to debug");
+        //    MenuButton.Function = () =>
+        //    {
+        //        DebugScene NewScene = new DebugScene() { LoadLevel = true };
+        //        NewScene.Load();
+        //        NextScene = NewScene;
+        //    };
+        //}
     }
 }

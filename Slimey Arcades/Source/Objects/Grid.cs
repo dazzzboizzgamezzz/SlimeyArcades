@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using Slimey_Arcades.Objects;
 using System;
 using System.Collections.Generic;
@@ -15,11 +16,16 @@ namespace Slimey_Arcades
         public Container Container { get; init; } = new();
         protected int Rows { get; init; }
         protected int Cols { get; init; }
-        protected List<Slime> Slimes { get; init; } = new();
-        public Grid(int X, int Y, int NewCols, int NewRows, Color BGColor, int CellGap = 5, int CellSize = 50, int BorderWidth = 5, Color? CellColor = null)
+        protected int CellSize { get; init; }
+        protected int CellGap { get; init; }
+        //protected List<Slime> Slimes { get; init; } = new();
+        protected Slime[] Slimes { get; init; } = new Slime[5];
+        public Grid(int X, int Y, int NewCols, int NewRows, Color BGColor, int NewCellGap = 5, int NewCellSize = 50, int BorderWidth = 5, Color? CellColor = null)
         {
             Rows = NewRows;
             Cols = NewCols;
+            CellSize = NewCellSize;
+            CellGap = NewCellGap;
             int Width = ((CellSize + CellGap) * Cols) - CellGap;
             int Height = ((CellSize + CellGap) * Rows) - CellGap;
             Transform = new Transform(X - BorderWidth, Y - BorderWidth, Width + BorderWidth * 2, Height + BorderWidth * 2);
@@ -35,10 +41,19 @@ namespace Slimey_Arcades
                     int CellY = Y + (j * (CellSize + CellGap));
                     Transform CellPosition = new Transform(CellX, CellY, CellSize, CellSize);
                     Color NewCellColor = CellColor == null ? Color.Gray : (Color)CellColor;
-                    Cells[i, j] = new Cell(CellPosition, NewCellColor, i, j, i + j);
+                    Cells[i, j] = new Cell(CellPosition, NewCellColor, i, j);
                     Cells[i, j].Sprite.LayerData.LayerIndex = 8;
                     Container.ObjectsToLoad.Add(Cells[i, j]);
                 }
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                Slime Slime = new Slime(Cells[0, 0], "", i);
+                Slime.MoveToCell(null);
+                Slime.Sprite.LayerData.LayerDepth += 4;
+                Slimes[i] = Slime;
+                Container.ObjectsToLoad.Add(Slimes[i]);
             }
         }
         public virtual void Update() { }
@@ -51,38 +66,68 @@ namespace Slimey_Arcades
             }
             return TargetCell;
         }
-        public Slime GetSlimeByType(string Type)
+        public Cell GetMouseCell()
         {
-            Slime NewSlime = null;
-            foreach (Slime Slime in Slimes)
+            Vector2 MPos = Mouse.GetState().Position.ToVector2();
+            Cell MouseCell = null;
+            if (Transform.Rect.Contains(MPos))
             {
-                if (Slime.Type == Type)
-                {
-                    NewSlime = Slime;
-                    break;
-                }
+                Vector2 Offset = MPos - Transform.Pos;
+                int Col = (int)MathF.Floor(Offset.X / (CellSize + CellGap));
+                int Row = (int)MathF.Floor(Offset.Y / (CellSize + CellGap));
+                MouseCell = GetCell(Col, Row);
             }
-            return NewSlime;
+            return MouseCell;
         }
+        //public Slime GetSlimeByType(string Type)
+        //{
+        //    Slime NewSlime = null;
+        //    foreach (Slime Slime in Slimes)
+        //    {
+        //        //if (Slime.Type == Type)
+        //        //{
+        //        //    NewSlime = Slime;
+        //        //    break;
+        //        //}
+        //    }
+        //    return NewSlime;
+        //}
         public void SaveLevel(int Level)
         {
             string SceneFolder = Directory.GetCurrentDirectory() + "\\Levels";
             Directory.CreateDirectory(SceneFolder);
             string LevelFile = SceneFolder + "\\Level" + Level.ToString() + ".csv";
-            string Properties = "";
+            string Data = "";
             using (StreamWriter Writer = new StreamWriter(LevelFile))
             {
+                foreach (Slime Slime in Slimes)
+                {
+                    Data = Slime.Col.ToString() + "," + Slime.Row.ToString() + "," + Slime.Type.ToString();
+                    Writer.WriteLine(Data);
+                    Writer.Flush();
+                }
                 foreach (Cell Cell in Cells)
                 {
+                    //if (Cell.Properties.Count > 0)
+                    //{
+                    //    Properties = Cell.Col.ToString() + "," + Cell.Row.ToString() + ",";
+                    //    foreach (string Property in Cell.Properties)
+                    //    {
+                    //        Properties = Properties + Property + ",";
+                    //    }
+                    //    Properties = Properties.Remove(Properties.Length - 1);
+                    //    Writer.WriteLine(Properties);
+                    //    Writer.Flush();
+                    //}
                     if (Cell.Properties.Count > 0)
                     {
-                        Properties = Cell.Col.ToString() + "," + Cell.Row.ToString() + ",";
-                        foreach (string Property in Cell.Properties)
+                        Data = Cell.Col.ToString() + "," + Cell.Row.ToString() + ",";
+                        foreach (int Property in Cell.Properties)
                         {
-                            Properties = Properties + Property + ",";
+                            Data = Data + Property.ToString() + ",";
                         }
-                        Properties = Properties.Remove(Properties.Length - 1);
-                        Writer.WriteLine(Properties);
+                        Data = Data.Remove(Data.Length - 1);
+                        Writer.WriteLine(Data);
                         Writer.Flush();
                     }
                 }
@@ -96,32 +141,46 @@ namespace Slimey_Arcades
                 using (StreamReader Reader = new StreamReader(LevelFile))
                 {
                     string Line;
+                    int LineCount = 0;
                     while ((Line = Reader.ReadLine()) != null)
                     {
                         List<string> Data = Line.Split(",").ToList();
-                        Cell NextCell = Cells[int.Parse(Data[0]), int.Parse(Data[1])];
-                        if (Data.Count > 2)
+                        Cell NextCell = GetCell(int.Parse(Data[0]), int.Parse(Data[1]));
+                        if (LineCount < 5)
                         {
+                            Slime Slime = Slimes[LineCount];
+                            Slime.MoveToCell(NextCell);
+                        }
+                        else if (Data.Count > 2)
+                        {
+                            //Data.RemoveRange(0, 2);
+                            //NextCell.Properties.AddRange(Data);
+                            //foreach (string Property in Data)
+                            //{
+                            //    if (Property.Contains("Slime"))
+                            //    {
+                            //        if (Slimes.Count > 0)
+                            //        {
+                            //            Slime OldSlime = GetSlimeByType(Property);
+                            //            if (OldSlime != null) Slimes.Remove(OldSlime);
+                            //        }
+                            //        Slime NewSlime = new Slime(NextCell, Property);
+                            //        Slimes.Add(NewSlime);
+                            //    }
+                            //}
+                            //NextCell.ParseProperties();
                             Data.RemoveRange(0, 2);
-                            NextCell.Properties.AddRange(Data);
                             foreach (string Property in Data)
                             {
-                                if (Property.Contains("Slime"))
-                                {
-                                    if (Slimes.Count > 0)
-                                    {
-                                        Slime OldSlime = GetSlimeByType(Property);
-                                        if (OldSlime != null) Slimes.Remove(OldSlime);
-                                    }
-                                    Slime NewSlime = new Slime(NextCell, Property);
-                                    Slimes.Add(NewSlime);
-                                }
+                                int PropertyValue = int.Parse(Property);
+                                NextCell.Properties.Add((CellObjects)PropertyValue);
                             }
-                            NextCell.ParseProperties();
+                            if (NextCell.Properties.Count > 0) NextCell.NewParseProperties();
                         }
+                        LineCount++;
                     }
                 }
-                Container.ObjectsToLoad.AddRange(Slimes);
+                //Container.ObjectsToLoad.AddRange(Slimes);
             }
             else throw new Exception("This level doesn't exist!!!");
         }

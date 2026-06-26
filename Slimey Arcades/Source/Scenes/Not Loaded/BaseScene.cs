@@ -17,8 +17,6 @@ namespace Slimey_Arcades
             Transform = new Transform(0, 0, (int)SETTINGS.SCREENWIDTH, (int)SETTINGS.SCREENHEIGHT);
             Sprite = new Sprite(Shapes.Square, BGColor);
             Sprite.LayerData.LayerIndex = 9;
-            //Load();
-            //LoadObjects(this);
         }
         public void LoadObjects(IContainer StartingContainer)
         {

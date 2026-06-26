@@ -55,7 +55,10 @@ namespace Slimey_Arcades
             for (int i = 0; i < CurrentScene.Containers.Count; i++)
             {
                 IContainer Container = CurrentScene.Containers[i];
-                if (Container.Destroy) { CurrentScene.Container.DestroyObjects(Container); i--; }
+                if (Container.Destroy) 
+                { 
+                    CurrentScene.Container.DestroyObjects(Container); i--; 
+                }
                 if (Container.ObjectsToLoad.Count > 0) ActiveScene.LoadObjects(Container);
             }
         }

@@ -15,7 +15,10 @@ namespace Slimey_Arcades.Scenes
         }
         public override void Load()
         {
-            DebugGrid Grid = new DebugGrid(200, 100);
+            DebugMenu Debug = new DebugMenu(100, 100);
+            Container.ObjectsToLoad.Add(Debug);
+
+            DebugGrid Grid = new DebugGrid(200, 100, ref Debug);
             if (LoadLevel)
             {
                 Grid.LoadLevel(0);
@@ -27,17 +30,12 @@ namespace Slimey_Arcades.Scenes
 
             Container.ObjectsToLoad.Add(Grid);
 
-            DebugMenu Debug = new DebugMenu(100, 100);
-            Container.ObjectsToLoad.Add(Debug);
-
             Button PlayLevel = new Button(800, 100, 200, 50, Shapes.Square, Color.DarkGray, "Play Level");
             PlayLevel.Function = () =>
             {
                 Grid.SaveLevel(0);
                 LevelScene NewScene = new LevelScene(0) { Debug = true };
                 NewScene.Load();
-                //NewScene.EnterDebug();
-                //NewScene.Level = 0;
                 NextScene = NewScene;
             };
             Container.ObjectsToLoad.Add(PlayLevel);
