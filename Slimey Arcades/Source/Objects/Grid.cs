@@ -145,6 +145,7 @@ namespace Slimey_Arcades
                     while ((Line = Reader.ReadLine()) != null)
                     {
                         List<string> Data = Line.Split(",").ToList();
+                        if (Data[0] == "") continue;
                         Cell NextCell = GetCell(int.Parse(Data[0]), int.Parse(Data[1]));
                         if (LineCount < 5)
                         {
