@@ -1,12 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+//using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-using Slimey_Arcades.Objects;
-using System.Diagnostics.Contracts;
+//using Slimey_Arcades.Objects;
+//using System.Diagnostics.Contracts;
 
-namespace Slimey_Arcades.Utilities
+namespace Slimey_Arcades
 {
+    public interface IUpdate
+    {
+        public void Update();
+    }
     public class Clicker
     {
         private bool Clicked { get; set; } = false;

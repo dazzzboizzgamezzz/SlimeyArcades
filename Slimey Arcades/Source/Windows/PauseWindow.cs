@@ -33,7 +33,7 @@ namespace Slimey_Arcades.Windows
             Level = CurrentLevel;
             Container.MoveAllChildren(this, new Vector2(-500, -500));
 
-            LevelText = new Text(new Transform((int)(Transform.X + 120), (int)(Transform.Y + 50), 150, 30), "", 0.3f);
+            LevelText = new Text(new Transform((int)(Transform.X + 120), (int)(Transform.Y + 50), 150, 30), "", NewScale: 0.3f);
             LevelText.Color = Color.White;
             SubObjects.Add(LevelText);
 
