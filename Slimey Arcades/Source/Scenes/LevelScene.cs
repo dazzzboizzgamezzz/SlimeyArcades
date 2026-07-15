@@ -1,10 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Slimey_Arcades.Objects;
 using Slimey_Arcades.Windows;
-using Slimey_Arcades.Utilities;
+//using Slimey_Arcades.Utilities;
+using Slimey_Arcades.Scenes;
 using System;
 
-namespace Slimey_Arcades.Scenes
+//namespace Slimey_Arcades.Scenes
+namespace Slimey_Arcades
 {
     public class LevelScene : Scene
     {
@@ -21,8 +23,10 @@ namespace Slimey_Arcades.Scenes
         }
         public override void Load()
         {
+            Container.LoadObjects();
             PauseWindow = new PauseWindow(new Vector2(400, 300), Level);
             Container.ObjectsToLoad.Add(PauseWindow);
+            Container.LoadObjects(3);
 
             LevelGrid = new LevelGrid(200, 100, Level);
             Container.ObjectsToLoad.Add(LevelGrid);
@@ -33,7 +37,7 @@ namespace Slimey_Arcades.Scenes
                 MenuButton.Function = () =>
                 {
                     LevelSelectScene NewScene = new LevelSelectScene();
-                    NewScene.Load();
+                    //NewScene.Load();
                     NextScene = NewScene;
                 };
             }
@@ -43,16 +47,16 @@ namespace Slimey_Arcades.Scenes
                 MenuButton.Function = () =>
                 {
                     DebugScene NewScene = new DebugScene() { LoadLevel = true };
-                    NewScene.Load();
+                    //NewScene.Load();
                     NextScene = NewScene;
                 };
             }
             Container.ObjectsToLoad.Add(MenuButton);
         }
-        public override void PostLoad()
-        {
-            PauseWindow.Container.IncreaseLayerDepth(PauseWindow, 3);
-        }
+        //public override void PostLoad()
+        //{
+        //    PauseWindow.Container.IncreaseLayerDepth(PauseWindow, 3);
+        //}
         //public void EnterDebug()
         //{
         //    MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to debug");

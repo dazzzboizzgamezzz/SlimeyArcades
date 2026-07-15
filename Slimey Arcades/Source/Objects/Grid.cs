@@ -18,7 +18,6 @@ namespace Slimey_Arcades
         protected int Cols { get; init; }
         protected int CellSize { get; init; }
         protected int CellGap { get; init; }
-        //protected List<Slime> Slimes { get; init; } = new();
         protected Slime[] Slimes { get; init; } = new Slime[5];
         public Grid(int X, int Y, int NewCols, int NewRows, Color BGColor, int NewCellGap = 5, int NewCellSize = 50, int BorderWidth = 5, Color? CellColor = null)
         {
@@ -51,7 +50,7 @@ namespace Slimey_Arcades
             {
                 Slime Slime = new Slime(Cells[0, 0], "", i);
                 Slime.MoveToCell(null);
-                Slime.Sprite.LayerData.LayerDepth += 4;
+                Slime.Sprite.LayerData.LayerDepth += 1;
                 Slimes[i] = Slime;
                 Container.ObjectsToLoad.Add(Slimes[i]);
             }
@@ -79,19 +78,6 @@ namespace Slimey_Arcades
             }
             return MouseCell;
         }
-        //public Slime GetSlimeByType(string Type)
-        //{
-        //    Slime NewSlime = null;
-        //    foreach (Slime Slime in Slimes)
-        //    {
-        //        //if (Slime.Type == Type)
-        //        //{
-        //        //    NewSlime = Slime;
-        //        //    break;
-        //        //}
-        //    }
-        //    return NewSlime;
-        //}
         public void SaveLevel(int Level)
         {
             string SceneFolder = Directory.GetCurrentDirectory() + "\\Levels";
@@ -108,17 +94,6 @@ namespace Slimey_Arcades
                 }
                 foreach (Cell Cell in Cells)
                 {
-                    //if (Cell.Properties.Count > 0)
-                    //{
-                    //    Properties = Cell.Col.ToString() + "," + Cell.Row.ToString() + ",";
-                    //    foreach (string Property in Cell.Properties)
-                    //    {
-                    //        Properties = Properties + Property + ",";
-                    //    }
-                    //    Properties = Properties.Remove(Properties.Length - 1);
-                    //    Writer.WriteLine(Properties);
-                    //    Writer.Flush();
-                    //}
                     if (Cell.Properties.Count > 0)
                     {
                         Data = Cell.Col.ToString() + "," + Cell.Row.ToString() + ",";
@@ -153,34 +128,17 @@ namespace Slimey_Arcades
                         }
                         else if (Data.Count > 2)
                         {
-                            //Data.RemoveRange(0, 2);
-                            //NextCell.Properties.AddRange(Data);
-                            //foreach (string Property in Data)
-                            //{
-                            //    if (Property.Contains("Slime"))
-                            //    {
-                            //        if (Slimes.Count > 0)
-                            //        {
-                            //            Slime OldSlime = GetSlimeByType(Property);
-                            //            if (OldSlime != null) Slimes.Remove(OldSlime);
-                            //        }
-                            //        Slime NewSlime = new Slime(NextCell, Property);
-                            //        Slimes.Add(NewSlime);
-                            //    }
-                            //}
-                            //NextCell.ParseProperties();
                             Data.RemoveRange(0, 2);
                             foreach (string Property in Data)
                             {
                                 int PropertyValue = int.Parse(Property);
-                                NextCell.Properties.Add((CellObjects)PropertyValue);
+                                NextCell.Properties.Add((CELLOBJECTS)PropertyValue);
                             }
-                            if (NextCell.Properties.Count > 0) NextCell.NewParseProperties();
+                            if (NextCell.Properties.Count > 0) NextCell.ParseProperties();
                         }
                         LineCount++;
                     }
                 }
-                //Container.ObjectsToLoad.AddRange(Slimes);
             }
             else throw new Exception("This level doesn't exist!!!");
         }

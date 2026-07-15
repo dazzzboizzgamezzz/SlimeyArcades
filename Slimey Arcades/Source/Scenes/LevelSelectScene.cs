@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Slimey_Arcades.Objects;
-using Slimey_Arcades.Utilities;
+//using Slimey_Arcades.Utilities;
 
 namespace Slimey_Arcades.Scenes
 {
@@ -30,6 +30,10 @@ namespace Slimey_Arcades.Scenes
                     Container.ObjectsToLoad.Add(NewButton);
                 }
             }
+
+            Button TitleButton = new Button(new Transform(600, 600, 125, 50), Shapes.Square, Color.Gray, "Return to Title", true);
+            TitleButton.Function = () => { NextScene = new TitleScene(); };
+            Container.ObjectsToLoad.Add(TitleButton);
         }
         private void SetLevel(int Level)
         {

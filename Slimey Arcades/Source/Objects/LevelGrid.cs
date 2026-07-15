@@ -1,20 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Slimey_Arcades.Managers;
 using Slimey_Arcades.Scenes;
-using Slimey_Arcades.Utilities;
-using Slimey_Arcades.Windows;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Slimey_Arcades.Objects
+namespace Slimey_Arcades
 {
     public class LevelGrid : Grid
     {
-        public bool Paused { get; set; } = false;
+        //public bool Paused { get; set; } = false;
         private List<Keys> PressedKeys { get; set; } = new();
         private List<Slime> ActiveSlimes { get; set; } = new();
         private Slime Player { get; set; }
@@ -23,22 +19,6 @@ namespace Slimey_Arcades.Objects
         public LevelGrid(int X, int Y, int Level) : base(X, Y, 11, 11, Color.DarkMagenta, 2)
         {
             LoadLevel(Level);
-
-            //Get the green slime and set it as the player
-            //for(int i = 0; i < Slimes.Count; i++)
-            //{
-            //Slime Slime = Slimes[i];
-            //if (Slime.Properties.Contains("GSlime"))
-            //{
-            //    Player = Slime;
-            //    ActiveSlimes.Add(Slime);
-            //    Slimes.Remove(Slime);
-            //    Slime.TargetCell = Cells[Slime.Col, Slime.Row];
-            //    Cells[Slime.Col, Slime.Row].Properties.Remove(Slime.Properties[0]);
-            //    Fusion(Slime);
-            //    break; 
-            //}
-            //}
 
             Player = Slimes[0];
             ActiveSlimes.Add(Player);
@@ -86,13 +66,6 @@ namespace Slimey_Arcades.Objects
                 if (Timer == 0) WallOutline.Transform.Pos = new Vector2(-100, -100);
             }
         }
-        /// <summary>
-        /// Move the TargetCell object component of each ActiveSlime in the desired direction,
-        /// If there's a wall there, move each slime backwards one tile
-        /// If there's ice there, recurse movement up to this point
-        /// Set all ActiveSlime positions to their respective TargetCell positions, which includes fusion and stretching the slimes
-        /// </summary>
-        /// <param name="Direction"></param>
         private void Move(string Direction)
         {
             List<Cell> TargetCells = new();
@@ -110,22 +83,16 @@ namespace Slimey_Arcades.Objects
                 for(int i = 0; i < ActiveSlimes.Count; i++)
                 {
                     Slime Slime = ActiveSlimes[i];
-                    if (Slime.TargetCell.Properties.Contains(CellObjects.ICE))
+                    if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.ICE))
                     {
                         Fusion(Slime.TargetCell);
                         Move(Direction);
                     }
-                    //if (Slime.TargetCell.Properties.Contains("Ice"))
-                    //{
-                    //    Fusion(Slime.TargetCell);
-                    //    Move(Direction);
-                    //}
                 }
                 bool HitPit = true;
                 foreach (Cell Cell in TargetCells)
                 {
-                    //if (Cell.Properties.Contains("Pit")) continue;
-                    if (Cell.Properties.Contains(CellObjects.PIT)) continue;
+                    if (Cell.Properties.Contains(CELLOBJECTS.PIT)) continue;
                     HitPit = false;
                     break;
                 }
@@ -202,8 +169,7 @@ namespace Slimey_Arcades.Objects
         {
             foreach (Cell Cell in TargetCells)
             {
-                //if (Cell.Properties.Contains("Wall") )
-                if (Cell.Properties.Contains(CellObjects.WALL))
+                if (Cell.Properties.Contains(CELLOBJECTS.WALL))
                 {
                     string NewDirection = "";
                     switch (Direction)
@@ -224,68 +190,46 @@ namespace Slimey_Arcades.Objects
         }
         private void Fusion(Cell StartingCell)
         {
-            //if (Slimes.Count > 0)
+            List<Cell> Neighbors = new()
+            {
+                GetTargetCell(StartingCell, "Up"),
+                GetTargetCell(StartingCell, "Down"),
+                GetTargetCell(StartingCell, "Left"),
+                GetTargetCell(StartingCell, "Right"),
+            };
+            //for (int i = 0; i < Slimes.Count; i++)
             //{
-                List<Cell> Neighbors = new()
+            //Slime Slime = Slimes[i];
+            //string SlimeType = Slime.Properties[0];
+            //foreach (Cell Neighbor in Neighbors)
+            //{
+            //    if (Neighbor != null && Neighbor.Properties.Contains(SlimeType))
+            //    {
+            //        ActiveSlimes.Add(Slime);
+            //        Slimes.Remove(Slime);
+            //        i--;
+            //        Neighbor.Properties.Remove(SlimeType);
+            //        Slime.TargetCell = Neighbor;
+            //        break;
+            //    }
+            //}
+            //}
+            foreach (Slime Slime in Slimes)
+            {
+                if (!ActiveSlimes.Contains(Slime) && Slime.ColRowVec != new Vector2(-1, -1))
                 {
-                    GetTargetCell(StartingCell, "Up"),
-                    GetTargetCell(StartingCell, "Down"),
-                    GetTargetCell(StartingCell, "Left"),
-                    GetTargetCell(StartingCell, "Right"),
-                };
-                //for (int i = 0; i < Slimes.Count; i++)
-                //{
-                    //Slime Slime = Slimes[i];
-                    //string SlimeType = Slime.Properties[0];
-                    //foreach (Cell Neighbor in Neighbors)
-                    //{
-                    //    if (Neighbor != null && Neighbor.Properties.Contains(SlimeType))
-                    //    {
-                    //        ActiveSlimes.Add(Slime);
-                    //        Slimes.Remove(Slime);
-                    //        i--;
-                    //        Neighbor.Properties.Remove(SlimeType);
-                    //        Slime.TargetCell = Neighbor;
-                    //        break;
-                    //    }
-                    //}
-                //}
-                foreach (Slime Slime in Slimes)
-                {
-                    if (!ActiveSlimes.Contains(Slime) && Slime.ColRowVec != new Vector2(-1, -1))
+                    foreach(Cell Neighbor in Neighbors)
                     {
-                        foreach(Cell Neighbor in Neighbors)
+                        if (Slime.ColRowVec == Neighbor.ColRowVec)
                         {
-                            if (Slime.ColRowVec == Neighbor.ColRowVec)
-                            {
-                                ActiveSlimes.Add(Slime);
-                            }
+                            ActiveSlimes.Add(Slime);
                         }
                     }
                 }
-            //}
+            }
         }
         private void CheckWin()
         {
-            //if (Slimes.Count == 0)
-            //{
-            //    bool Winning = true;
-            //    foreach (Slime Slime in ActiveSlimes)
-            //    {
-            //        Cell SlimeCell = Cells[Slime.Col, Slime.Row];
-            //        //string GoalType = Slime.Type.Substring(0, 1) + "Goal";
-            //        //if (SlimeCell.Properties.Contains(GoalType)) continue;
-            //        Winning = false;
-            //        break;
-            //    }
-            //    if (Winning) LevelScene.PauseState = "Winning";
-            //}
-            //if (Winning)
-            //{
-            //    PauseWindow WinWindow = new PauseWindow(new Vector2(400, 300));
-            //    WinWindow.UpdateState("Win");
-            //    Container.ObjectsToLoad.Add(WinWindow);
-            //}
             bool Winning = false;
             foreach (Slime Slime in Slimes)
             {
@@ -296,17 +240,17 @@ namespace Slimey_Arcades.Objects
                     Cell SlimeCell = GetCell(Slime.Col, Slime.Row);
                     if (SlimeCell.Properties.Count == 0) { Winning = false; break; }
 
-                    CellObjects SlimeType = (CellObjects)(-1);
+                    CELLOBJECTS SlimeType = (CELLOBJECTS)(-1);
                     switch (Slime.Type)
                     {
-                        case 0: SlimeType = CellObjects.GGOAL; break;
-                        case 1: SlimeType = CellObjects.RGOAL; break;
-                        case 2: SlimeType = CellObjects.BGOAL; break;
-                        case 3: SlimeType = CellObjects.YGOAL; break;
-                        case 4: SlimeType = CellObjects.PGOAL; break;
+                        case 0: SlimeType = CELLOBJECTS.GGOAL; break;
+                        case 1: SlimeType = CELLOBJECTS.RGOAL; break;
+                        case 2: SlimeType = CELLOBJECTS.BGOAL; break;
+                        case 3: SlimeType = CELLOBJECTS.YGOAL; break;
+                        case 4: SlimeType = CELLOBJECTS.PGOAL; break;
                     }
 
-                    foreach(CellObjects Property in SlimeCell.Properties)
+                    foreach(CELLOBJECTS Property in SlimeCell.Properties)
                     {
                         if (Property == SlimeType) Winning = true;
                         else Winning = false;
@@ -340,11 +284,11 @@ namespace Slimey_Arcades.Objects
                     {
                         int RelX = Slime.Col - Player.Col;
                         int RelY = -(Slime.Row - Player.Row);
-                        Slime.Distance = Math.Abs(RelX) + Math.Abs(RelY);
+                        Slime.DistanceToCenter = Math.Abs(RelX) + Math.Abs(RelY);
                         SlimesToSort.Add(Slime);
                     }
                 }
-                Stack<Slime> SlimesToRotate = new(SlimesToSort.OrderBy(o => o.Distance));
+                Stack<Slime> SlimesToRotate = new(SlimesToSort.OrderBy(o => o.DistanceToCenter));
                 while (SlimesToRotate.Count > 0)
                 {
                     Slime Slime = SlimesToRotate.Pop();
@@ -459,8 +403,7 @@ namespace Slimey_Arcades.Objects
             while (CurrentPosition != TargetPosition)
             {
                 Slime.TargetCell = GetTargetCell(Slime.TargetCell, MoveDirection);
-                //if (Slime.TargetCell.Properties.Contains("Wall"))
-                if (Slime.TargetCell.Properties.Contains(CellObjects.WALL))
+                if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.WALL))
                 {
                     StopRotating(Slime.TargetCell);
                     HitWall = true;
@@ -481,7 +424,7 @@ namespace Slimey_Arcades.Objects
                 //}
                 foreach (Slime OtherSlime in Slimes)
                 {
-                    if (OtherSlime != Slime && OtherSlime.ColRowVec == Slime.TargetCell.ColRowVec)
+                    if (!ActiveSlimes.Contains(OtherSlime) && OtherSlime.ColRowVec == Slime.TargetCell.ColRowVec)
                     {
                         RotationFusionSlimes.Enqueue(OtherSlime);
                     }
