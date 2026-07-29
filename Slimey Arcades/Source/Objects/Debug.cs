@@ -1,15 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
+//using Microsoft.Xna.Framework.Content;
+//using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Slimey_Arcades.Managers;
 //using Slimey_Arcades.Utilities;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
+//using System.Collections;
+//using System.Collections.Generic;
+//using System.Reflection;
 
-namespace Slimey_Arcades.Objects
+//namespace Slimey_Arcades.Objects
+namespace Slimey_Arcades
 {
     public class DebugMenu : Grid 
     {

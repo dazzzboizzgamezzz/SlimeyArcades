@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Slimey_Arcades.Objects;
+//using Slimey_Arcades.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,12 +8,13 @@ using System.Linq;
 
 namespace Slimey_Arcades
 {
-    public class Grid : IDraw, IContainer, IUpdate
+    public class Grid : IDraw, IContainer, IUpdate, INotifier
     {
         public Cell[,] Cells { get; set; }
         public Transform Transform { get; set; }
         public Sprite Sprite { get; set; }
         public Container Container { get; init; } = new();
+        public Notifier Notifier { get; init; } = new();
         protected int Rows { get; init; }
         protected int Cols { get; init; }
         protected int CellSize { get; init; }
@@ -30,6 +31,7 @@ namespace Slimey_Arcades
             Transform = new Transform(X - BorderWidth, Y - BorderWidth, Width + BorderWidth * 2, Height + BorderWidth * 2);
             Sprite = new Sprite(Shapes.Square, BGColor);
             Sprite.LayerData.LayerIndex = 9;
+            Notifier.ProcessNotifications = ProcessNotifications;
 
             Cells = new Cell[Cols, Rows];
             for (int i = 0; i < Cols; i++)
@@ -56,6 +58,7 @@ namespace Slimey_Arcades
             }
         }
         public virtual void Update() { }
+        protected virtual void ProcessNotifications(Notification Notification) { }
         public virtual Cell GetCell(int Col, int Row)
         {
             Cell TargetCell = null;
@@ -140,7 +143,24 @@ namespace Slimey_Arcades
                     }
                 }
             }
-            else throw new Exception("This level doesn't exist!!!");
+            else
+            {
+                LoadDefaultLevel();
+                LoadLevel(-1);
+            }
+        }
+        private void LoadDefaultLevel()
+        {
+            Grid DefaultGrid = new Grid(0, 0, 11, 11, Color.Black);
+            for (int i = 0; i < 11; i++)
+            {
+                DefaultGrid.Cells[i, 0].Properties.Add(CELLOBJECTS.WALL);
+                DefaultGrid.Cells[0, i].Properties.Add(CELLOBJECTS.WALL);
+                DefaultGrid.Cells[10, i].Properties.Add(CELLOBJECTS.WALL);
+                DefaultGrid.Cells[i, 10].Properties.Add(CELLOBJECTS.WALL);
+            }
+            DefaultGrid.Slimes[0].MoveToCell(Cells[5, 5]);
+            DefaultGrid.SaveLevel(-1);
         }
     }
 }

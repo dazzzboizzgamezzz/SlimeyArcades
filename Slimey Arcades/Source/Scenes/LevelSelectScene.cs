@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Slimey_Arcades.Objects;
-//using Slimey_Arcades.Utilities;
+//using Slimey_Arcades.Objects;
 
 namespace Slimey_Arcades.Scenes
 {

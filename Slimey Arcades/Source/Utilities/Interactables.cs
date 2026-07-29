@@ -1,9 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
-//using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-//using Slimey_Arcades.Objects;
-//using System.Diagnostics.Contracts;
 
 namespace Slimey_Arcades
 {
@@ -65,7 +62,6 @@ namespace Slimey_Arcades
         {
             Transform = NewTransform;
         }
-        //private Vector2 MPos;
         public void Drag(IDraw Object) 
         {
             Vector2 MPos = Mouse.GetState().Position.ToVector2();
@@ -119,12 +115,12 @@ namespace Slimey_Arcades
             }
         }
     }
-    public class Keyer
-    {
-        private List<Keys> PressedKeys { get; set; } = new();
-        public Keyer()
-        {
+    //public class Keyer
+    //{
+    //    private List<Keys> PressedKeys { get; set; } = new();
+    //    public Keyer()
+    //    {
 
-        }
-    }
+    //    }
+    //}
 }

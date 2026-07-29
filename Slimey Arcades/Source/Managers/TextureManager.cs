@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Slimey_Arcades.Objects;
+//using Slimey_Arcades.Objects;
 
 namespace Slimey_Arcades.Managers
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Slimey_Arcades.Managers;
-using Slimey_Arcades.Scenes;
+//using Slimey_Arcades.Scenes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +10,13 @@ namespace Slimey_Arcades
 {
     public class LevelGrid : Grid
     {
-        //public bool Paused { get; set; } = false;
         private List<Keys> PressedKeys { get; set; } = new();
         private List<Slime> ActiveSlimes { get; set; } = new();
         private Slime Player { get; set; }
         private Polygon WallOutline { get; set; }
         private int Timer { get; set; } = 0;
+        private bool Paused { get; set; } = false;
+        private Queue<Slime> RotationFusionSlimes { get; set; } = new();
         public LevelGrid(int X, int Y, int Level) : base(X, Y, 11, 11, Color.DarkMagenta, 2)
         {
             LoadLevel(Level);
@@ -31,7 +32,8 @@ namespace Slimey_Arcades
         }
         public override void Update()
         {
-            if (LevelScene.PauseState == "")
+            //if (LevelScene.PauseState == "")
+            if (!Paused)
             {
                 List<Keys> CurrentKeys = Keyboard.GetState().GetPressedKeys().ToList();
                 foreach (Keys Key in CurrentKeys) 
@@ -64,6 +66,15 @@ namespace Slimey_Arcades
             {
                 Timer--;
                 if (Timer == 0) WallOutline.Transform.Pos = new Vector2(-100, -100);
+            }
+        }
+        protected override void ProcessNotifications(Notification Notification)
+        {
+            switch (Notification.Type)
+            {
+                case NOTTYPES.PAUSED:
+                    Paused = Paused ? false : true;
+                    break;
             }
         }
         private void Move(string Direction)
@@ -103,6 +114,8 @@ namespace Slimey_Arcades
                         Slime.TargetCell = null;
                         Slime.MoveToCell(Slime.TargetCell);
                     }
+                    Notification Notification = new Notification(NOTTYPES.LOSE);
+                    Notifier.SendNotification(Notification);
                 }
             }
             MoveSlimesToTargets();
@@ -259,20 +272,14 @@ namespace Slimey_Arcades
                     if (!Winning) break;
                 }
             }
-            if (Winning) LevelScene.PauseState = "Winning";
+            //if (Winning) LevelScene.PauseState = "Winning";
+            if (Winning)
+            {
+                Notification Notification = new Notification(NOTTYPES.WIN);
+                Notifier.SendNotification(Notification);
+            }
         }
-        /// <summary>
-        /// 1. Sort each slime by their distance from the player (old code, can be depricated)
-        /// 2. For each slime other than the player, establish their 'quadrant', determined by placing an 'X' over the player and seeing which section the slime is in
-        /// 3. Set the target rotational target as (x, y) => (y, -x) for clockwise and (x, y) => (-y, x) for counterclockwise
-        /// 4. Set the slime TargetCell one cell closer to the rotational target, moving away from the player (i.e. upper quadrant clockwise moves left then down)
-        /// 5. Repeatedly move the TargetCell until you reach the rotational target
-        /// 6. If the moving slime collides with an inactive slime, the inactive slime is added to the active slimes, and it's position is placed next to the slimes starting position
-        ///     After the slime is done rotating, the added slime also rotates. This allows the player to collide with a slime then a wall and have the slime attach properly
-        /// 7. If the slime collides with a wall, reset the TargetCell of every slime to their respective positions and stop rotating
-        /// 8. Move all of the slimes to their TargetCells, which includes fusion and stretching
-        /// </summary>
-        /// <param name="Direction"></param>
+        //private Queue<Slime> RotationFusionSlimes = new();
         private void Rotate(string Direction)
         {
             if (ActiveSlimes.Count > 1)
@@ -368,7 +375,6 @@ namespace Slimey_Arcades
                 MoveSlimesToTargets();
             }
         }
-        private Queue<Slime> RotationFusionSlimes = new();
         private bool MoveForRotating(Slime Slime, Cell TargetCell, string MoveDirection)
         {
             bool HitWall = false;

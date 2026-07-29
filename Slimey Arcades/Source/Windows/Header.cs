@@ -1,9 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections;
-//using Slimey_Arcades.Objects;
-//using Slimey_Arcades.Utilities;
 
-namespace Slimey_Arcades.Windows
+//namespace Slimey_Arcades.Windows
+namespace Slimey_Arcades
 {
     public class Header : IContainer, IDraw, IUpdate
     {
@@ -25,7 +24,6 @@ namespace Slimey_Arcades.Windows
             MinButton.Function = () => { if (Minimized) Minimized = false; else Minimized = true; };
             CloseButton = new Button(Transform.X + Transform.Width - 15, Transform.Y + 5, 15, 15, Shapes.Circle, Color.Red, "");
             CloseButton.Function = () => { Closed = true; };
-            //SubObjects.Add(MinButton);
             SubObjects.Add(CloseButton);
         }
         public virtual void Update()

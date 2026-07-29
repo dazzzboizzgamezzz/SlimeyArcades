@@ -1,74 +1,41 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-//using System;
-//using System.Collections;
-//using System.Collections.Generic;
-//using Slimey_Arcades.Utilities;
 
 namespace Slimey_Arcades
 {
-    //public abstract class Scene : IDraw, IContainer
-    public abstract class Scene : IContainer
+    public abstract class Scene : IContainer, INotifier
     {
-        //public Transform Transform { get; set; }
-        //public Sprite Sprite { get; set; }
+        public Notifier Notifier { get; init; } = new Notifier();
         public Container Container { get; init; } = new();
         public virtual Scene NextScene { get; set; } = null;
         public Scene(Color BGColor)
         {
-            //Transform = new Transform(0, 0, (int)SETTINGS.SCREENWIDTH, (int)SETTINGS.SCREENHEIGHT);
-            //Sprite = new Sprite(Shapes.Square, BGColor);
-            //Sprite.LayerData.LayerIndex = 9;
             Transform BGTransform = new Transform(0, 0, (int)SETTINGS.SCREENWIDTH, (int)SETTINGS.SCREENHEIGHT);
             Polygon BackGround = new Polygon(BGTransform, BGColor);
             BackGround.Sprite.LayerData.LayerIndex = 9;
             Container.ObjectsToLoad.Add(BackGround);
-            //Container.ObjectsToLoad.Add(this);
+            Notifier.ProcessNotifications = ProcessNotifications;
         }
-        //public void AssignAllLayers(IContainer StartingContainer)
-        //{
-        //    List<IContainer> AllContainers = new();
-        //    AllContainers.Add(StartingContainer);
-        //    int IncreaseLayer = 0;
-        //    int CurrentDepth = StartingContainer.Container.ContainerDepth + 1;
-
-        //    for (int i = 0; i < AllContainers.Count; i++)
-        //    {
-        //        IContainer NewContainer = AllContainers[i];
-        //        if (NewContainer != this) Container.ObjectsToLoad.AddRange(NewContainer.Container.ObjectsToLoad);
-        //        NewContainer.Container.LoadObjects();
-        //        foreach (IDraw ObjDraw in NewContainer.Container.Draws)
-        //        {
-        //            ObjDraw.LayerDepth += CurrentDepth;
-        //        }
-        //        foreach (Text ObjText in NewContainer.Container.Texts)
-        //        {
-        //            ObjText.LayerData.LayerDepth += CurrentDepth;
-        //        }
-        //        foreach (IContainer SubContainer in NewContainer.Container.Containers)
-        //        {
-        //            AllContainers.Add(SubContainer);
-        //            SubContainer.Container.ContainerDepth = CurrentDepth;
-        //        }
-        //        if (i == IncreaseLayer)
-        //        {
-        //            IncreaseLayer += AllContainers.Count - 1;
-        //            CurrentDepth++;
-        //        }
-        //    }
-        //    Container.LoadObjects();
-        //}
         public void Draw(SpriteBatch SpriteBatch)
         {
             Container.Draw(SpriteBatch);
         }
         public void Update()
         {
+            Notifier.Broadcast(this);
             Container.Update();
-            Container.LoadObjects();
+            Container.LoadObjects(this);
             Container.DestroyObjects();
         }
         public abstract void Load();
-        //public virtual void PostLoad() { }
+        public virtual void ProcessNotifications(Notification Notification)
+        {
+            switch (Notification.Type)
+            {
+                case NOTTYPES.CHANGELEVEL:
+                    NextScene = (Scene)Notification.Data;
+                    break;
+            }
+        }
     }
 }

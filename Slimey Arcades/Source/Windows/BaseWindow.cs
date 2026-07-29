@@ -1,10 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections;
-//using Slimey_Arcades.Utilities;
-//using Slimey_Arcades.Objects;
 using Slimey_Arcades.Managers;
 
-namespace Slimey_Arcades.Windows
+//namespace Slimey_Arcades.Windows
+namespace Slimey_Arcades
 {
     public class Window : IContainer, IDraw, IUpdate
     {
@@ -22,8 +21,6 @@ namespace Slimey_Arcades.Windows
             Transform = NewTransform;
             Sprite = new Sprite(Shapes.Square, BGColor);
             Color = BGColor;
-            //Header = new Header(Transform);
-            //SubObjects.Add(Header);
         }
         public virtual void Update()
         {
