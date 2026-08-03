@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-//using Slimey_Arcades.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -50,7 +49,8 @@ namespace Slimey_Arcades
 
             for (int i = 0; i < 5; i++)
             {
-                Slime Slime = new Slime(Cells[0, 0], "", i);
+                //Slime Slime = new Slime(Cells[0, 0], "", i);
+                Slime Slime = new Slime(Cells[0, 0], i);
                 Slime.MoveToCell(null);
                 Slime.Sprite.LayerData.LayerDepth += 1;
                 Slimes[i] = Slime;

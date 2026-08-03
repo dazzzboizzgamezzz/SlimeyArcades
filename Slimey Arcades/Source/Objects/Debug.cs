@@ -1,15 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-//using Microsoft.Xna.Framework.Content;
-//using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Slimey_Arcades.Managers;
-//using Slimey_Arcades.Utilities;
 using System;
-//using System.Collections;
-//using System.Collections.Generic;
-//using System.Reflection;
 
-//namespace Slimey_Arcades.Objects
 namespace Slimey_Arcades
 {
     public class DebugMenu : Grid 
@@ -24,10 +17,15 @@ namespace Slimey_Arcades
         private Button SlimeButton { get; set; }
         private Button GoalButton { get; set; }
         private Button CutterButton { get; set; }
+        private Button SwitchButton {  get; set; }
+        private Button TintButton { get; set; }
         private Clicker SlimeClicker { get; set; }
         private Clicker GoalClicker { get; set; }
         private Clicker CutterClicker { get; set; }
+        private Clicker SwitchClicker { get; set; }
+        private Clicker TintClicker { get; set; }
         private Polygon CutterImage { get; set; }
+        private Polygon SwitchImage { get; set; }
         public DebugMenu(int X, int Y) : base(X, Y, 1, 10, Color.DarkMagenta)
         {
             Outline = new Polygon(new Transform(X - 5, Y - 5, 60, 60), Color.Gold);
@@ -38,6 +36,7 @@ namespace Slimey_Arcades
             {
                 Cells[0, i].Sprite.Color = ColorManager.None;
                 Button NewButton = new Button(Cells[0, i].Transform, BGColor: Color.Gray);
+                NewButton.Sprite.LayerData.LayerIndex = 9;
                 int ButtonValue = -1;
                 int SelectedSlime = -1;
                 Color PointerColor = ColorManager.None;
@@ -45,16 +44,19 @@ namespace Slimey_Arcades
                 switch (i)
                 {
                     case 0: 
-                        ButtonColor = ColorManager.Colors["GSlime"];
+                        //ButtonColor = ColorManager.Colors["GSlime"];
+                        ButtonColor = ColorHelp.GreenSlime;
                         SelectedSlime = CurrentSlime;
                         SlimeButton = NewButton;
                         SlimeClicker = new Clicker(Cells[0, i].Transform);
                         break;
                     case 1:
                         NewButton.Text = "Goal";
-                        NewButton.TextColor = ColorManager.Colors["GSlime"];
+                        //NewButton.TextColor = ColorManager.Colors["GSlime"];
+                        NewButton.TextColor = ColorHelp.GreenSlime;
                         ButtonValue = (int)CELLOBJECTS.GGOAL;
-                        PointerColor = ColorManager.Colors["GSlime"];
+                        //PointerColor = ColorManager.Colors["GSlime"];
+                        PointerColor = ColorHelp.GreenSlime;
                         GoalButton = NewButton;
                         GoalClicker = new Clicker(Cells[0, i].Transform);
                         break;
@@ -62,12 +64,14 @@ namespace Slimey_Arcades
                         ButtonColor = Color.Black;
                         ButtonValue = (int)CELLOBJECTS.WALL;
                         break;
-                    case 3: 
-                        ButtonColor = ColorManager.Colors["Ice"];
+                    case 3:
+                        //ButtonColor = ColorManager.Colors["Ice"];
+                        ButtonColor = ColorHelp.Ice;
                         ButtonValue = (int)CELLOBJECTS.ICE;
                         break;
                     case 4:
-                        ButtonColor = ColorManager.Colors["Pit"];
+                        //ButtonColor = ColorManager.Colors["Pit"];
+                        PointerColor = Color.Black;
                         NewButton.Sprite.Texture = Shapes.BackedCircle;
                         ButtonValue = (int)CELLOBJECTS.PIT;
                         break;
@@ -83,13 +87,27 @@ namespace Slimey_Arcades
                         break;
                     case 6:
                         //ButtonName = "Barrel";
-                        ButtonColor = ColorManager.Colors["Barrel"];
+                        //ButtonColor = ColorManager.Colors["Barrel"];
+                        Polygon Barrel = new Polygon(new Transform(NewButton.Transform.X + 5, NewButton.Transform.Y + 5, 40, 40), ColorHelp.Barrel);
+                        Cells[0, i].Container.ObjectsToLoad.Add(Barrel);
+                        PointerColor = ColorHelp.Barrel;
+                        ButtonValue = (int)CELLOBJECTS.BARREL;
                         break;
-                    case 7: 
+                    case 7:
                         //ButtonName = "Switch";
+                        PointerColor = ColorHelp.RedSwitch;
+                        ButtonValue = (int)CELLOBJECTS.RSWITCH;
+                        SwitchClicker = new Clicker(NewButton.Transform);
+                        SwitchButton = NewButton;
+                        SwitchImage = new Polygon(new Transform((int)NewButton.Transform.Center.X - 10, (int)NewButton.Transform.Center.Y - 10, 20, 20), ColorHelp.RedSwitch, "Circle");
+                        Container.ObjectsToLoad.Add(SwitchImage);
                         break;
-                    case 8: 
+                    case 8:
                         //ButtonName = "RedBlue";
+                        ButtonColor = ColorHelp.RedSwitch;
+                        ButtonValue = (int)CELLOBJECTS.RTINT;
+                        TintClicker = new Clicker(NewButton.Transform);
+                        TintButton = NewButton;
                         break;
                 }
                 NewButton.Function = () => 
@@ -187,6 +205,35 @@ namespace Slimey_Arcades
                     SelectedColor = Color.Black;
                 };
                 CutterButton.Function();
+            }
+            if (SwitchClicker.Click("Right"))
+            {
+                SwitchButton.Function();
+                Color NewColor = SelectedColor == ColorHelp.RedSwitch ? ColorHelp.BlueSwitch : ColorHelp.RedSwitch;
+                int NewValue = NewColor == ColorHelp.RedSwitch ? (int)CELLOBJECTS.RSWITCH : (int)CELLOBJECTS.BSWITCH;
+                SwitchImage.Sprite.Color = NewColor;
+                SwitchButton.Function = () =>
+                {
+                    Outline.Transform.Pos = SwitchButton.Transform.Pos - new Vector2(5, 5);
+                    SelectedButton = NewValue;
+                    SelectedSlime = -1;
+                    SelectedColor = NewColor;
+                };
+                SwitchButton.Function();
+            }
+            if (TintClicker.Click("Right"))
+            {
+                Color NewColor = TintButton.Sprite.Color == ColorHelp.RedSwitch ? ColorHelp.BlueSwitch : ColorHelp.RedSwitch;
+                int NewValue = NewColor == ColorHelp.RedSwitch ? (int)CELLOBJECTS.RTINT : (int)CELLOBJECTS.BTINT;
+                TintButton.Sprite.Color = NewColor;
+                TintButton.Function = () =>
+                {
+                    Outline.Transform.Pos = TintButton.Transform.Pos - new Vector2(5, 5);
+                    SelectedButton = NewValue;
+                    SelectedSlime = -1;
+                    SelectedColor = NewColor;
+                };
+                TintButton.Function();
             }
         }
     }

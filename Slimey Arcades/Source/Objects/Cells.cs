@@ -11,6 +11,7 @@ namespace Slimey_Arcades
         public Vector2 ColRowVec { get => new Vector2(Col, Row); set { Col = (int)value.X; Row = (int) value.Y; } }
         public HashSet<CELLOBJECTS> Properties { get; set; } = new();
         public Container Container { get; init; } = new();
+        public Slime Barrel { get; set; } = null;
         public Cell(Transform NewTransform, Color BGColor, int NewCol = 0, int NewRow = 0) : base(NewTransform, BGColor, "Square")
         {
             Row = NewRow;
@@ -50,17 +51,26 @@ namespace Slimey_Arcades
                         NewObject.Sprite.Texture = Shapes.XCross;
                         NewObject.Transform = new Transform(Transform.X, Transform.Y + Transform.Height - 7, Transform.Width, 16);
                         break;
-                    case CELLOBJECTS.SWITCH:
+                    //case CELLOBJECTS.SWITCH:
+                    case CELLOBJECTS.RSWITCH:
                         NewObject.Sprite.Texture = Shapes.Circle;
-                        NewObject.Sprite.Color = Color.Red;
+                        //NewObject.Sprite.Color = Color.Red;
+                        NewObject.Sprite.Color = ColorHelp.RedSwitch;
+                        NewObject.Transform = new Transform((int)Transform.Center.X - 10, (int)Transform.Center.Y - 10, 20, 20);
+                        break;
+                    case CELLOBJECTS.BSWITCH:
+                        NewObject.Sprite.Texture = Shapes.Circle;
+                        NewObject.Sprite.Color = ColorHelp.BlueSwitch;
                         NewObject.Transform = new Transform((int)Transform.Center.X - 10, (int)Transform.Center.Y - 10, 20, 20);
                         break;
                     case CELLOBJECTS.RTINT:
-                        NewObject.Sprite.Color = new Color(255, 0, 0, 0.5f);
+                        //NewObject.Sprite.Color = new Color(255, 0, 0, 0.5f);
+                        NewObject.Sprite.Color = new Color(255, 0, 0, 0.3f);
                         NewObject.Sprite.LayerData.LayerIndex = 8;
                         break;
                     case CELLOBJECTS.BTINT:
-                        NewObject.Sprite.Color = new Color(0, 0, 255, 0.5f);
+                        //NewObject.Sprite.Color = new Color(0, 0, 255, 0.5f);
+                        NewObject.Sprite.Color = new Color(0, 0, 255, 0.3f);
                         NewObject.Sprite.LayerData.LayerIndex = 8;
                         break;
                     case CELLOBJECTS.GGOAL:
@@ -82,6 +92,13 @@ namespace Slimey_Arcades
                     case CELLOBJECTS.PGOAL:
                         SetGoal("PGoal");
                         NewObject = null;
+                        break;
+                    case CELLOBJECTS.BARREL:
+                        NewObject = null;
+                        Slime NewBarrel = new Slime(this, 5);
+                        NewBarrel.CanStick = false;
+                        Barrel = NewBarrel;
+                        Container.ObjectsToLoad.Add(Barrel);
                         break;
                 }
                 if (NewObject != null) Container.ObjectsToLoad.Add(NewObject);
@@ -113,16 +130,25 @@ namespace Slimey_Arcades
         public Cell TargetCell { get; set; }
         public int DistanceToCenter { get; set; }
         public int Type { get; init; }
-        public Slime(Cell Cell, string NewType, int NewSlimeType) : base(new Transform(Cell.Transform.X + 5, Cell.Transform.Y + 5, Cell.Transform.Width - 10, Cell.Transform.Height - 10), Cell.Sprite.Color, Cell.Col, Cell.Row)
+        public bool CanStick { get; set; } = true;
+        //public Slime(Cell Cell, string NewType, int NewSlimeType) : base(new Transform(Cell.Transform.X + 5, Cell.Transform.Y + 5, Cell.Transform.Width - 10, Cell.Transform.Height - 10), Cell.Sprite.Color, Cell.Col, Cell.Row)
+        public Slime(Cell Cell, int NewSlimeType) : base(new Transform(Cell.Transform.X + 5, Cell.Transform.Y + 5, Cell.Transform.Width - 10, Cell.Transform.Height - 10), Cell.Sprite.Color, Cell.Col, Cell.Row)
         {
             Type = NewSlimeType;
+            TargetCell = Cell;
             switch (Type)
             {
-                case 0: Sprite.Color = ColorManager.Colors["GSlime"]; break;
-                case 1: Sprite.Color = ColorManager.Colors["RSlime"]; break;
-                case 2: Sprite.Color = ColorManager.Colors["BSlime"]; break;
-                case 3: Sprite.Color = ColorManager.Colors["YSlime"]; break;
-                case 4: Sprite.Color = ColorManager.Colors["PSlime"]; break;
+                //case 0: Sprite.Color = ColorManager.Colors["GSlime"]; break;
+                //case 1: Sprite.Color = ColorManager.Colors["RSlime"]; break;
+                //case 2: Sprite.Color = ColorManager.Colors["BSlime"]; break;
+                //case 3: Sprite.Color = ColorManager.Colors["YSlime"]; break;
+                //case 4: Sprite.Color = ColorManager.Colors["PSlime"]; break;
+                case 0: Sprite.Color = ColorHelp.GreenSlime; break;
+                case 1: Sprite.Color = ColorHelp.RedSlime; break;
+                case 2: Sprite.Color = ColorHelp.BlueSlime; break;
+                case 3: Sprite.Color = ColorHelp.YellowSlime; break;
+                case 4: Sprite.Color = ColorHelp.PinkSlime; break;
+                case 5: Sprite.Color = ColorHelp.Barrel; break;
             }
         }
         public void MoveToCell(Cell Cell)
@@ -151,7 +177,10 @@ namespace Slimey_Arcades
         LCUTTER,
         UCUTTER,
         DCUTTER,
-        SWITCH,
+        //SWITCH,
+        RSWITCH,
+        BSWITCH,
+        BARREL,
         RTINT,
         BTINT,
         GGOAL,

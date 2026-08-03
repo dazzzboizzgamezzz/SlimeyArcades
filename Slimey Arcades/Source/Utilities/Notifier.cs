@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
+//using System.Diagnostics.Contracts;
+//using System.Linq;
 
 namespace Slimey_Arcades
 {

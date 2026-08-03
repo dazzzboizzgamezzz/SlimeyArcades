@@ -1,8 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-//using Slimey_Arcades.Objects;
-//using Slimey_Arcades.Windows;
 using Slimey_Arcades.Scenes;
-//using System;
 
 namespace Slimey_Arcades
 {
@@ -12,8 +9,6 @@ namespace Slimey_Arcades
         private PauseWindow PauseWindow { get; set; }
         private Button MenuButton { get; set; }
         private LevelGrid LevelGrid { get; set; } = null;
-        //public static string PauseState { get; set; } = "";
-        //public override Scene NextScene {  get => PauseWindow.NextScene ; set => PauseWindow.NextScene = value; }
         public bool Debug { get; init; } = false;
         public LevelScene(int NewLevel) : base (Color.CornflowerBlue)
         {

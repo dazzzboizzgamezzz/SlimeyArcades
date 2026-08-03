@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Slimey_Arcades.Managers;
-//using Slimey_Arcades.Scenes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,7 +95,7 @@ namespace Slimey_Arcades
                     Slime Slime = ActiveSlimes[i];
                     if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.ICE))
                     {
-                        Fusion(Slime.TargetCell);
+                        Fusion(Slime.TargetCell, Slime.CanStick);
                         Move(Direction);
                     }
                 }
@@ -126,7 +125,7 @@ namespace Slimey_Arcades
             {
                 Slime Slime = ActiveSlimes[i];
                 Slime.MoveToCell(Slime.TargetCell);
-                Fusion(Slime);
+                Fusion(Slime, Slime.CanStick);
             }
             StretchSlimes();
             CheckWin();
@@ -201,7 +200,8 @@ namespace Slimey_Arcades
             }
             return false;
         }
-        private void Fusion(Cell StartingCell)
+        //private void Fusion(Cell StartingCell)
+        private void Fusion(Cell StartingCell, bool IsSlime)
         {
             List<Cell> Neighbors = new()
             {
@@ -210,33 +210,32 @@ namespace Slimey_Arcades
                 GetTargetCell(StartingCell, "Left"),
                 GetTargetCell(StartingCell, "Right"),
             };
-            //for (int i = 0; i < Slimes.Count; i++)
+            //foreach (Slime Slime in Slimes)
             //{
-            //Slime Slime = Slimes[i];
-            //string SlimeType = Slime.Properties[0];
-            //foreach (Cell Neighbor in Neighbors)
-            //{
-            //    if (Neighbor != null && Neighbor.Properties.Contains(SlimeType))
+            //    if (!ActiveSlimes.Contains(Slime) && Slime.ColRowVec != new Vector2(-1, -1))
             //    {
-            //        ActiveSlimes.Add(Slime);
-            //        Slimes.Remove(Slime);
-            //        i--;
-            //        Neighbor.Properties.Remove(SlimeType);
-            //        Slime.TargetCell = Neighbor;
-            //        break;
+            //        foreach(Cell Neighbor in Neighbors)
+            //        {
+            //            if (Slime.ColRowVec == Neighbor.ColRowVec)
+            //            {
+            //                ActiveSlimes.Add(Slime);
+            //            }
+            //        }
             //    }
             //}
-            //}
-            foreach (Slime Slime in Slimes)
+            foreach(Cell Neighbor in Neighbors)
             {
-                if (!ActiveSlimes.Contains(Slime) && Slime.ColRowVec != new Vector2(-1, -1))
+                if (Neighbor.Barrel != null && IsSlime)
                 {
-                    foreach(Cell Neighbor in Neighbors)
+                    ActiveSlimes.Add(Neighbor.Barrel);
+                    Neighbor.Barrel = null;
+                }
+                foreach(Slime Slime in Slimes)
+                {
+                    if (ActiveSlimes.Contains(Slime) || Slime.ColRowVec == new Vector2(-1, -1)) continue;
+                    if (Slime.ColRowVec == Neighbor.ColRowVec)
                     {
-                        if (Slime.ColRowVec == Neighbor.ColRowVec)
-                        {
-                            ActiveSlimes.Add(Slime);
-                        }
+                        ActiveSlimes.Add(Slime);
                     }
                 }
             }
@@ -279,7 +278,6 @@ namespace Slimey_Arcades
                 Notifier.SendNotification(Notification);
             }
         }
-        //private Queue<Slime> RotationFusionSlimes = new();
         private void Rotate(string Direction)
         {
             if (ActiveSlimes.Count > 1)
