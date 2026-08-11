@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Slimey_Arcades.Managers;
 using System;
 
 namespace Slimey_Arcades
@@ -44,7 +43,6 @@ namespace Slimey_Arcades
                 switch (i)
                 {
                     case 0: 
-                        //ButtonColor = ColorManager.Colors["GSlime"];
                         ButtonColor = ColorHelp.GreenSlime;
                         SelectedSlime = CurrentSlime;
                         SlimeButton = NewButton;
@@ -52,10 +50,8 @@ namespace Slimey_Arcades
                         break;
                     case 1:
                         NewButton.Text = "Goal";
-                        //NewButton.TextColor = ColorManager.Colors["GSlime"];
                         NewButton.TextColor = ColorHelp.GreenSlime;
                         ButtonValue = (int)CELLOBJECTS.GGOAL;
-                        //PointerColor = ColorManager.Colors["GSlime"];
                         PointerColor = ColorHelp.GreenSlime;
                         GoalButton = NewButton;
                         GoalClicker = new Clicker(Cells[0, i].Transform);
@@ -65,12 +61,10 @@ namespace Slimey_Arcades
                         ButtonValue = (int)CELLOBJECTS.WALL;
                         break;
                     case 3:
-                        //ButtonColor = ColorManager.Colors["Ice"];
                         ButtonColor = ColorHelp.Ice;
                         ButtonValue = (int)CELLOBJECTS.ICE;
                         break;
                     case 4:
-                        //ButtonColor = ColorManager.Colors["Pit"];
                         PointerColor = Color.Black;
                         NewButton.Sprite.Texture = Shapes.BackedCircle;
                         ButtonValue = (int)CELLOBJECTS.PIT;
@@ -86,15 +80,12 @@ namespace Slimey_Arcades
                         CutterClicker = new Clicker(Cells[0, i].Transform);
                         break;
                     case 6:
-                        //ButtonName = "Barrel";
-                        //ButtonColor = ColorManager.Colors["Barrel"];
                         Polygon Barrel = new Polygon(new Transform(NewButton.Transform.X + 5, NewButton.Transform.Y + 5, 40, 40), ColorHelp.Barrel);
                         Cells[0, i].Container.ObjectsToLoad.Add(Barrel);
                         PointerColor = ColorHelp.Barrel;
                         ButtonValue = (int)CELLOBJECTS.BARREL;
                         break;
                     case 7:
-                        //ButtonName = "Switch";
                         PointerColor = ColorHelp.RedSwitch;
                         ButtonValue = (int)CELLOBJECTS.RSWITCH;
                         SwitchClicker = new Clicker(NewButton.Transform);
@@ -103,7 +94,6 @@ namespace Slimey_Arcades
                         Container.ObjectsToLoad.Add(SwitchImage);
                         break;
                     case 8:
-                        //ButtonName = "RedBlue";
                         ButtonColor = ColorHelp.RedSwitch;
                         ButtonValue = (int)CELLOBJECTS.RTINT;
                         TintClicker = new Clicker(NewButton.Transform);
@@ -244,6 +234,7 @@ namespace Slimey_Arcades
         private DebugMenu DebugMenu { get; }
         private Vector2 MPos { get; set; }
         private int SelectedSlime { get => DebugMenu.SelectedSlime; }
+        private Cell MouseCell { get; set; }
         private CELLOBJECTS SelectedProperty 
         {
             get 
@@ -265,6 +256,7 @@ namespace Slimey_Arcades
         public override void Update()
         {
             MPos = Mouse.GetState().Position.ToVector2();
+            MouseCell = GetMouseCell();
             ShowPointer();
             Paint();
         }
@@ -272,7 +264,7 @@ namespace Slimey_Arcades
         {
             if (Clicker.Hold())
             {
-                Cell MouseCell = GetMouseCell();
+                //Cell MouseCell = GetMouseCell();
                 if (MouseCell != null)
                 {
                     if (SelectedSlime >= 0)
@@ -284,6 +276,7 @@ namespace Slimey_Arcades
                     {
                         if (MouseCell.Properties.Add(SelectedProperty))
                         {
+                            SetCutters();
                             MouseCell.ParseProperties();
                             if (SelectedProperty >= CELLOBJECTS.GGOAL && SelectedProperty <= CELLOBJECTS.PGOAL)
                             {
@@ -304,6 +297,32 @@ namespace Slimey_Arcades
                     }
                 }
             }
+        }
+        private void SetCutters()
+        {
+            Cell Neighbor = null;
+            bool ParseProperties = false;
+            if (SelectedProperty == CELLOBJECTS.UCUTTER)
+            {
+                Neighbor = GetCell(MouseCell.Col, MouseCell.Row - 1);
+                if (Neighbor != null) ParseProperties = Neighbor.Properties.Add(CELLOBJECTS.DCUTTER);
+            }
+            if (SelectedProperty == CELLOBJECTS.DCUTTER)
+            {
+                Neighbor = GetCell(MouseCell.Col, MouseCell.Row + 1);
+                if (Neighbor != null) ParseProperties = Neighbor.Properties.Add(CELLOBJECTS.UCUTTER);
+            }
+            if (SelectedProperty == CELLOBJECTS.RCUTTER)
+            {
+                Neighbor = GetCell(MouseCell.Col + 1, MouseCell.Row);
+                if (Neighbor != null) ParseProperties = Neighbor.Properties.Add(CELLOBJECTS.LCUTTER);
+            }
+            if (SelectedProperty == CELLOBJECTS.LCUTTER)
+            {
+                Neighbor = GetCell(MouseCell.Col - 1, MouseCell.Row);
+                if (Neighbor != null) ParseProperties = Neighbor.Properties.Add(CELLOBJECTS.RCUTTER);
+            }
+            if (ParseProperties && Neighbor != null) Neighbor.ParseProperties(); 
         }
         private void ShowPointer()
         {

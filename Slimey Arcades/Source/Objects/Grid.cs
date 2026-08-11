@@ -43,13 +43,13 @@ namespace Slimey_Arcades
                     Color NewCellColor = CellColor == null ? Color.Gray : (Color)CellColor;
                     Cells[i, j] = new Cell(CellPosition, NewCellColor, i, j);
                     Cells[i, j].Sprite.LayerData.LayerIndex = 8;
+                    Cells[i, j].CellGap = CellGap;
                     Container.ObjectsToLoad.Add(Cells[i, j]);
                 }
             }
 
             for (int i = 0; i < 5; i++)
             {
-                //Slime Slime = new Slime(Cells[0, 0], "", i);
                 Slime Slime = new Slime(Cells[0, 0], i);
                 Slime.MoveToCell(null);
                 Slime.Sprite.LayerData.LayerDepth += 1;

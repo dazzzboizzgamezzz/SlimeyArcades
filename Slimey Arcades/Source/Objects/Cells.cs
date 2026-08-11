@@ -12,11 +12,11 @@ namespace Slimey_Arcades
         public HashSet<CELLOBJECTS> Properties { get; set; } = new();
         public Container Container { get; init; } = new();
         public Slime Barrel { get; set; } = null;
+        public int CellGap { get; set; } = 0;
         public Cell(Transform NewTransform, Color BGColor, int NewCol = 0, int NewRow = 0) : base(NewTransform, BGColor, "Square")
         {
             Row = NewRow;
             Col = NewCol;
-            //Index = Newindex;
             ParseProperties();
         }
         public void ParseProperties()
@@ -51,10 +51,8 @@ namespace Slimey_Arcades
                         NewObject.Sprite.Texture = Shapes.XCross;
                         NewObject.Transform = new Transform(Transform.X, Transform.Y + Transform.Height - 7, Transform.Width, 16);
                         break;
-                    //case CELLOBJECTS.SWITCH:
                     case CELLOBJECTS.RSWITCH:
                         NewObject.Sprite.Texture = Shapes.Circle;
-                        //NewObject.Sprite.Color = Color.Red;
                         NewObject.Sprite.Color = ColorHelp.RedSwitch;
                         NewObject.Transform = new Transform((int)Transform.Center.X - 10, (int)Transform.Center.Y - 10, 20, 20);
                         break;
@@ -64,13 +62,17 @@ namespace Slimey_Arcades
                         NewObject.Transform = new Transform((int)Transform.Center.X - 10, (int)Transform.Center.Y - 10, 20, 20);
                         break;
                     case CELLOBJECTS.RTINT:
-                        //NewObject.Sprite.Color = new Color(255, 0, 0, 0.5f);
-                        NewObject.Sprite.Color = new Color(255, 0, 0, 0.3f);
+                        //NewObject.Sprite.Color = new Color(255, 0, 0, 0.3f);
+                        NewObject.Transform = new Transform(Transform.X - CellGap, Transform.Y - CellGap, Transform.Width + (CellGap * 2), Transform.Height + (CellGap *2));
+                        NewObject.Sprite.Texture = Shapes.MakeOutline(NewObject.Transform.Rect, CellGap * 2);
+                        NewObject.Sprite.Color = ColorHelp.RedSwitch;
                         NewObject.Sprite.LayerData.LayerIndex = 8;
                         break;
                     case CELLOBJECTS.BTINT:
-                        //NewObject.Sprite.Color = new Color(0, 0, 255, 0.5f);
-                        NewObject.Sprite.Color = new Color(0, 0, 255, 0.3f);
+                        //NewObject.Sprite.Color = new Color(0, 0, 255, 0.3f);
+                        NewObject.Transform = new Transform(Transform.X - CellGap, Transform.Y - CellGap, Transform.Width + (CellGap * 2), Transform.Height + (CellGap * 2));
+                        NewObject.Sprite.Texture = Shapes.MakeOutline(NewObject.Transform.Rect, CellGap * 2);
+                        NewObject.Sprite.Color = ColorHelp.BlueSwitch;
                         NewObject.Sprite.LayerData.LayerIndex = 8;
                         break;
                     case CELLOBJECTS.GGOAL:
@@ -104,6 +106,15 @@ namespace Slimey_Arcades
                 if (NewObject != null) Container.ObjectsToLoad.Add(NewObject);
             }
         }
+        public bool HasCutter()
+        {
+            if (Properties.Contains(CELLOBJECTS.RCUTTER) || Properties.Contains(CELLOBJECTS.LCUTTER) ||
+                Properties.Contains(CELLOBJECTS.DCUTTER) || Properties.Contains(CELLOBJECTS.UCUTTER))
+            {
+                return true; 
+            }
+            return false;
+        }
         private void SetGoal(string GoalType)
         {
             Color TextColor = ColorManager.None;
@@ -131,18 +142,12 @@ namespace Slimey_Arcades
         public int DistanceToCenter { get; set; }
         public int Type { get; init; }
         public bool CanStick { get; set; } = true;
-        //public Slime(Cell Cell, string NewType, int NewSlimeType) : base(new Transform(Cell.Transform.X + 5, Cell.Transform.Y + 5, Cell.Transform.Width - 10, Cell.Transform.Height - 10), Cell.Sprite.Color, Cell.Col, Cell.Row)
         public Slime(Cell Cell, int NewSlimeType) : base(new Transform(Cell.Transform.X + 5, Cell.Transform.Y + 5, Cell.Transform.Width - 10, Cell.Transform.Height - 10), Cell.Sprite.Color, Cell.Col, Cell.Row)
         {
             Type = NewSlimeType;
             TargetCell = Cell;
             switch (Type)
             {
-                //case 0: Sprite.Color = ColorManager.Colors["GSlime"]; break;
-                //case 1: Sprite.Color = ColorManager.Colors["RSlime"]; break;
-                //case 2: Sprite.Color = ColorManager.Colors["BSlime"]; break;
-                //case 3: Sprite.Color = ColorManager.Colors["YSlime"]; break;
-                //case 4: Sprite.Color = ColorManager.Colors["PSlime"]; break;
                 case 0: Sprite.Color = ColorHelp.GreenSlime; break;
                 case 1: Sprite.Color = ColorHelp.RedSlime; break;
                 case 2: Sprite.Color = ColorHelp.BlueSlime; break;
@@ -177,7 +182,6 @@ namespace Slimey_Arcades
         LCUTTER,
         UCUTTER,
         DCUTTER,
-        //SWITCH,
         RSWITCH,
         BSWITCH,
         BARREL,

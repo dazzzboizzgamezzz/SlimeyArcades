@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 //using Slimey_Arcades.Utilities;
-using Slimey_Arcades.Managers;
+//using Slimey_Arcades.Managers;
 
 namespace Slimey_Arcades
 {
@@ -12,7 +12,8 @@ namespace Slimey_Arcades
         public Transform Transform { get; set; }
         protected Clicker Click {  get; init; }
         public Sprite Sprite {  get; set; }
-        protected Text ButtonText { get; init; }
+        //protected Text ButtonText { get; init; }
+        public Text ButtonText { get; init; }
         public Container Container { get; init; } = new();
         private Color Highlight { get; set; }
         private Color UnHighlight { get; set; }
@@ -43,7 +44,8 @@ namespace Slimey_Arcades
             Sprite = Texture == null ? new Sprite(Shapes.Square, ColorManager.None) : new Sprite(Texture, ColorManager.None);
             Transform = NewTransform;
             Click = new Clicker(NewTransform);
-            ButtonText = new Text(NewTransform, Txt);
+            //ButtonText = new Text(NewTransform, Txt);
+            ButtonText = new Text(new Transform(NewTransform.Rect), Txt);
             Container.ObjectsToLoad.Add(ButtonText);
             Color BackgroundColor = BGColor == null ? ColorManager.None : (Color)BGColor;
             Sprite.Color = BackgroundColor;

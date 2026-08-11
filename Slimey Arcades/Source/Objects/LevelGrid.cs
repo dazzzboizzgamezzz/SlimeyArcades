@@ -79,6 +79,7 @@ namespace Slimey_Arcades
         private void Move(string Direction)
         {
             List<Cell> TargetCells = new();
+            bool WasCut = false;
 
             foreach (Slime Slime in ActiveSlimes)
             {
@@ -90,12 +91,16 @@ namespace Slimey_Arcades
 
             if (!HitWall(TargetCells, Direction))
             {
+                int PreCutCount = ActiveSlimes.Count;
+                CutSlimes();
+                if (ActiveSlimes.Count != PreCutCount) WasCut = true;
                 for(int i = 0; i < ActiveSlimes.Count; i++)
                 {
                     Slime Slime = ActiveSlimes[i];
                     if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.ICE))
                     {
-                        Fusion(Slime.TargetCell, Slime.CanStick);
+                        //Fusion(Slime.TargetCell, Slime.CanStick);
+                        Fusion(Slime.TargetCell, Slime.CanStick, WasCut);
                         Move(Direction);
                     }
                 }
@@ -117,15 +122,18 @@ namespace Slimey_Arcades
                     Notifier.SendNotification(Notification);
                 }
             }
-            MoveSlimesToTargets();
+            //MoveSlimesToTargets();
+            MoveSlimesToTargets(WasCut);
         }
-        private void MoveSlimesToTargets()
+        //private void MoveSlimesToTargets()
+        private void MoveSlimesToTargets(bool WasCut = false)
         {
             for (int i = 0; i < ActiveSlimes.Count; i++)
             {
                 Slime Slime = ActiveSlimes[i];
                 Slime.MoveToCell(Slime.TargetCell);
-                Fusion(Slime, Slime.CanStick);
+                //Fusion(Slime, Slime.CanStick);
+                Fusion(GetCell(Slime.Col, Slime.Row), Slime.CanStick, WasCut);
             }
             StretchSlimes();
             CheckWin();
@@ -200,8 +208,40 @@ namespace Slimey_Arcades
             }
             return false;
         }
-        //private void Fusion(Cell StartingCell)
-        private void Fusion(Cell StartingCell, bool IsSlime)
+        private void CutSlimes()
+        {
+            bool HasCut = false;
+            foreach (Slime Slime in ActiveSlimes)
+            {
+                List<Cell> Neighbors = new()
+                {
+                    GetTargetCell(Slime, "Up"),
+                    GetTargetCell(Slime, "Down"),
+                    GetTargetCell(Slime, "Left"),
+                    GetTargetCell(Slime, "Right"),
+                };
+                foreach (Slime OtherSlime in ActiveSlimes)
+                {
+                    if (Neighbors.Contains(OtherSlime.TargetCell) && OtherSlime.TargetCell.HasCutter() && Slime.TargetCell.HasCutter())
+                    {
+                        HasCut = true;
+                        break;
+                    }
+                }
+                if (HasCut) break;
+            }
+            if (HasCut)
+            {
+                foreach (Slime Slime in ActiveSlimes)
+                {
+                    Slime.MoveToCell(Slime.TargetCell);
+                }
+                ActiveSlimes.Clear();
+                ActiveSlimes.Add(Player);
+            }
+        }
+        //private void Fusion(Cell StartingCell, bool IsSlime)
+        private void Fusion(Cell StartingCell, bool IsSlime, bool WasCut)
         {
             List<Cell> Neighbors = new()
             {
@@ -210,21 +250,12 @@ namespace Slimey_Arcades
                 GetTargetCell(StartingCell, "Left"),
                 GetTargetCell(StartingCell, "Right"),
             };
-            //foreach (Slime Slime in Slimes)
-            //{
-            //    if (!ActiveSlimes.Contains(Slime) && Slime.ColRowVec != new Vector2(-1, -1))
-            //    {
-            //        foreach(Cell Neighbor in Neighbors)
-            //        {
-            //            if (Slime.ColRowVec == Neighbor.ColRowVec)
-            //            {
-            //                ActiveSlimes.Add(Slime);
-            //            }
-            //        }
-            //    }
-            //}
             foreach(Cell Neighbor in Neighbors)
             {
+                if (WasCut && StartingCell.HasCutter() && Neighbor.HasCutter())
+                {
+                    continue;
+                }
                 if (Neighbor.Barrel != null && IsSlime)
                 {
                     ActiveSlimes.Add(Neighbor.Barrel);
@@ -271,7 +302,6 @@ namespace Slimey_Arcades
                     if (!Winning) break;
                 }
             }
-            //if (Winning) LevelScene.PauseState = "Winning";
             if (Winning)
             {
                 Notification Notification = new Notification(NOTTYPES.WIN);
