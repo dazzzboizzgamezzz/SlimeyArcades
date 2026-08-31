@@ -79,7 +79,7 @@ namespace Slimey_Arcades
         private void Move(string Direction)
         {
             List<Cell> TargetCells = new();
-            bool WasCut = false;
+            //bool WasCut = false;
 
             foreach (Slime Slime in ActiveSlimes)
             {
@@ -89,52 +89,103 @@ namespace Slimey_Arcades
                 TargetCells.Add(NewTarget);
             }
 
-            if (!HitWall(TargetCells, Direction))
+            if (HitWall(TargetCells, Direction)) return;
+            //{
+            foreach (Slime Slime in ActiveSlimes)
             {
-                int PreCutCount = ActiveSlimes.Count;
-                CutSlimes();
-                if (ActiveSlimes.Count != PreCutCount) WasCut = true;
-                for(int i = 0; i < ActiveSlimes.Count; i++)
+                if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.RSWITCH)) { SwitchRedBlue(CELLOBJECTS.RSWITCH); break; }
+                else if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.BSWITCH)) { SwitchRedBlue(CELLOBJECTS.BSWITCH); break; }
+            }
+
+            //int PreCutCount = ActiveSlimes.Count;
+            NewCutSlimes();
+            //if (ActiveSlimes.Count != PreCutCount) WasCut = true;
+
+            IceCheck(Direction);
+            //for(int i = 0; i < ActiveSlimes.Count; i++)
+            //{
+            //    Slime Slime = ActiveSlimes[i];
+            //    if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.ICE))
+            //    {
+            //        //Fusion(Slime.TargetCell, Slime.CanStick);
+            //        Fusion(Slime.TargetCell, Slime.CanStick, WasCut);
+            //        Move(Direction);
+            //    }
+            //}
+
+            if (PitCheck()) return;
+            //bool HitPit = true;
+            //foreach (Cell Cell in TargetCells)
+            //{
+            //    if (Cell.Properties.Contains(CELLOBJECTS.PIT)) continue;
+            //    HitPit = false;
+            //    break;
+            //}
+            //if (HitPit)
+            //{
+            //    foreach (Slime Slime in ActiveSlimes)
+            //    {
+            //        Slime.TargetCell = null;
+            //        Slime.MoveToCell(Slime.TargetCell);
+            //    }
+            //    Notification Notification = new Notification(NOTTYPES.LOSE);
+            //    Notifier.SendNotification(Notification);
+            //}
+            //}
+            MoveSlimesToTargets();
+            //MoveSlimesToTargets(WasCut);
+        }
+        //fix this so that fused slimes also check for fusion
+        private void IceCheck(string Direction)
+        {
+            for (int i = 0; i < ActiveSlimes.Count; i++)
+            {
+                Slime Slime = ActiveSlimes[i];
+                if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.ICE))
                 {
-                    Slime Slime = ActiveSlimes[i];
-                    if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.ICE))
-                    {
-                        //Fusion(Slime.TargetCell, Slime.CanStick);
-                        Fusion(Slime.TargetCell, Slime.CanStick, WasCut);
-                        Move(Direction);
-                    }
-                }
-                bool HitPit = true;
-                foreach (Cell Cell in TargetCells)
-                {
-                    if (Cell.Properties.Contains(CELLOBJECTS.PIT)) continue;
-                    HitPit = false;
-                    break;
-                }
-                if (HitPit)
-                {
-                    foreach (Slime Slime in ActiveSlimes)
-                    {
-                        Slime.TargetCell = null;
-                        Slime.MoveToCell(Slime.TargetCell);
-                    }
-                    Notification Notification = new Notification(NOTTYPES.LOSE);
-                    Notifier.SendNotification(Notification);
+                    //Fusion(Slime.TargetCell, Slime.CanStick, false);
+                    Fusion(Slime);
+                    Move(Direction);
                 }
             }
-            //MoveSlimesToTargets();
-            MoveSlimesToTargets(WasCut);
         }
-        //private void MoveSlimesToTargets()
-        private void MoveSlimesToTargets(bool WasCut = false)
+        //private void PitCheck()
+        private bool PitCheck()
+        {
+            bool HitPit = true;
+            foreach (Slime Slime in ActiveSlimes)
+            {
+                if (!Slime.TargetCell.Properties.Contains(CELLOBJECTS.PIT)) 
+                { 
+                    HitPit = false; 
+                    break; 
+                }
+            }
+            if (HitPit)
+            {
+                foreach (Slime Slime in ActiveSlimes)
+                {
+                    Slime.TargetCell = null;
+                    Slime.MoveToCell(Slime.TargetCell);
+                }
+                Notification Notification = new Notification(NOTTYPES.LOSE);
+                Notifier.SendNotification(Notification);
+            }
+            return HitPit;
+        }
+        private void MoveSlimesToTargets()
+        //private void MoveSlimesToTargets(bool WasCut = false)
         {
             for (int i = 0; i < ActiveSlimes.Count; i++)
             {
                 Slime Slime = ActiveSlimes[i];
                 Slime.MoveToCell(Slime.TargetCell);
                 //Fusion(Slime, Slime.CanStick);
-                Fusion(GetCell(Slime.Col, Slime.Row), Slime.CanStick, WasCut);
+                //Fusion(GetCell(Slime.Col, Slime.Row), Slime.CanStick, WasCut);
+                Fusion(Slime);
             }
+            foreach (Slime Slime in Slimes) { Slime.WasCut = false; }
+            ActiveSlimes = ActiveSlimes.OrderBy(Slime => Slime.DistanceToCenter).ToList();
             StretchSlimes();
             CheckWin();
         }
@@ -208,41 +259,102 @@ namespace Slimey_Arcades
             }
             return false;
         }
-        private void CutSlimes()
+        private void NewCutSlimes()
         {
-            bool HasCut = false;
-            foreach (Slime Slime in ActiveSlimes)
+            if (ActiveSlimes.Count == 1) return;
+
+            HashSet<Slime> SlimesToCheck = new();
+            SlimesToCheck.Add(Player);
+
+            Dictionary<Vector2, Slime> SlimeTargetCells = new();
+            foreach (Slime Slime in ActiveSlimes) SlimeTargetCells.Add(Slime.TargetCell.ColRowVec, Slime);
+
+            for (int i = 0; i < SlimesToCheck.Count; i++)
             {
-                List<Cell> Neighbors = new()
+                Slime Slime = SlimesToCheck.Take(i + 1).Last();
+                foreach (Cell Neighbor in GetNeighbors(Slime.TargetCell))
                 {
-                    GetTargetCell(Slime, "Up"),
-                    GetTargetCell(Slime, "Down"),
-                    GetTargetCell(Slime, "Left"),
-                    GetTargetCell(Slime, "Right"),
-                };
-                foreach (Slime OtherSlime in ActiveSlimes)
-                {
-                    if (Neighbors.Contains(OtherSlime.TargetCell) && OtherSlime.TargetCell.HasCutter() && Slime.TargetCell.HasCutter())
+                    if (SlimeTargetCells.Keys.Contains(Neighbor.ColRowVec))
                     {
-                        HasCut = true;
-                        break;
+                        Slime NeighborSlime = SlimeTargetCells[Neighbor.ColRowVec];
+                        if (!CompareCutters(Slime.TargetCell, Neighbor))
+                        {
+                            SlimesToCheck.Add(NeighborSlime);
+                        }
+                        else if (!SlimesToCheck.Contains(SlimeTargetCells[Neighbor.ColRowVec]))
+                        {
+                            NeighborSlime.WasCut = true;
+                            SlimeTargetCells.Remove(NeighborSlime.TargetCell.ColRowVec);
+                            NeighborSlime.MoveToCell(NeighborSlime.TargetCell);
+                            i--;
+                        }
                     }
                 }
-                if (HasCut) break;
             }
-            if (HasCut)
+
+            if (SlimesToCheck.Count != ActiveSlimes.Count)
             {
-                foreach (Slime Slime in ActiveSlimes)
+                foreach(Slime Slime in ActiveSlimes)
                 {
                     Slime.MoveToCell(Slime.TargetCell);
                 }
-                ActiveSlimes.Clear();
-                ActiveSlimes.Add(Player);
+                ActiveSlimes = SlimesToCheck.ToList();
             }
         }
-        //private void Fusion(Cell StartingCell, bool IsSlime)
-        private void Fusion(Cell StartingCell, bool IsSlime, bool WasCut)
+        private bool CompareCutters(Cell StartCell, Cell Neighbor)
         {
+            foreach(CELLOBJECTS Cutter in StartCell.GetCutters())
+            {
+                foreach (CELLOBJECTS NeighborCutter in Neighbor.GetCutters())
+                {
+                    if (Cutter == CELLOBJECTS.RCUTTER && NeighborCutter == CELLOBJECTS.LCUTTER
+                     || Cutter == CELLOBJECTS.LCUTTER && NeighborCutter == CELLOBJECTS.RCUTTER
+                     || Cutter == CELLOBJECTS.UCUTTER && NeighborCutter == CELLOBJECTS.DCUTTER
+                     || Cutter == CELLOBJECTS.DCUTTER && NeighborCutter == CELLOBJECTS.UCUTTER)
+                        return true;
+                }
+            }
+            return false;
+        }
+        //private void CutSlimes()
+        //{
+        //    bool HasCut = false;
+        //    foreach (Slime Slime in ActiveSlimes)
+        //    {
+        //        List<Cell> Neighbors = new()
+        //        {
+        //            GetTargetCell(Slime, "Up"),
+        //            GetTargetCell(Slime, "Down"),
+        //            GetTargetCell(Slime, "Left"),
+        //            GetTargetCell(Slime, "Right"),
+        //        };
+        //        foreach (Slime OtherSlime in ActiveSlimes)
+        //        {
+        //            if (Neighbors.Contains(OtherSlime.TargetCell) && OtherSlime.TargetCell.HasCutter() && Slime.TargetCell.HasCutter())
+        //            {
+        //                HasCut = true;
+        //                break;
+        //            }
+        //        }
+        //        if (HasCut) break;
+        //    }
+        //    if (HasCut)
+        //    {
+        //        foreach (Slime Slime in ActiveSlimes)
+        //        {
+        //            Slime.MoveToCell(Slime.TargetCell);
+        //        }
+        //        ActiveSlimes.Clear();
+        //        ActiveSlimes.Add(Player);
+        //    }
+        //}
+        //private void Fusion(Cell StartingCell, bool IsSlime)
+        //private void Fusion(Cell StartingCell, bool IsSlime, bool WasCut)
+        private void Fusion(Slime StartingSlime)
+        {
+            bool IsSlime = StartingSlime.CanStick;
+            bool WasCut = StartingSlime.WasCut;
+            Cell StartingCell = StartingSlime.TargetCell;
             List<Cell> Neighbors = new()
             {
                 GetTargetCell(StartingCell, "Up"),
@@ -263,9 +375,11 @@ namespace Slimey_Arcades
                 }
                 foreach(Slime Slime in Slimes)
                 {
-                    if (ActiveSlimes.Contains(Slime) || Slime.ColRowVec == new Vector2(-1, -1)) continue;
+                    //if (ActiveSlimes.Contains(Slime) || Slime.ColRowVec == new Vector2(-1, -1)) continue;
+                    if (ActiveSlimes.Contains(Slime) || Slime.ColRowVec == new Vector2(-1, -1) || Slime.WasCut) continue;
                     if (Slime.ColRowVec == Neighbor.ColRowVec)
                     {
+                        Slime.DistanceToCenter = StartingSlime.DistanceToCenter + 1;
                         ActiveSlimes.Add(Slime);
                     }
                 }

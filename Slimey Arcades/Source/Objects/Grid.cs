@@ -59,7 +59,8 @@ namespace Slimey_Arcades
         }
         public virtual void Update() { }
         protected virtual void ProcessNotifications(Notification Notification) { }
-        public virtual Cell GetCell(int Col, int Row)
+        //public virtual Cell GetCell(int Col, int Row)
+        public Cell GetCell(int Col, int Row)
         {
             Cell TargetCell = null;
             if ((Col < Cols && Col > -1) && (Row < Rows && Row > -1))
@@ -80,6 +81,40 @@ namespace Slimey_Arcades
                 MouseCell = GetCell(Col, Row);
             }
             return MouseCell;
+        }
+        public List<Cell> GetNeighbors(Cell Start)
+        {
+            List<Cell> Neighbors = new();
+
+            if (GetCell(Start.Col + 1, Start.Row) != null) Neighbors.Add(GetCell(Start.Col + 1, Start.Row));
+            if (GetCell(Start.Col - 1, Start.Row) != null) Neighbors.Add(GetCell(Start.Col - 1, Start.Row));
+            if (GetCell(Start.Col, Start.Row + 1) != null) Neighbors.Add(GetCell(Start.Col, Start.Row + 1));
+            if (GetCell(Start.Col, Start.Row - 1) != null) Neighbors.Add(GetCell(Start.Col, Start.Row - 1));
+
+            return Neighbors;
+        }
+        public void SwitchRedBlue(CELLOBJECTS SwitchType)
+        {
+            CELLOBJECTS OtherSwitch = SwitchType == CELLOBJECTS.RSWITCH ? CELLOBJECTS.BSWITCH : CELLOBJECTS.RSWITCH;
+            foreach(Cell Cell in Cells)
+            {
+                if (Cell.Properties.Contains(SwitchType)) 
+                {
+                    Cell.Properties.Remove(SwitchType);
+                    Cell.Properties.Add(OtherSwitch);
+                    Cell.ParseProperties();
+                }
+                if (SwitchType == CELLOBJECTS.RSWITCH && Cell.RedProperties.Count > 0)
+                {
+                    Cell.Properties = new(Cell.RedProperties);
+                    Cell.ParseProperties();
+                }
+                else if (SwitchType == CELLOBJECTS.BSWITCH && Cell.BlueProperties.Count > 0)
+                {
+                    Cell.Properties = new(Cell.BlueProperties);
+                    Cell.ParseProperties();
+                }
+            }
         }
         public void SaveLevel(int Level)
         {
@@ -116,6 +151,7 @@ namespace Slimey_Arcades
             string LevelFile = Directory.GetCurrentDirectory() + "\\Levels" + "\\Level" + Level.ToString() + ".csv";
             if (File.Exists(LevelFile))
             {
+                CELLOBJECTS SwitchType = 0;
                 using (StreamReader Reader = new StreamReader(LevelFile))
                 {
                     string Line;
@@ -134,14 +170,30 @@ namespace Slimey_Arcades
                             Data.RemoveRange(0, 2);
                             foreach (string Property in Data)
                             {
-                                int PropertyValue = int.Parse(Property);
-                                NextCell.Properties.Add((CELLOBJECTS)PropertyValue);
+                                //int PropertyValue = int.Parse(Property);
+                                //NextCell.Properties.Add((CELLOBJECTS)PropertyValue);
+                                CELLOBJECTS PropertyValue = (CELLOBJECTS)int.Parse(Property);
+                                NextCell.Properties.Add(PropertyValue);
+                                if (PropertyValue == CELLOBJECTS.RSWITCH) 
+                                    SwitchType = CELLOBJECTS.BSWITCH;
+                                if (PropertyValue == CELLOBJECTS.BSWITCH) SwitchType = CELLOBJECTS.RSWITCH;
+                            }
+                            if (NextCell.Properties.Contains(CELLOBJECTS.BTINT))
+                            {
+                                NextCell.BlueProperties = new(NextCell.Properties);
+                                NextCell.RedProperties.Add(CELLOBJECTS.BTINT);
+                            }
+                            if (NextCell.Properties.Contains(CELLOBJECTS.RTINT))
+                            {
+                                NextCell.RedProperties = new(NextCell.Properties);
+                                NextCell.BlueProperties.Add(CELLOBJECTS.RTINT);
                             }
                             if (NextCell.Properties.Count > 0) NextCell.ParseProperties();
                         }
                         LineCount++;
                     }
                 }
+                if (SwitchType != 0) SwitchRedBlue(SwitchType);
             }
             else
             {

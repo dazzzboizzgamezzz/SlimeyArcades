@@ -10,6 +10,8 @@ namespace Slimey_Arcades
         public int Col { get; set; }
         public Vector2 ColRowVec { get => new Vector2(Col, Row); set { Col = (int)value.X; Row = (int) value.Y; } }
         public HashSet<CELLOBJECTS> Properties { get; set; } = new();
+        public HashSet<CELLOBJECTS> RedProperties { get; set; } = new();
+        public HashSet<CELLOBJECTS> BlueProperties { get; set; } = new();
         public Container Container { get; init; } = new();
         public Slime Barrel { get; set; } = null;
         public int CellGap { get; set; } = 0;
@@ -21,6 +23,7 @@ namespace Slimey_Arcades
         }
         public void ParseProperties()
         {
+            Container.Clear();
             foreach (CELLOBJECTS Property in Properties)
             {
                 Polygon NewObject = new Polygon(Transform, Color.Black);
@@ -115,6 +118,17 @@ namespace Slimey_Arcades
             }
             return false;
         }
+        public List<CELLOBJECTS> GetCutters()
+        {
+            List<CELLOBJECTS> CutterType = new();
+
+            if (Properties.Contains(CELLOBJECTS.RCUTTER)) CutterType.Add(CELLOBJECTS.RCUTTER);
+            if (Properties.Contains(CELLOBJECTS.LCUTTER)) CutterType.Add(CELLOBJECTS.LCUTTER);
+            if (Properties.Contains(CELLOBJECTS.DCUTTER)) CutterType.Add(CELLOBJECTS.DCUTTER);
+            if (Properties.Contains(CELLOBJECTS.UCUTTER)) CutterType.Add(CELLOBJECTS.UCUTTER);
+
+            return CutterType;
+        }
         private void SetGoal(string GoalType)
         {
             Color TextColor = ColorManager.None;
@@ -142,6 +156,7 @@ namespace Slimey_Arcades
         public int DistanceToCenter { get; set; }
         public int Type { get; init; }
         public bool CanStick { get; set; } = true;
+        public bool WasCut { get; set; } = false;
         public Slime(Cell Cell, int NewSlimeType) : base(new Transform(Cell.Transform.X + 5, Cell.Transform.Y + 5, Cell.Transform.Width - 10, Cell.Transform.Height - 10), Cell.Sprite.Color, Cell.Col, Cell.Row)
         {
             Type = NewSlimeType;
@@ -175,6 +190,7 @@ namespace Slimey_Arcades
     }
     public enum CELLOBJECTS
     {
+        NONE,
         WALL,
         ICE,
         PIT,

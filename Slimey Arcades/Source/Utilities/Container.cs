@@ -109,6 +109,16 @@ namespace Slimey_Arcades
                 SubContainer.DestroyObjects();
             }
         }
+        public void Clear()
+        {
+            Updates.Clear();
+            Draws.Clear();
+            Containers.Clear();
+            Texts.Clear();
+            Notifiers.Clear();
+            ObjectsToLoad.Clear();
+            LoadedObjects.Clear();
+        }
         public void Update()
         {
             foreach (IUpdate Update in Updates)
