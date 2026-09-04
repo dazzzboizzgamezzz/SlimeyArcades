@@ -51,7 +51,9 @@ namespace Slimey_Arcades
             for (int i = 0; i < 5; i++)
             {
                 Slime Slime = new Slime(Cells[0, 0], i);
-                Slime.MoveToCell(null);
+                //Slime.MoveToCell(null);
+                Slime.TargetCell = null;
+                Slime.MoveToTarget();
                 Slime.Sprite.LayerData.LayerDepth += 1;
                 Slimes[i] = Slime;
                 Container.ObjectsToLoad.Add(Slimes[i]);
@@ -59,7 +61,10 @@ namespace Slimey_Arcades
         }
         public virtual void Update() { }
         protected virtual void ProcessNotifications(Notification Notification) { }
-        //public virtual Cell GetCell(int Col, int Row)
+        public Cell GetCell(Vector2 ColRowVec)
+        {
+            return GetCell((int)ColRowVec.X, (int)ColRowVec.Y);
+        }
         public Cell GetCell(int Col, int Row)
         {
             Cell TargetCell = null;
@@ -163,15 +168,15 @@ namespace Slimey_Arcades
                         if (LineCount < 5)
                         {
                             Slime Slime = Slimes[LineCount];
-                            Slime.MoveToCell(NextCell);
+                            Slime.TargetCell = NextCell;
+                            Slime.MoveToTarget();
+                            //Slime.MoveToCell(NextCell);
                         }
                         else if (Data.Count > 2)
                         {
                             Data.RemoveRange(0, 2);
                             foreach (string Property in Data)
                             {
-                                //int PropertyValue = int.Parse(Property);
-                                //NextCell.Properties.Add((CELLOBJECTS)PropertyValue);
                                 CELLOBJECTS PropertyValue = (CELLOBJECTS)int.Parse(Property);
                                 NextCell.Properties.Add(PropertyValue);
                                 if (PropertyValue == CELLOBJECTS.RSWITCH) 
@@ -211,7 +216,9 @@ namespace Slimey_Arcades
                 DefaultGrid.Cells[10, i].Properties.Add(CELLOBJECTS.WALL);
                 DefaultGrid.Cells[i, 10].Properties.Add(CELLOBJECTS.WALL);
             }
-            DefaultGrid.Slimes[0].MoveToCell(Cells[5, 5]);
+            //DefaultGrid.Slimes[0].MoveToCell(Cells[5, 5]);
+            DefaultGrid.Slimes[0].TargetCell = Cells[5, 5];
+            DefaultGrid.Slimes[0].MoveToTarget();
             DefaultGrid.SaveLevel(-1);
         }
     }

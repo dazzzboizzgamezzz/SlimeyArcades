@@ -170,10 +170,29 @@ namespace Slimey_Arcades
                 case 4: Sprite.Color = ColorHelp.PinkSlime; break;
                 case 5: Sprite.Color = ColorHelp.Barrel; break;
             }
+            Properties = null;
+            RedProperties = null;
+            BlueProperties = null;
         }
-        public void MoveToCell(Cell Cell)
+        //public void MoveToCell(Cell Cell)
+        //{
+        //    if (Cell == null)
+        //    {
+        //        Transform.Pos = new Vector2(-100, -100);
+        //        Col = -1;
+        //        Row = -1;
+        //    }
+        //    else
+        //    {
+        //        Transform.Pos = Cell.Transform.Pos + new Vector2(5, 5);
+        //        Col = Cell.Col;
+        //        Row = Cell.Row;
+        //    }
+        //    TargetCell = Cell;
+        //}
+        public void MoveToTarget()
         {
-            if (Cell == null)
+            if (TargetCell == null)
             {
                 Transform.Pos = new Vector2(-100, -100);
                 Col = -1;
@@ -181,11 +200,10 @@ namespace Slimey_Arcades
             }
             else
             {
-                Transform.Pos = Cell.Transform.Pos + new Vector2(5, 5);
-                Col = Cell.Col;
-                Row = Cell.Row;
+                Transform.Pos = TargetCell.Transform.Pos + new Vector2(5, 5);
+                Col = TargetCell.Col;
+                Row = TargetCell.Row;
             }
-            TargetCell = Cell;
         }
     }
     public enum CELLOBJECTS

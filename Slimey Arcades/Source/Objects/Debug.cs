@@ -270,7 +270,9 @@ namespace Slimey_Arcades
                     {
                         ResetSlimes();
                         Slime Slime = Slimes[SelectedSlime];
-                        Slime.MoveToCell(MouseCell);
+                        //Slime.MoveToCell(MouseCell);
+                        Slime.TargetCell = MouseCell;
+                        Slime.MoveToTarget();
                     }
                     else if (SelectedProperty >= 0)
                     {
@@ -280,26 +282,13 @@ namespace Slimey_Arcades
                             SetRedBlue();
                             SetGoals();
                             MouseCell.ParseProperties();
-                            //if (SelectedProperty >= CELLOBJECTS.GGOAL && SelectedProperty <= CELLOBJECTS.PGOAL)
-                            //{
-                            //    foreach(Cell Cell in Cells)
-                            //    {
-                            //        if (Cell != MouseCell && Cell.Properties.Contains(SelectedProperty))
-                            //        {
-                            //            ResetCell(Cell);
-                            //            break;
-                            //        }
-                            //    }
-                            //}
                         }
                     }
-                    //else if (MouseCell.Properties.Count > 0 && MouseCell.Col != 0 && MouseCell.Col != Cols - 1 && MouseCell.Row != 0 && MouseCell.Row != Rows - 1)
                     else if (MouseCell.Col != 0 && MouseCell.Col != Cols - 1 && MouseCell.Row != 0 && MouseCell.Row != Rows - 1)
                     {
                         MouseCell.Properties.Clear();
                         MouseCell.ParseProperties();
                         ResetSlimes();
-                        //ResetCell(MouseCell);
                     }
                 }
             }
@@ -363,7 +352,6 @@ namespace Slimey_Arcades
                 {
                     if (Cell != MouseCell && Cell.Properties.Contains(SelectedProperty))
                     {
-                        //ResetCell(Cell);
                         Cell.Properties.Remove(SelectedProperty);
                         break;
                     }
@@ -386,34 +374,12 @@ namespace Slimey_Arcades
             {
                 if (Slime.ColRowVec == MouseCell.ColRowVec)
                 {
-                    Slime.MoveToCell(null);
+                    Slime.TargetCell = null;
+                    Slime.MoveToTarget();
+                    //Slime.MoveToCell(null);
                     break;
                 }
             }
         }
-        //public void ResetGrid()
-        //{
-        //    foreach (Cell Cell in Cells)
-        //    {
-        //        ResetCell(Cell);
-        //    }
-        //}
-        //private void ResetCell(Cell Cell)
-        //{
-        //    if (Cell.Properties.Count > 0)
-        //    {
-        //        Cell.Container.Destroy = true;
-        //        Cell = new Cell(Cell.Transform, Cell.Sprite.Color, Cell.Col, Cell.Row);
-        //        Cells[Cell.Col, Cell.Row] = Cell;
-        //        Container.ObjectsToLoad.Add(Cell);
-        //    }
-        //    foreach (Slime Slime in Slimes)
-        //    {
-        //        if (Slime.ColRowVec == Cell.ColRowVec)
-        //        {
-        //            Slime.MoveToCell(null);
-        //        }
-        //    }
-        //}
     }
 }
