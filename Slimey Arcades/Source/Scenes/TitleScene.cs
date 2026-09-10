@@ -1,10 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Slimey_Arcades.Managers;
-using Slimey_Arcades.Objects;
+//using Slimey_Arcades.Managers;
+//using Slimey_Arcades.Objects;
 using Slimey_Arcades.Scenes;
-//using Slimey_Arcades.Utilities;
 
-//namespace Slimey_Arcades.Scenes
 namespace Slimey_Arcades
 {
     public class TitleScene :Scene

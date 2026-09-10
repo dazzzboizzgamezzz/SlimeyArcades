@@ -1,15 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+//using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//using Slimey_Arcades.Utilities;
-using Slimey_Arcades.Objects;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+//using Slimey_Arcades.Objects;
 
-namespace Slimey_Arcades.Windows
+//namespace Slimey_Arcades.Windows
+namespace Slimey_Arcades
 {
     public class SaveLoadWindow : Window
     {

@@ -1,8 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Slimey_Arcades.Managers;
-using Slimey_Arcades.Scenes;
-//using Slimey_Arcades.Utilities;
-using Slimey_Arcades.Objects;
+//using Slimey_Arcades.Scenes;
+//using Slimey_Arcades.Objects;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Slimey_Arcades
@@ -32,21 +31,16 @@ namespace Slimey_Arcades
             Shapes.MakeShapes(GraphicsDevice);
             FontManager.Initialize(Content);
             TextureManager.Initialize(Content);
-            //SceneController = new SceneController(GraphicsDevice, new TitleScene());
             SceneController = new SceneController(new TitleScene());
         }
         protected override void Update(GameTime gameTime)
         {
             SceneController.Update();
-
-            //base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
             SceneController.Draw(SpriteBatch);
-
-            //base.Draw(gameTime);
         }
     }
 }

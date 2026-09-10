@@ -1,9 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-//using Microsoft.Xna.Framework.Input;
 using Slimey_Arcades.Managers;
-//using System;
-//using static System.Net.Mime.MediaTypeNames;
 
 namespace Slimey_Arcades
 {
@@ -39,15 +36,11 @@ namespace Slimey_Arcades
         public Vector2 Pos { get => Transform.Pos; set { Transform.X = (int)value.X; Transform.Y = (int)value.Y; } }
         public int TextWidth { get => (int)(Font.MeasureString(Txt).X / (Scale * 100)); }
         public int TextHeight { get => (int)(Scale * 100); }
-        //public Text(Transform NewTransform = null, string NewText = "", float NewScale = 0.12f, SpriteFont NewFont = null)
         public Text(Transform NewTransform = null, string NewText = "", Color? NewColor = null, float NewScale = 0.12f, SpriteFont NewFont = null, SpriteEffects NewEffect = SpriteEffects.None)
         {
-            //Transform = NewTransform
             Transform = NewTransform == null ? Transform.None : NewTransform;
             Txt = NewText;
             Color = NewColor == null ? Color.Black : (Color)NewColor;
-            //if (NewFont == null) NewFont = FontManager.Fonts["Arial"];
-            //Font = NewFont;
             Font = NewFont == null ? FontManager.Fonts["Arial"] : NewFont;
             Scale = NewScale;
             Effect = NewEffect;
