@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using Microsoft.Xna.Framework;
 
 namespace Slimey_Arcades
 {
@@ -15,7 +15,14 @@ namespace Slimey_Arcades
         public List<IDraw> Draws { get => Container.Draws; }
         public List<IContainer> Containers { get => Container.Containers; }
         public List<Text> Texts { get => Container.Texts; }
+        public List<INotifier> Notifiers {get => Container.Notifiers; }
         public bool Destroy { get => Container.Destroy; set => Container.Destroy = value; }
+        public IContainer Parent { get => Container.Parent; set => Container.Parent = value; }
+        public int ContainerDepth { get => Container.ContainerDepth; set => Container.ContainerDepth = value; }
+        public Action<IContainer, int> LoadObjects { get => (IContainer ParentContainer, int LayerOffset) => Container.LoadObjects(ParentContainer, LayerOffset); }
+        public Action Update { get => () => Container.Update(); }
+        public Action<SpriteBatch> Draw { get => (SpriteBatch SpriteBatch) => Container.Draw(SpriteBatch); }
+        public Action DestroyObjects { get => () => Container.DestroyObjects(); }
     }
     public class Container
     {
@@ -23,12 +30,14 @@ namespace Slimey_Arcades
         public List<IDraw> Draws { get; set; } = new();
         public List<IContainer> Containers { get; set; } = new();
         public List<Text> Texts { get; set; } = new();
+        public List<INotifier> Notifiers { get; set; } = new();
         public ArrayList ObjectsToLoad { get; set; } = new();
         public ArrayList LoadedObjects { get; set; } = new();
+        public IContainer Parent { get; set; } = null;
         public int ContainerDepth { get; set; } = 1;
         public bool Destroy { get; set; } = false;
         public Container() { }
-        public void LoadObjects()
+        public void LoadObjects(IContainer ParentContainer, int LayerOffset = 0)
         {
             for (int i = 0; i < ObjectsToLoad.Count; i++) 
             {
@@ -41,106 +50,103 @@ namespace Slimey_Arcades
                 if (typeof(IDraw).IsAssignableFrom(Objects.GetType()))
                 {
                     IDraw Object = (IDraw)Objects;
+                    Object.LayerDepth = Object.LayerDepth + ContainerDepth + LayerOffset;
                     Draws.Add(Object);
-                }
-                if (typeof(IContainer).IsAssignableFrom(Objects.GetType()))
-                {
-                    IContainer Object = (IContainer)Objects;
-                    Containers.Add(Object);
                 }
                 if (typeof(Text).IsAssignableFrom(Objects.GetType()))
                 {
                     Text Object = (Text)Objects;
+                    Object.LayerData.LayerDepth = Object.LayerData.LayerDepth + ContainerDepth + LayerOffset;
                     Texts.Add(Object);
+                }
+                if (typeof(INotifier).IsAssignableFrom(Objects.GetType()))
+                {
+                    INotifier Object = (INotifier)Objects;
+                    IContainer TargetContainer = ParentContainer;
+                    while (TargetContainer != null)
+                    {
+                        if (TargetContainer.Parent == null) break;
+                        else TargetContainer = TargetContainer.Parent;
+                    }
+                    Object.Notifier.RootNotifier = (INotifier)TargetContainer;
+                    Notifiers.Add(Object);
+                }
+                if (typeof(IContainer).IsAssignableFrom(Objects.GetType()))
+                {
+                    IContainer Object = (IContainer)Objects;
+                    Object.ContainerDepth = ContainerDepth + 1 + LayerOffset;
+                    Object.Parent = ParentContainer;
+                    Containers.Add(Object);
                 }
                 LoadedObjects.Add(Objects);
                 ObjectsToLoad.Remove(Objects);
                 i--;
             }
-        }
-        public void DestroyObjects(object SubObject)
-        {
-            for(int i = 0; i < LoadedObjects.Count; i++)
+            foreach (IContainer Container in Containers)
             {
-                object CurrentObject = LoadedObjects[i];
-                if (CurrentObject == SubObject)
+                Container.LoadObjects(Container, 0);
+            }
+        }
+        public void DestroyObjects()
+        {
+            for (int i = 0; i < Containers.Count; i++)
+            {
+                IContainer SubContainer = Containers[i];
+                if (SubContainer.Destroy)
                 {
-                    if (typeof(IUpdate).IsAssignableFrom(CurrentObject.GetType()))
+                    LoadedObjects.Remove(SubContainer);
+                    Containers.Remove(SubContainer);
+                    if (typeof(IUpdate).IsAssignableFrom(SubContainer.GetType()))
                     {
-                        IUpdate Object = (IUpdate)CurrentObject;
-                        Updates.Remove(Object);
+                        Updates.Remove((IUpdate)SubContainer);
                     }
-                    if (typeof(IDraw).IsAssignableFrom(CurrentObject.GetType()))
+                    if (typeof(IDraw).IsAssignableFrom(SubContainer.GetType()))
                     {
-                        IDraw Object = (IDraw)CurrentObject;
-                        Draws.Remove(Object);
+                        Draws.Remove((IDraw)SubContainer);
                     }
-                    if (typeof(IContainer).IsAssignableFrom(CurrentObject.GetType()))
-                    {
-                        IContainer Object = (IContainer)CurrentObject;
-                        foreach (object SubSubObject in Object.LoadedObjects)
-                        {
-                            if (typeof(IUpdate).IsAssignableFrom(SubSubObject.GetType()))
-                            {
-                                IUpdate SubUpdate = (IUpdate)SubSubObject;
-                                Updates.Remove(SubUpdate);
-                            }
-                            if (typeof(IDraw).IsAssignableFrom(SubSubObject.GetType()))
-                            {
-                                IDraw SubDraw = (IDraw)SubSubObject;
-                                Draws.Remove(SubDraw);
-                            }
-                            if (typeof(Text).IsAssignableFrom(SubSubObject.GetType()))
-                            {
-                                Text SubText = (Text)SubSubObject;
-                                Texts.Remove(SubText);
-                            }
-                            if (typeof(IContainer).IsAssignableFrom(SubSubObject.GetType()))
-                            {
-                                IContainer SubContainer = (IContainer)SubSubObject;
-                                SubContainer.Destroy = true;
-                            }
-                        }
-                        Containers.Remove(Object);
-                    }
-                    if (typeof(Text).IsAssignableFrom(CurrentObject.GetType()))
-                    {
-                        Text Object = (Text)CurrentObject;
-                        Texts.Remove(Object);
-                    }
-                    LoadedObjects.Remove(CurrentObject);
-                    CurrentObject = null;
-                    break;
+                    i--;
+                }
+                SubContainer.DestroyObjects();
+            }
+        }
+        public void Clear()
+        {
+            Updates.Clear();
+            Draws.Clear();
+            Containers.Clear();
+            Texts.Clear();
+            Notifiers.Clear();
+            ObjectsToLoad.Clear();
+            LoadedObjects.Clear();
+        }
+        public void Update()
+        {
+            foreach (IUpdate Update in Updates)
+            {
+                Update.Update();
+                if (typeof(IContainer).IsAssignableFrom(Update.GetType()))
+                {
+                    IContainer SubContainer = (IContainer)Update;
+                    SubContainer.Update();
                 }
             }
         }
-        public void IncreaseLayerDepth(IDraw Parent, int LayerIncrease)
+        public void Draw(SpriteBatch SpriteBatch)
         {
-            Parent.LayerDepth += LayerIncrease;
-            foreach(IDraw Draw in Draws)
+            foreach(Text Text in Texts)
             {
-                Draw.LayerDepth += LayerIncrease;
-            }
-            foreach (Text Text in Texts)
-            {
-                Text.LayerData.LayerDepth += LayerIncrease;
-            }
-            List<IContainer> SubContainers = new();
-            SubContainers.AddRange(Containers);
-            for (int i = 0; i < SubContainers.Count; i++)
-            {
-                IContainer SubContainer = SubContainers[i];
-                foreach (IDraw SubDraw in SubContainer.Draws)
+                if (Text.Txt != "")
                 {
-                    SubDraw.LayerDepth += LayerIncrease;
+                    SpriteBatch.DrawString(Text.Font, Text.Txt, Text.Pos, Text.Color, Text.Rotation, Text.Origin, Text.Scale, Text.Effect, Text.Layer);
                 }
-                foreach (Text SubText in SubContainer.Texts)
+            } 
+            foreach (IDraw Draw in Draws)
+            {
+                SpriteBatch.Draw(Draw.Texture, Draw.Rect, null, Draw.Color, Draw.Rotation, Draw.Origin, Draw.Effect, Draw.Layer);
+                if (typeof(IContainer).IsAssignableFrom(Draw.GetType()))
                 {
-                    SubText.LayerData.LayerDepth += LayerIncrease;
-                }
-                foreach (IContainer SubSubContainer in SubContainer.Containers)
-                {
-                    SubContainers.Add(SubSubContainer);
+                    IContainer SubContainer = (IContainer)Draw;
+                    SubContainer.Draw(SpriteBatch);
                 }
             }
         }

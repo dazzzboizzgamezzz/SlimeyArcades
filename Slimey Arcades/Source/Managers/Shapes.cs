@@ -97,9 +97,11 @@ namespace Slimey_Arcades
             {
                 int X = i % Res;
                 int Y = (int)MathF.Floor((float)(i / Res));
+                //int Weight = 150;
+                int Weight = 100;
                 RawPixels[i] = Filled;
-                if ((X + 50 < Y || Y + 50 < X)) RawPixels[i] = Empty;
-                if (X + Y < Res + 50 && X + Y > Res - 50) RawPixels[i] = Filled;
+                if ((X + Weight < Y || Y + Weight < X)) RawPixels[i] = Empty;
+                if (X + Y < Res + Weight && X + Y > Res - Weight) RawPixels[i] = Filled;
             }
             XCross.SetData(RawPixels);
         }

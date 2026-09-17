@@ -1,44 +1,24 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Slimey_Arcades.Managers;
-using Slimey_Arcades.Scenes;
-using Slimey_Arcades.Utilities;
-using Slimey_Arcades.Windows;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Slimey_Arcades.Objects
+namespace Slimey_Arcades
 {
     public class LevelGrid : Grid
     {
-        public bool Paused { get; set; } = false;
         private List<Keys> PressedKeys { get; set; } = new();
         private List<Slime> ActiveSlimes { get; set; } = new();
         private Slime Player { get; set; }
         private Polygon WallOutline { get; set; }
         private int Timer { get; set; } = 0;
+        private bool Paused { get; set; } = false;
+        //private Queue<Slime> RotationFusionSlimes { get; set; } = new();
         public LevelGrid(int X, int Y, int Level) : base(X, Y, 11, 11, Color.DarkMagenta, 2)
         {
             LoadLevel(Level);
-
-            //Get the green slime and set it as the player
-            //for(int i = 0; i < Slimes.Count; i++)
-            //{
-            //Slime Slime = Slimes[i];
-            //if (Slime.Properties.Contains("GSlime"))
-            //{
-            //    Player = Slime;
-            //    ActiveSlimes.Add(Slime);
-            //    Slimes.Remove(Slime);
-            //    Slime.TargetCell = Cells[Slime.Col, Slime.Row];
-            //    Cells[Slime.Col, Slime.Row].Properties.Remove(Slime.Properties[0]);
-            //    Fusion(Slime);
-            //    break; 
-            //}
-            //}
 
             Player = Slimes[0];
             ActiveSlimes.Add(Player);
@@ -51,7 +31,7 @@ namespace Slimey_Arcades.Objects
         }
         public override void Update()
         {
-            if (LevelScene.PauseState == "")
+            if (!Paused)
             {
                 List<Keys> CurrentKeys = Keyboard.GetState().GetPressedKeys().ToList();
                 foreach (Keys Key in CurrentKeys) 
@@ -86,68 +66,135 @@ namespace Slimey_Arcades.Objects
                 if (Timer == 0) WallOutline.Transform.Pos = new Vector2(-100, -100);
             }
         }
-        /// <summary>
-        /// Move the TargetCell object component of each ActiveSlime in the desired direction,
-        /// If there's a wall there, move each slime backwards one tile
-        /// If there's ice there, recurse movement up to this point
-        /// Set all ActiveSlime positions to their respective TargetCell positions, which includes fusion and stretching the slimes
-        /// </summary>
-        /// <param name="Direction"></param>
+        protected override void ProcessNotifications(Notification Notification)
+        {
+            switch (Notification.Type)
+            {
+                case NOTTYPES.PAUSED:
+                    Paused = Paused ? false : true;
+                    break;
+            }
+        }
         private void Move(string Direction)
         {
             List<Cell> TargetCells = new();
 
             foreach (Slime Slime in ActiveSlimes)
             {
-                Cell NewTarget = GetTargetCell(Slime.TargetCell, Direction);
-                if (NewTarget == null) return;
-                Slime.TargetCell = NewTarget;
-                TargetCells.Add(NewTarget);
+                //Cell NewTarget = GetTargetCell(Slime.TargetCell, Direction);
+                //if (NewTarget == null) return;
+                //Slime.TargetCell = NewTarget;
+                //TargetCells.Add(NewTarget);
+                Slime.TargetCell = GetTargetCell(Slime.TargetCell, Direction);
             }
 
-            if (!HitWall(TargetCells, Direction))
+            //if (HitWall(TargetCells, Direction)) return;
+            if (GetCellCount(CELLOBJECTS.WALL) > 0)
             {
-                for(int i = 0; i < ActiveSlimes.Count; i++)
+                foreach(Slime Slime in ActiveSlimes)
                 {
-                    Slime Slime = ActiveSlimes[i];
-                    if (Slime.TargetCell.Properties.Contains(CellObjects.ICE))
-                    {
-                        Fusion(Slime.TargetCell);
-                        Move(Direction);
-                    }
-                    //if (Slime.TargetCell.Properties.Contains("Ice"))
-                    //{
-                    //    Fusion(Slime.TargetCell);
-                    //    Move(Direction);
-                    //}
+                    Slime.TargetCell = GetCell(Slime.Col, Slime.Row);
                 }
-                bool HitPit = true;
-                foreach (Cell Cell in TargetCells)
+                return;
+            }
+
+            foreach (Slime Slime in ActiveSlimes)
+            {
+                if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.RSWITCH)) { SwitchRedBlue(CELLOBJECTS.RSWITCH); break; }
+                else if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.BSWITCH)) { SwitchRedBlue(CELLOBJECTS.BSWITCH); break; }
+            }
+
+            CutSlimes();
+
+            //IceCheck(Direction);
+
+            if (PitCheck()) return;
+
+            MoveSlimesToTargets();
+
+            if (GetCellCount(CELLOBJECTS.ICE) > 0)
+            {
+                Move(Direction);
+            }
+        }
+        private int GetCellCount(CELLOBJECTS CellType)
+        {
+            int CellCount = 0;
+
+            foreach(Slime Slime in ActiveSlimes)
+            {
+                if (Slime.TargetCell.Properties.Contains(CellType))
                 {
-                    //if (Cell.Properties.Contains("Pit")) continue;
-                    if (Cell.Properties.Contains(CellObjects.PIT)) continue;
-                    HitPit = false;
-                    break;
-                }
-                if (HitPit)
-                {
-                    foreach (Slime Slime in ActiveSlimes)
-                    {
-                        Slime.TargetCell = null;
-                        Slime.MoveToCell(Slime.TargetCell);
-                    }
+                    CellCount++;
                 }
             }
-            MoveSlimesToTargets();
+
+            return CellCount;
+        }
+        //private void IceCheck(string Direction)
+        //{
+        //    for (int i = 0; i < ActiveSlimes.Count; i++)
+        //    {
+        //        Slime Slime = ActiveSlimes[i];
+        //        if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.ICE))
+        //        {
+        //            //Fusion(Slime.TargetCell, Slime.CanStick, false);
+        //            Fusion(Slime);
+        //            Move(Direction);
+        //        }
+        //    }
+        //}
+        //private bool PitCheck()
+        //{
+        //    bool HitPit = true;
+        //    foreach (Slime Slime in ActiveSlimes)
+        //    {
+        //        if (!Slime.TargetCell.Properties.Contains(CELLOBJECTS.PIT)) 
+        //        { 
+        //            HitPit = false; 
+        //            break; 
+        //        }
+        //    }
+        //    if (HitPit)
+        //    {
+        //        foreach (Slime Slime in ActiveSlimes)
+        //        {
+        //            Slime.TargetCell = null;
+        //            //Slime.MoveToCell(Slime.TargetCell);
+        //            Slime.MoveToTarget();
+        //        }
+        //        Notification Notification = new Notification(NOTTYPES.LOSE);
+        //        Notifier.SendNotification(Notification);
+        //    }
+        //    return HitPit;
+        //}
+        private bool PitCheck()
+        {
+            bool HitPit = false;
+            if (GetCellCount(CELLOBJECTS.PIT) == ActiveSlimes.Count)
+            {
+                foreach (Slime Slime in ActiveSlimes)
+                {
+                    Slime.TargetCell = null;
+                    Slime.MoveToTarget();
+                }
+                Notification Notification = new Notification(NOTTYPES.LOSE);
+                Notifier.SendNotification(Notification);
+                HitPit = true;
+            }
+            return HitPit;
         }
         private void MoveSlimesToTargets()
         {
             for (int i = 0; i < ActiveSlimes.Count; i++)
             {
                 Slime Slime = ActiveSlimes[i];
-                Slime.MoveToCell(Slime.TargetCell);
+                //Slime.MoveToCell(Slime.TargetCell);
+                Slime.MoveToTarget();
                 Fusion(Slime);
             }
+            foreach (Slime Slime in Slimes) { Slime.WasCut = false; }
+            ActiveSlimes = ActiveSlimes.OrderBy(Slime => Slime.DistanceToCenter).ToList();
             StretchSlimes();
             CheckWin();
         }
@@ -198,94 +245,126 @@ namespace Slimey_Arcades.Objects
             TargetCell = GetCell(StartingCell.Col + ColOffset, StartingCell.Row + RowOffset);
             return TargetCell;
         }
-        private bool HitWall(List<Cell> TargetCells, string Direction)
+        //private bool HitWall(List<Cell> TargetCells, string Direction)
+        //{
+        //    foreach (Cell Cell in TargetCells)
+        //    {
+        //        if (Cell.Properties.Contains(CELLOBJECTS.WALL))
+        //        {
+        //            string NewDirection = "";
+        //            switch (Direction)
+        //            {
+        //                case "Down": NewDirection = "Up"; break;
+        //                case "Up": NewDirection = "Down"; break;
+        //                case "Right": NewDirection = "Left"; break;
+        //                case "Left": NewDirection = "Right"; break;
+        //            }
+        //            foreach (Slime Slime in ActiveSlimes)
+        //            {
+        //                Slime.TargetCell = GetTargetCell(Slime.TargetCell, NewDirection);
+        //            }
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
+        //private void NewCutSlimes()
+        private void CutSlimes()
         {
-            foreach (Cell Cell in TargetCells)
+            if (ActiveSlimes.Count == 1) return;
+
+            HashSet<Slime> SlimesToCheck = new();
+            SlimesToCheck.Add(Player);
+
+            Dictionary<Vector2, Slime> SlimeTargetCells = new();
+            foreach (Slime Slime in ActiveSlimes) SlimeTargetCells.Add(Slime.TargetCell.ColRowVec, Slime);
+
+            for (int i = 0; i < SlimesToCheck.Count; i++)
             {
-                //if (Cell.Properties.Contains("Wall") )
-                if (Cell.Properties.Contains(CellObjects.WALL))
+                Slime Slime = SlimesToCheck.Take(i + 1).Last();
+                foreach (Cell Neighbor in GetNeighbors(Slime.TargetCell))
                 {
-                    string NewDirection = "";
-                    switch (Direction)
+                    if (SlimeTargetCells.Keys.Contains(Neighbor.ColRowVec))
                     {
-                        case "Down": NewDirection = "Up"; break;
-                        case "Up": NewDirection = "Down"; break;
-                        case "Right": NewDirection = "Left"; break;
-                        case "Left": NewDirection = "Right"; break;
+                        Slime NeighborSlime = SlimeTargetCells[Neighbor.ColRowVec];
+                        if (!CompareCutters(Slime.TargetCell, Neighbor))
+                        {
+                            SlimesToCheck.Add(NeighborSlime);
+                        }
+                        else if (!SlimesToCheck.Contains(SlimeTargetCells[Neighbor.ColRowVec]))
+                        {
+                            NeighborSlime.WasCut = true;
+                            SlimeTargetCells.Remove(NeighborSlime.TargetCell.ColRowVec);
+                            //NeighborSlime.MoveToCell(NeighborSlime.TargetCell);
+                            NeighborSlime.MoveToTarget();
+                            i--;
+                        }
                     }
-                    foreach (Slime Slime in ActiveSlimes)
-                    {
-                        Slime.TargetCell = GetTargetCell(Slime.TargetCell, NewDirection);
-                    }
-                    return true;
+                }
+            }
+
+            if (SlimesToCheck.Count != ActiveSlimes.Count)
+            {
+                foreach(Slime Slime in ActiveSlimes)
+                {
+                    //Slime.MoveToCell(Slime.TargetCell);
+                    Slime.MoveToTarget();
+                }
+                ActiveSlimes = SlimesToCheck.ToList();
+            }
+        }
+        private bool CompareCutters(Cell StartCell, Cell Neighbor)
+        {
+            foreach(CELLOBJECTS Cutter in StartCell.GetCutters())
+            {
+                foreach (CELLOBJECTS NeighborCutter in Neighbor.GetCutters())
+                {
+                    if (Cutter == CELLOBJECTS.RCUTTER && NeighborCutter == CELLOBJECTS.LCUTTER
+                     || Cutter == CELLOBJECTS.LCUTTER && NeighborCutter == CELLOBJECTS.RCUTTER
+                     || Cutter == CELLOBJECTS.UCUTTER && NeighborCutter == CELLOBJECTS.DCUTTER
+                     || Cutter == CELLOBJECTS.DCUTTER && NeighborCutter == CELLOBJECTS.UCUTTER)
+                        return true;
                 }
             }
             return false;
         }
-        private void Fusion(Cell StartingCell)
+        private void Fusion(Slime StartingSlime)
         {
-            //if (Slimes.Count > 0)
-            //{
-                List<Cell> Neighbors = new()
+            bool IsSlime = StartingSlime.CanStick;
+            bool WasCut = StartingSlime.WasCut;
+            Cell StartingCell = StartingSlime.TargetCell;
+            List<Cell> Neighbors = new()
+            {
+                GetTargetCell(StartingCell, "Up"),
+                GetTargetCell(StartingCell, "Down"),
+                GetTargetCell(StartingCell, "Left"),
+                GetTargetCell(StartingCell, "Right"),
+            };
+            foreach(Cell Neighbor in Neighbors)
+            {
+                if (WasCut && StartingCell.HasCutter() && Neighbor.HasCutter())
                 {
-                    GetTargetCell(StartingCell, "Up"),
-                    GetTargetCell(StartingCell, "Down"),
-                    GetTargetCell(StartingCell, "Left"),
-                    GetTargetCell(StartingCell, "Right"),
-                };
-                //for (int i = 0; i < Slimes.Count; i++)
-                //{
-                    //Slime Slime = Slimes[i];
-                    //string SlimeType = Slime.Properties[0];
-                    //foreach (Cell Neighbor in Neighbors)
-                    //{
-                    //    if (Neighbor != null && Neighbor.Properties.Contains(SlimeType))
-                    //    {
-                    //        ActiveSlimes.Add(Slime);
-                    //        Slimes.Remove(Slime);
-                    //        i--;
-                    //        Neighbor.Properties.Remove(SlimeType);
-                    //        Slime.TargetCell = Neighbor;
-                    //        break;
-                    //    }
-                    //}
-                //}
-                foreach (Slime Slime in Slimes)
+                    continue;
+                }
+                if (Neighbor.Barrel != null && IsSlime)
                 {
-                    if (!ActiveSlimes.Contains(Slime) && Slime.ColRowVec != new Vector2(-1, -1))
+                    ActiveSlimes.Add(Neighbor.Barrel);
+                    Neighbor.Barrel = null;
+                }
+                foreach(Slime Slime in Slimes)
+                {
+                    //if (ActiveSlimes.Contains(Slime) || Slime.ColRowVec == new Vector2(-1, -1)) continue;
+                    if (ActiveSlimes.Contains(Slime) || Slime.ColRowVec == new Vector2(-1, -1) || Slime.WasCut) continue;
+                    if (Slime.ColRowVec == Neighbor.ColRowVec)
                     {
-                        foreach(Cell Neighbor in Neighbors)
-                        {
-                            if (Slime.ColRowVec == Neighbor.ColRowVec)
-                            {
-                                ActiveSlimes.Add(Slime);
-                            }
-                        }
+                        Slime.DistanceToCenter = StartingSlime.DistanceToCenter + 1;
+                        ActiveSlimes.Add(Slime);
                     }
                 }
-            //}
+            }
         }
         private void CheckWin()
         {
-            //if (Slimes.Count == 0)
-            //{
-            //    bool Winning = true;
-            //    foreach (Slime Slime in ActiveSlimes)
-            //    {
-            //        Cell SlimeCell = Cells[Slime.Col, Slime.Row];
-            //        //string GoalType = Slime.Type.Substring(0, 1) + "Goal";
-            //        //if (SlimeCell.Properties.Contains(GoalType)) continue;
-            //        Winning = false;
-            //        break;
-            //    }
-            //    if (Winning) LevelScene.PauseState = "Winning";
-            //}
-            //if (Winning)
-            //{
-            //    PauseWindow WinWindow = new PauseWindow(new Vector2(400, 300));
-            //    WinWindow.UpdateState("Win");
-            //    Container.ObjectsToLoad.Add(WinWindow);
-            //}
             bool Winning = false;
             foreach (Slime Slime in Slimes)
             {
@@ -296,17 +375,17 @@ namespace Slimey_Arcades.Objects
                     Cell SlimeCell = GetCell(Slime.Col, Slime.Row);
                     if (SlimeCell.Properties.Count == 0) { Winning = false; break; }
 
-                    CellObjects SlimeType = (CellObjects)(-1);
+                    CELLOBJECTS SlimeType = (CELLOBJECTS)(-1);
                     switch (Slime.Type)
                     {
-                        case 0: SlimeType = CellObjects.GGOAL; break;
-                        case 1: SlimeType = CellObjects.RGOAL; break;
-                        case 2: SlimeType = CellObjects.BGOAL; break;
-                        case 3: SlimeType = CellObjects.YGOAL; break;
-                        case 4: SlimeType = CellObjects.PGOAL; break;
+                        case 0: SlimeType = CELLOBJECTS.GGOAL; break;
+                        case 1: SlimeType = CELLOBJECTS.RGOAL; break;
+                        case 2: SlimeType = CELLOBJECTS.BGOAL; break;
+                        case 3: SlimeType = CELLOBJECTS.YGOAL; break;
+                        case 4: SlimeType = CELLOBJECTS.PGOAL; break;
                     }
 
-                    foreach(CellObjects Property in SlimeCell.Properties)
+                    foreach(CELLOBJECTS Property in SlimeCell.Properties)
                     {
                         if (Property == SlimeType) Winning = true;
                         else Winning = false;
@@ -315,182 +394,253 @@ namespace Slimey_Arcades.Objects
                     if (!Winning) break;
                 }
             }
-            if (Winning) LevelScene.PauseState = "Winning";
+            if (Winning)
+            {
+                Notification Notification = new Notification(NOTTYPES.WIN);
+                Notifier.SendNotification(Notification);
+            }
         }
-        /// <summary>
-        /// 1. Sort each slime by their distance from the player (old code, can be depricated)
-        /// 2. For each slime other than the player, establish their 'quadrant', determined by placing an 'X' over the player and seeing which section the slime is in
-        /// 3. Set the target rotational target as (x, y) => (y, -x) for clockwise and (x, y) => (-y, x) for counterclockwise
-        /// 4. Set the slime TargetCell one cell closer to the rotational target, moving away from the player (i.e. upper quadrant clockwise moves left then down)
-        /// 5. Repeatedly move the TargetCell until you reach the rotational target
-        /// 6. If the moving slime collides with an inactive slime, the inactive slime is added to the active slimes, and it's position is placed next to the slimes starting position
-        ///     After the slime is done rotating, the added slime also rotates. This allows the player to collide with a slime then a wall and have the slime attach properly
-        /// 7. If the slime collides with a wall, reset the TargetCell of every slime to their respective positions and stop rotating
-        /// 8. Move all of the slimes to their TargetCells, which includes fusion and stretching
-        /// </summary>
-        /// <param name="Direction"></param>
+        private Slime CheckForSlimes(Cell TargetCell)
+        {
+            Slime FoundSlime = null;
+            foreach (Slime Slime in Slimes)
+            {
+                if (Slime.ColRowVec == TargetCell.ColRowVec)
+                {
+                    FoundSlime = Slime;
+                    break;
+                }
+            }
+            //foreach(Slime Barrel in Barrels)
+            //{
+            //    if (Barrel.ColRowVec == TargetCell.ColRowVec)
+            //    {
+            //        FoundSlime = Barrel;
+            //        break;
+            //    }
+            //}
+            return FoundSlime;
+        }
         private void Rotate(string Direction)
         {
-            if (ActiveSlimes.Count > 1)
+            if (ActiveSlimes.Count == 1) return;
+
+            List<Slime> SlimesToRotate = new(ActiveSlimes);
+
+            for (int i = 1; i < SlimesToRotate.Count; i++)
             {
-                List<Slime> SlimesToSort = new();
-                foreach (Slime Slime in ActiveSlimes)
+                Slime Slime = SlimesToRotate[i];
+
+                Vector2 RelPos = Slime.ColRowVec - Player.ColRowVec;
+                Vector2 TargetPos = Vector2.Zero;
+
+                if (Direction == "Clockwise") TargetPos = new Vector2(-RelPos.Y, RelPos.X);
+                if (Direction == "CounterClockwise") TargetPos = new Vector2(RelPos.Y, -RelPos.X);
+
+                Vector2 NextPos = RelPos;
+                Vector2 MovePos = (Math.Abs(RelPos.X) < Math.Abs(NextPos.Y)) ?
+                    MovePos = (NextPos.X < TargetPos.X) ? new Vector2(1, 0) : new Vector2(-1, 0) :
+                    MovePos = (NextPos.Y < TargetPos.Y) ? new Vector2(0, 1) : new Vector2(0, -1);
+
+                bool FoundSlime = false;
+
+                while (NextPos != TargetPos)
                 {
-                    if (Slime != Player)
+                    if (Math.Abs(MovePos.X) == 1 && NextPos.X == TargetPos.X)
                     {
-                        int RelX = Slime.Col - Player.Col;
-                        int RelY = -(Slime.Row - Player.Row);
-                        Slime.Distance = Math.Abs(RelX) + Math.Abs(RelY);
-                        SlimesToSort.Add(Slime);
+                        MovePos = (NextPos.Y < TargetPos.Y) ? new Vector2(0, 1) : new Vector2(0, -1);
+                    }
+                    if (Math.Abs(MovePos.Y) == 1 && NextPos.Y == TargetPos.Y)
+                    {
+                        MovePos = (NextPos.X < TargetPos.X) ? new Vector2(1, 0) : new Vector2(-1, 0);
+                    }
+
+                    NextPos += MovePos;
+
+                    Cell NextCell = GetCell(Player.ColRowVec + NextPos);
+
+                    if (NextCell.Properties.Contains(CELLOBJECTS.WALL)) { StopRotating(NextCell); return; }
+                    //there is a bug if you collide with two slimes before hitting a wall, only one slime will fuse, fix when adding in barrel on barrel collisions.
+                    if (!FoundSlime)
+                    {
+                        Slime NeighborSlime = CheckForSlimes(NextCell);
+                        if (NeighborSlime != null && !SlimesToRotate.Contains(NeighborSlime))
+                        {
+                            FoundSlime = true;
+                            NeighborSlime.DistanceToCenter = Slime.DistanceToCenter + 1;
+                            ActiveSlimes.Add(NeighborSlime);
+                            SlimesToRotate.Add(NeighborSlime);
+                            NeighborSlime.TargetCell = GetCell(Slime.ColRowVec + MovePos);
+                            NeighborSlime.MoveToTarget();
+                        }
                     }
                 }
-                Stack<Slime> SlimesToRotate = new(SlimesToSort.OrderBy(o => o.Distance));
-                while (SlimesToRotate.Count > 0)
-                {
-                    Slime Slime = SlimesToRotate.Pop();
-
-                    int RelX =   Slime.Col - Player.Col;
-                    int RelY = -(Slime.Row - Player.Row);
-
-                    string Quadrant = "";
-
-                    if (RelX + RelY > 0 && RelX - RelY >= 0) Quadrant = "Right";
-                    if (RelX + RelY <= 0 && RelX - RelY > 0) Quadrant = "Down";
-                    if (RelX + RelY < 0 && RelX - RelY <= 0) Quadrant = "Left";
-                    if (RelX + RelY >= 0 && RelX - RelY < 0) Quadrant = "Up";
-
-                    Vector2 RotationTarget = Vector2.Zero;
-                    Cell TargetCell = null;
-
-                    string MoveDirection1 = "";
-                    string MoveDirection2 = "";
-
-                    if (Direction == "Clockwise")
-                    {
-                        RotationTarget = new Vector2(RelY, -RelX);
-                        TargetCell = GetCell((int)RotationTarget.X + Player.Col, -(int)RotationTarget.Y + Player.Row);
-                        if (TargetCell == null) return;
-                        switch (Quadrant)
-                        {
-                            case "Up":    MoveDirection1 = "Right"; MoveDirection2 = "Down";  break;
-                            case "Right": MoveDirection1 = "Down";  MoveDirection2 = "Left";  break;
-                            case "Down":  MoveDirection1 = "Left";  MoveDirection2 = "Up";    break;
-                            case "Left":  MoveDirection1 = "Up";    MoveDirection2 = "Right"; break;
-                        }
-                    }
-                    else
-                    {
-                        RotationTarget = new Vector2(-RelY, RelX);
-                        TargetCell = GetCell((int)RotationTarget.X + Player.Col, -(int)RotationTarget.Y + Player.Row);
-                        if (TargetCell == null) return;
-                        switch (Quadrant)
-                        {
-                            case "Up":    MoveDirection1 = "Left";  MoveDirection2 = "Down";  break;
-                            case "Left":  MoveDirection1 = "Down";  MoveDirection2 = "Right"; break;
-                            case "Down":  MoveDirection1 = "Right"; MoveDirection2 = "Up";    break;
-                            case "Right": MoveDirection1 = "Up";    MoveDirection2 = "Left";  break;
-                        }
-                    }
-
-                    bool HitWall = false;
-                    Cell OtherTarget = GetCell(Slime.Col, Slime.Row);
-                    if (MoveForRotating(Slime, TargetCell, MoveDirection1)) HitWall = true;
-                    if (RotationFusionSlimes.Count > 0)
-                    {
-                        while (RotationFusionSlimes.Count > 0)
-                        {
-                            Slime OtherSlime = RotationFusionSlimes.Dequeue();
-                            OtherTarget = GetTargetCell(OtherTarget, MoveDirection1);
-                            OtherSlime.MoveToCell(OtherTarget);
-                            ActiveSlimes.Add(OtherSlime);
-                            SlimesToRotate.Push(OtherSlime);
-                        }
-                    }
-                    if (HitWall) break;
-                    if (MoveForRotating(Slime, TargetCell, MoveDirection2)) HitWall = true;
-                    if (RotationFusionSlimes.Count > 0)
-                    {
-                        while (RotationFusionSlimes.Count > 0)
-                        {
-                            Slime OtherSlime = RotationFusionSlimes.Dequeue();
-                            OtherTarget = GetTargetCell(OtherTarget, MoveDirection1);
-                            OtherSlime.MoveToCell(OtherTarget);
-                            ActiveSlimes.Add(OtherSlime);
-                            SlimesToRotate.Push(OtherSlime);
-                        }
-                    }
-                    if (HitWall) break;
-                }
-                MoveSlimesToTargets();
+                Slime.TargetCell = GetCell(TargetPos + Player.ColRowVec);
             }
+
+            ActiveSlimes = SlimesToRotate;
+
+            foreach (Slime Slime in ActiveSlimes)
+            {
+                if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.RSWITCH)) { SwitchRedBlue(CELLOBJECTS.RSWITCH); break; }
+                else if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.BSWITCH)) { SwitchRedBlue(CELLOBJECTS.BSWITCH); break; }
+            }
+
+            if (PitCheck()) return;
+
+            MoveSlimesToTargets();
         }
-        private Queue<Slime> RotationFusionSlimes = new();
-        private bool MoveForRotating(Slime Slime, Cell TargetCell, string MoveDirection)
-        {
-            bool HitWall = false;
+        //private void OldRotate(string Direction)
+        //{
+        //    if (ActiveSlimes.Count > 1)
+        //    {
+        //        List<Slime> SlimesToSort = new();
+        //        foreach (Slime Slime in ActiveSlimes)
+        //        {
+        //            if (Slime != Player)
+        //            {
+        //                int RelX = Slime.Col - Player.Col;
+        //                int RelY = -(Slime.Row - Player.Row);
+        //                Slime.DistanceToCenter = Math.Abs(RelX) + Math.Abs(RelY);
+        //                SlimesToSort.Add(Slime);
+        //            }
+        //        }
+        //        Stack<Slime> SlimesToRotate = new(SlimesToSort.OrderBy(o => o.DistanceToCenter));
+        //        while (SlimesToRotate.Count > 0)
+        //        {
+        //            Slime Slime = SlimesToRotate.Pop();
 
-            int CurrentPosition = 0;
-            int TargetPosition = 0;
-            int MoveOffset = 0;
-            switch (MoveDirection)
-            {
-                case "Up":
-                    CurrentPosition = Slime.Row;
-                    TargetPosition = TargetCell.Row;
-                    MoveOffset = -1;
-                    break;
-                case "Down":
-                    CurrentPosition = Slime.Row;
-                    TargetPosition = TargetCell.Row;
-                    MoveOffset = 1;
-                    break;
-                case "Right":
-                    CurrentPosition = Slime.Col;
-                    TargetPosition = TargetCell.Col;
-                    MoveOffset = 1;
-                    break;
-                case "Left":
-                    CurrentPosition = Slime.Col;
-                    TargetPosition = TargetCell.Col;
-                    MoveOffset = -1;
-                    break;
-            }
+        //            int RelX =   Slime.Col - Player.Col;
+        //            int RelY = -(Slime.Row - Player.Row);
 
-            while (CurrentPosition != TargetPosition)
-            {
-                Slime.TargetCell = GetTargetCell(Slime.TargetCell, MoveDirection);
-                //if (Slime.TargetCell.Properties.Contains("Wall"))
-                if (Slime.TargetCell.Properties.Contains(CellObjects.WALL))
-                {
-                    StopRotating(Slime.TargetCell);
-                    HitWall = true;
-                    return HitWall;
-                }
-                //Slime collision logic
-                //if (Slimes.Count > 0)
-                //{
-                //    for (int i = 0; i < Slimes.Count; i++)
-                //    {
-                //        Slime OtherSlime = Slimes[i];
-                //        //if (Slime.TargetCell.Properties.Contains(OtherSlime.Type))
-                //        //{
-                //        //    Slimes.Remove(OtherSlime);
-                //        //    RotationFusionSlimes.Enqueue(OtherSlime);
-                //        //}
-                //    }
-                //}
-                foreach (Slime OtherSlime in Slimes)
-                {
-                    if (OtherSlime != Slime && OtherSlime.ColRowVec == Slime.TargetCell.ColRowVec)
-                    {
-                        RotationFusionSlimes.Enqueue(OtherSlime);
-                    }
-                }
-                CurrentPosition += MoveOffset;
-            }
+        //            string Quadrant = "";
 
-            return HitWall;
-        }
+        //            if (RelX + RelY > 0 && RelX - RelY >= 0) Quadrant = "Right";
+        //            if (RelX + RelY <= 0 && RelX - RelY > 0) Quadrant = "Down";
+        //            if (RelX + RelY < 0 && RelX - RelY <= 0) Quadrant = "Left";
+        //            if (RelX + RelY >= 0 && RelX - RelY < 0) Quadrant = "Up";
+
+        //            Vector2 RotationTarget = Vector2.Zero;
+        //            Cell TargetCell = null;
+
+        //            string MoveDirection1 = "";
+        //            string MoveDirection2 = "";
+
+        //            if (Direction == "Clockwise")
+        //            {
+        //                RotationTarget = new Vector2(RelY, -RelX);
+        //                TargetCell = GetCell((int)RotationTarget.X + Player.Col, -(int)RotationTarget.Y + Player.Row);
+        //                if (TargetCell == null) return;
+        //                switch (Quadrant)
+        //                {
+        //                    case "Up":    MoveDirection1 = "Right"; MoveDirection2 = "Down";  break;
+        //                    case "Right": MoveDirection1 = "Down";  MoveDirection2 = "Left";  break;
+        //                    case "Down":  MoveDirection1 = "Left";  MoveDirection2 = "Up";    break;
+        //                    case "Left":  MoveDirection1 = "Up";    MoveDirection2 = "Right"; break;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                RotationTarget = new Vector2(-RelY, RelX);
+        //                TargetCell = GetCell((int)RotationTarget.X + Player.Col, -(int)RotationTarget.Y + Player.Row);
+        //                if (TargetCell == null) return;
+        //                switch (Quadrant)
+        //                {
+        //                    case "Up":    MoveDirection1 = "Left";  MoveDirection2 = "Down";  break;
+        //                    case "Left":  MoveDirection1 = "Down";  MoveDirection2 = "Right"; break;
+        //                    case "Down":  MoveDirection1 = "Right"; MoveDirection2 = "Up";    break;
+        //                    case "Right": MoveDirection1 = "Up";    MoveDirection2 = "Left";  break;
+        //                }
+        //            }
+
+        //            bool HitWall = false;
+        //            Cell OtherTarget = GetCell(Slime.Col, Slime.Row);
+        //            if (MoveForRotating(Slime, TargetCell, MoveDirection1)) HitWall = true;
+        //            if (RotationFusionSlimes.Count > 0)
+        //            {
+        //                while (RotationFusionSlimes.Count > 0)
+        //                {
+        //                    Slime OtherSlime = RotationFusionSlimes.Dequeue();
+        //                    OtherTarget = GetTargetCell(OtherTarget, MoveDirection1);
+        //                    //OtherSlime.MoveToCell(OtherTarget);
+        //                    OtherSlime.TargetCell = OtherTarget;
+        //                    OtherSlime.MoveToTarget();
+        //                    ActiveSlimes.Add(OtherSlime);
+        //                    SlimesToRotate.Push(OtherSlime);
+        //                }
+        //            }
+        //            if (HitWall) break;
+        //            if (MoveForRotating(Slime, TargetCell, MoveDirection2)) HitWall = true;
+        //            if (RotationFusionSlimes.Count > 0)
+        //            {
+        //                while (RotationFusionSlimes.Count > 0)
+        //                {
+        //                    Slime OtherSlime = RotationFusionSlimes.Dequeue();
+        //                    OtherTarget = GetTargetCell(OtherTarget, MoveDirection1);
+        //                    //OtherSlime.MoveToCell(OtherTarget);
+        //                    OtherSlime.TargetCell = OtherTarget;
+        //                    OtherSlime.MoveToTarget();
+        //                    ActiveSlimes.Add(OtherSlime);
+        //                    SlimesToRotate.Push(OtherSlime);
+        //                }
+        //            }
+        //            if (HitWall) break;
+        //        }
+        //        MoveSlimesToTargets();
+        //    }
+        //}
+        //private bool MoveForRotating(Slime Slime, Cell TargetCell, string MoveDirection)
+        //{
+        //    bool HitWall = false;
+
+        //    int CurrentPosition = 0;
+        //    int TargetPosition = 0;
+        //    int MoveOffset = 0;
+        //    switch (MoveDirection)
+        //    {
+        //        case "Up":
+        //            CurrentPosition = Slime.Row;
+        //            TargetPosition = TargetCell.Row;
+        //            MoveOffset = -1;
+        //            break;
+        //        case "Down":
+        //            CurrentPosition = Slime.Row;
+        //            TargetPosition = TargetCell.Row;
+        //            MoveOffset = 1;
+        //            break;
+        //        case "Right":
+        //            CurrentPosition = Slime.Col;
+        //            TargetPosition = TargetCell.Col;
+        //            MoveOffset = 1;
+        //            break;
+        //        case "Left":
+        //            CurrentPosition = Slime.Col;
+        //            TargetPosition = TargetCell.Col;
+        //            MoveOffset = -1;
+        //            break;
+        //    }
+
+        //    while (CurrentPosition != TargetPosition)
+        //    {
+        //        Slime.TargetCell = GetTargetCell(Slime.TargetCell, MoveDirection);
+        //        if (Slime.TargetCell.Properties.Contains(CELLOBJECTS.WALL))
+        //        {
+        //            StopRotating(Slime.TargetCell);
+        //            HitWall = true;
+        //            return HitWall;
+        //        }
+        //        foreach (Slime OtherSlime in Slimes)
+        //        {
+        //            if (!ActiveSlimes.Contains(OtherSlime) && OtherSlime.ColRowVec == Slime.TargetCell.ColRowVec)
+        //            {
+        //                RotationFusionSlimes.Enqueue(OtherSlime);
+        //            }
+        //        }
+        //        CurrentPosition += MoveOffset;
+        //    }
+
+        //    return HitWall;
+        //}
         private void StopRotating(Cell TargetCell) 
         {
             WallOutline.Transform.Pos = new Vector2(TargetCell.Transform.Pos.X, TargetCell.Transform.Pos.Y);

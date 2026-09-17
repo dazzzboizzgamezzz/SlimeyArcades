@@ -1,16 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+//using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+//using Slimey_Arcades.Objects;
 
-using Slimey_Arcades.Utilities;
-using Slimey_Arcades.Objects;
-
-namespace Slimey_Arcades.Windows
+//namespace Slimey_Arcades.Windows
+namespace Slimey_Arcades
 {
     public class SaveLoadWindow : Window
     {
@@ -20,7 +19,7 @@ namespace Slimey_Arcades.Windows
         private Button LoadButton {  get; init; }
         public SaveLoadWindow(Vector2 Position) : base(new Transform((int)Position.X, (int)Position.Y, 250, 200), Color.DarkGray)
         {
-            Text SelectText = new Text(new Transform((int)(Position.X + 40), (int)(Position.Y + 50), 150, 30), "Select Level:", 0.2f);
+            Text SelectText = new Text(new Transform((int)(Position.X + 40), (int)(Position.Y + 50), 150, 30), "Select Level:", NewScale: 0.2f);
             SelectText.Color = Color.White;
             SubObjects.Add(SelectText);
 
@@ -28,7 +27,7 @@ namespace Slimey_Arcades.Windows
             NumberOutline.Sprite.LayerData.LayerIndex = 9;
             SubObjects.Add(NumberOutline);
 
-            LevelText = new Text(new Transform((int)(Position.X + 90), (int)(Position.Y + 105), 40, 40), SelectedLevel.ToString(), 0.28f);
+            LevelText = new Text(new Transform((int)(Position.X + 90), (int)(Position.Y + 105), 40, 40), SelectedLevel.ToString(), NewScale: 0.28f);
             SubObjects.Add(LevelText);
 
             Button UpButton = new Button((int)(Position.X + 130), (int)(Position.Y + 100), 25, 25, Shapes.Square, Color.LightGray, "");

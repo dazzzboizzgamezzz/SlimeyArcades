@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Slimey_Arcades.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,17 +7,17 @@ using System.Linq;
 
 namespace Slimey_Arcades
 {
-    public class Grid : IDraw, IContainer, IUpdate
+    public class Grid : IDraw, IContainer, IUpdate, INotifier
     {
         public Cell[,] Cells { get; set; }
         public Transform Transform { get; set; }
         public Sprite Sprite { get; set; }
         public Container Container { get; init; } = new();
+        public Notifier Notifier { get; init; } = new();
         protected int Rows { get; init; }
         protected int Cols { get; init; }
         protected int CellSize { get; init; }
         protected int CellGap { get; init; }
-        //protected List<Slime> Slimes { get; init; } = new();
         protected Slime[] Slimes { get; init; } = new Slime[5];
         public Grid(int X, int Y, int NewCols, int NewRows, Color BGColor, int NewCellGap = 5, int NewCellSize = 50, int BorderWidth = 5, Color? CellColor = null)
         {
@@ -31,6 +30,7 @@ namespace Slimey_Arcades
             Transform = new Transform(X - BorderWidth, Y - BorderWidth, Width + BorderWidth * 2, Height + BorderWidth * 2);
             Sprite = new Sprite(Shapes.Square, BGColor);
             Sprite.LayerData.LayerIndex = 9;
+            Notifier.ProcessNotifications = ProcessNotifications;
 
             Cells = new Cell[Cols, Rows];
             for (int i = 0; i < Cols; i++)
@@ -43,21 +43,29 @@ namespace Slimey_Arcades
                     Color NewCellColor = CellColor == null ? Color.Gray : (Color)CellColor;
                     Cells[i, j] = new Cell(CellPosition, NewCellColor, i, j);
                     Cells[i, j].Sprite.LayerData.LayerIndex = 8;
+                    Cells[i, j].CellGap = CellGap;
                     Container.ObjectsToLoad.Add(Cells[i, j]);
                 }
             }
 
             for (int i = 0; i < 5; i++)
             {
-                Slime Slime = new Slime(Cells[0, 0], "", i);
-                Slime.MoveToCell(null);
-                Slime.Sprite.LayerData.LayerDepth += 4;
+                Slime Slime = new Slime(Cells[0, 0], i);
+                //Slime.MoveToCell(null);
+                Slime.TargetCell = null;
+                Slime.MoveToTarget();
+                Slime.Sprite.LayerData.LayerDepth += 1;
                 Slimes[i] = Slime;
                 Container.ObjectsToLoad.Add(Slimes[i]);
             }
         }
         public virtual void Update() { }
-        public virtual Cell GetCell(int Col, int Row)
+        protected virtual void ProcessNotifications(Notification Notification) { }
+        public Cell GetCell(Vector2 ColRowVec)
+        {
+            return GetCell((int)ColRowVec.X, (int)ColRowVec.Y);
+        }
+        public Cell GetCell(int Col, int Row)
         {
             Cell TargetCell = null;
             if ((Col < Cols && Col > -1) && (Row < Rows && Row > -1))
@@ -79,19 +87,40 @@ namespace Slimey_Arcades
             }
             return MouseCell;
         }
-        //public Slime GetSlimeByType(string Type)
-        //{
-        //    Slime NewSlime = null;
-        //    foreach (Slime Slime in Slimes)
-        //    {
-        //        //if (Slime.Type == Type)
-        //        //{
-        //        //    NewSlime = Slime;
-        //        //    break;
-        //        //}
-        //    }
-        //    return NewSlime;
-        //}
+        public List<Cell> GetNeighbors(Cell Start)
+        {
+            List<Cell> Neighbors = new();
+
+            if (GetCell(Start.Col + 1, Start.Row) != null) Neighbors.Add(GetCell(Start.Col + 1, Start.Row));
+            if (GetCell(Start.Col - 1, Start.Row) != null) Neighbors.Add(GetCell(Start.Col - 1, Start.Row));
+            if (GetCell(Start.Col, Start.Row + 1) != null) Neighbors.Add(GetCell(Start.Col, Start.Row + 1));
+            if (GetCell(Start.Col, Start.Row - 1) != null) Neighbors.Add(GetCell(Start.Col, Start.Row - 1));
+
+            return Neighbors;
+        }
+        public void SwitchRedBlue(CELLOBJECTS SwitchType)
+        {
+            CELLOBJECTS OtherSwitch = SwitchType == CELLOBJECTS.RSWITCH ? CELLOBJECTS.BSWITCH : CELLOBJECTS.RSWITCH;
+            foreach(Cell Cell in Cells)
+            {
+                if (Cell.Properties.Contains(SwitchType)) 
+                {
+                    Cell.Properties.Remove(SwitchType);
+                    Cell.Properties.Add(OtherSwitch);
+                    Cell.ParseProperties();
+                }
+                if (SwitchType == CELLOBJECTS.RSWITCH && Cell.RedProperties.Count > 0)
+                {
+                    Cell.Properties = new(Cell.RedProperties);
+                    Cell.ParseProperties();
+                }
+                else if (SwitchType == CELLOBJECTS.BSWITCH && Cell.BlueProperties.Count > 0)
+                {
+                    Cell.Properties = new(Cell.BlueProperties);
+                    Cell.ParseProperties();
+                }
+            }
+        }
         public void SaveLevel(int Level)
         {
             string SceneFolder = Directory.GetCurrentDirectory() + "\\Levels";
@@ -108,17 +137,6 @@ namespace Slimey_Arcades
                 }
                 foreach (Cell Cell in Cells)
                 {
-                    //if (Cell.Properties.Count > 0)
-                    //{
-                    //    Properties = Cell.Col.ToString() + "," + Cell.Row.ToString() + ",";
-                    //    foreach (string Property in Cell.Properties)
-                    //    {
-                    //        Properties = Properties + Property + ",";
-                    //    }
-                    //    Properties = Properties.Remove(Properties.Length - 1);
-                    //    Writer.WriteLine(Properties);
-                    //    Writer.Flush();
-                    //}
                     if (Cell.Properties.Count > 0)
                     {
                         Data = Cell.Col.ToString() + "," + Cell.Row.ToString() + ",";
@@ -138,6 +156,7 @@ namespace Slimey_Arcades
             string LevelFile = Directory.GetCurrentDirectory() + "\\Levels" + "\\Level" + Level.ToString() + ".csv";
             if (File.Exists(LevelFile))
             {
+                CELLOBJECTS SwitchType = 0;
                 using (StreamReader Reader = new StreamReader(LevelFile))
                 {
                     string Line;
@@ -150,40 +169,58 @@ namespace Slimey_Arcades
                         if (LineCount < 5)
                         {
                             Slime Slime = Slimes[LineCount];
-                            Slime.MoveToCell(NextCell);
+                            Slime.TargetCell = NextCell;
+                            Slime.MoveToTarget();
+                            //Slime.MoveToCell(NextCell);
                         }
                         else if (Data.Count > 2)
                         {
-                            //Data.RemoveRange(0, 2);
-                            //NextCell.Properties.AddRange(Data);
-                            //foreach (string Property in Data)
-                            //{
-                            //    if (Property.Contains("Slime"))
-                            //    {
-                            //        if (Slimes.Count > 0)
-                            //        {
-                            //            Slime OldSlime = GetSlimeByType(Property);
-                            //            if (OldSlime != null) Slimes.Remove(OldSlime);
-                            //        }
-                            //        Slime NewSlime = new Slime(NextCell, Property);
-                            //        Slimes.Add(NewSlime);
-                            //    }
-                            //}
-                            //NextCell.ParseProperties();
                             Data.RemoveRange(0, 2);
                             foreach (string Property in Data)
                             {
-                                int PropertyValue = int.Parse(Property);
-                                NextCell.Properties.Add((CellObjects)PropertyValue);
+                                CELLOBJECTS PropertyValue = (CELLOBJECTS)int.Parse(Property);
+                                NextCell.Properties.Add(PropertyValue);
+                                if (PropertyValue == CELLOBJECTS.RSWITCH) 
+                                    SwitchType = CELLOBJECTS.BSWITCH;
+                                if (PropertyValue == CELLOBJECTS.BSWITCH) SwitchType = CELLOBJECTS.RSWITCH;
                             }
-                            if (NextCell.Properties.Count > 0) NextCell.NewParseProperties();
+                            if (NextCell.Properties.Contains(CELLOBJECTS.BTINT))
+                            {
+                                NextCell.BlueProperties = new(NextCell.Properties);
+                                NextCell.RedProperties.Add(CELLOBJECTS.BTINT);
+                            }
+                            if (NextCell.Properties.Contains(CELLOBJECTS.RTINT))
+                            {
+                                NextCell.RedProperties = new(NextCell.Properties);
+                                NextCell.BlueProperties.Add(CELLOBJECTS.RTINT);
+                            }
+                            if (NextCell.Properties.Count > 0) NextCell.ParseProperties();
                         }
                         LineCount++;
                     }
                 }
-                //Container.ObjectsToLoad.AddRange(Slimes);
+                if (SwitchType != 0) SwitchRedBlue(SwitchType);
             }
-            else throw new Exception("This level doesn't exist!!!");
+            else
+            {
+                LoadDefaultLevel();
+                LoadLevel(-1);
+            }
+        }
+        private void LoadDefaultLevel()
+        {
+            Grid DefaultGrid = new Grid(0, 0, 11, 11, Color.Black);
+            for (int i = 0; i < 11; i++)
+            {
+                DefaultGrid.Cells[i, 0].Properties.Add(CELLOBJECTS.WALL);
+                DefaultGrid.Cells[0, i].Properties.Add(CELLOBJECTS.WALL);
+                DefaultGrid.Cells[10, i].Properties.Add(CELLOBJECTS.WALL);
+                DefaultGrid.Cells[i, 10].Properties.Add(CELLOBJECTS.WALL);
+            }
+            //DefaultGrid.Slimes[0].MoveToCell(Cells[5, 5]);
+            DefaultGrid.Slimes[0].TargetCell = Cells[5, 5];
+            DefaultGrid.Slimes[0].MoveToTarget();
+            DefaultGrid.SaveLevel(-1);
         }
     }
 }

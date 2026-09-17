@@ -2,11 +2,10 @@
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using Slimey_Arcades.Utilities;
-using Slimey_Arcades.Objects;
 using Slimey_Arcades.Managers;
 
-namespace Slimey_Arcades.Windows
+//namespace Slimey_Arcades.Windows
+namespace Slimey_Arcades
 {
     public class NewColorWindow : Window
     {
@@ -35,7 +34,6 @@ namespace Slimey_Arcades.Windows
             HueSelectBox.Sprite = new Sprite(Shapes.MakeOutline(HueSelectBox.Transform.Rect, 2), Color.Black);
             HueSlider.Sprite.Texture = Shapes.HueSlider;
             ColorSelectBox.Sprite.Texture = Shapes.MakeColorPicker(HSV.X);
-            //Selector.Sprite.Layer = 2;
 
             List<Polygon> TextBoxes = new();
 

@@ -1,8 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Slimey_Arcades.Utilities;
 
-namespace Slimey_Arcades.Objects
+namespace Slimey_Arcades
 {
     public class Polygon : IDraw
     {

@@ -1,10 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Slimey_Arcades.Objects;
-using Slimey_Arcades.Windows;
-using Slimey_Arcades.Utilities;
-using Slimey_Arcades.Managers;
+//using Slimey_Arcades.Managers;
 
-namespace Slimey_Arcades.Scenes
+namespace Slimey_Arcades
 {
     public class DebugScene :Scene
     {
@@ -35,10 +32,13 @@ namespace Slimey_Arcades.Scenes
             {
                 Grid.SaveLevel(0);
                 LevelScene NewScene = new LevelScene(0) { Debug = true };
-                NewScene.Load();
                 NextScene = NewScene;
             };
             Container.ObjectsToLoad.Add(PlayLevel);
+
+            Button ReturnToTitle = new Button(800, 200, 200, 50, Shapes.Square, Color.DarkGray, "Return To Title");
+            ReturnToTitle.Function = () => { NextScene = new TitleScene(); };
+            Container.ObjectsToLoad.Add(ReturnToTitle);
 
             SaveLoadWindow SaveLoadWindow = new SaveLoadWindow(new Vector2(800, 300));
             SaveLoadWindow.SetButtonFunctions(() => Grid.SaveLevel(SaveLoadWindow.SelectedLevel), () => Grid.LoadLevel(SaveLoadWindow.SelectedLevel));

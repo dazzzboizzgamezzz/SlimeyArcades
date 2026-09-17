@@ -1,173 +1,133 @@
 ﻿using Slimey_Arcades.Managers;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using System.Runtime.CompilerServices;
 
-namespace Slimey_Arcades.Objects
+namespace Slimey_Arcades
 {
     public class Cell : Polygon, IContainer
     {
-        //public int LoadedCount { get; set; }
         public int Row { get; set; }
         public int Col { get; set; }
         public Vector2 ColRowVec { get => new Vector2(Col, Row); set { Col = (int)value.X; Row = (int) value.Y; } }
-        //public int Index { get; set; }
-        //public List<string> Properties { get; set; } = new();
-        public HashSet<CellObjects> Properties { get; set; } = new();
+        public HashSet<CELLOBJECTS> Properties { get; set; } = new();
+        public HashSet<CELLOBJECTS> RedProperties { get; set; } = new();
+        public HashSet<CELLOBJECTS> BlueProperties { get; set; } = new();
         public Container Container { get; init; } = new();
+        public Slime Barrel { get; set; } = null;
+        public int CellGap { get; set; } = 0;
         public Cell(Transform NewTransform, Color BGColor, int NewCol = 0, int NewRow = 0) : base(NewTransform, BGColor, "Square")
         {
             Row = NewRow;
             Col = NewCol;
-            //Index = Newindex;
-            NewParseProperties();
+            ParseProperties();
         }
-        //public void ParseProperties()
-        //{
-        //    for (int i = 0; i < Properties.Count; i++)
-        //    {
-        //        string Type = Properties[i];
-        //        Polygon Cutter = null;
-        //        Polygon Hole = null;
-        //        Polygon Switch = null;
-        //        Polygon RedBlueMarker = null;
-        //        switch (Type)
-        //        {
-        //            case "Wall":
-        //                Sprite.Color = ColorManager.Colors["Wall"];
-        //                break;
-        //            case "Ice":
-        //                Sprite.Color = ColorManager.Colors["Ice"];
-        //                break;
-        //            case "Pit":
-        //                Hole = new Polygon(Transform, ColorManager.Colors["Pit"]);
-        //                Hole.Sprite.Texture = Shapes.BackedCircle;
-        //                Container.ObjectsToLoad.Add(Hole);
-        //                break;
-        //            case "Switch":
-        //                Switch = new Polygon(new Transform(Transform.X + 15, Transform.Y + 15, 20, 20), Color.Red, "Circle");
-        //                Container.ObjectsToLoad.Add(Switch);
-        //                break;
-        //            case "LCutter":
-        //                Cutter = new Polygon(new Transform(Transform.X + 45, Transform.Y, 12, 50), Color.Black);
-        //                Cutter.Sprite.Texture = Shapes.XCross;
-        //                Container.ObjectsToLoad.Add(Cutter);
-        //                break;
-        //            case "RCutter":
-        //                Cutter = new Polygon(new Transform(Transform.X - 7, Transform.Y, 12, 50), Color.Black);
-        //                Cutter.Sprite.Texture = Shapes.XCross;
-        //                Container.ObjectsToLoad.Add(Cutter);
-        //                break;
-        //            case "UCutter":
-        //                Cutter = new Polygon(new Transform(Transform.X, Transform.Y - 7, 50, 12), Color.Black);
-        //                Cutter.Sprite.Texture = Shapes.XCross;
-        //                Container.ObjectsToLoad.Add(Cutter);
-        //                break;
-        //            case "DCutter":
-        //                Cutter = new Polygon(new Transform(Transform.X, Transform.Y + 45, 50, 12), Color.Black);
-        //                Cutter.Sprite.Texture = Shapes.XCross;
-        //                Container.ObjectsToLoad.Add(Cutter);
-        //                break;
-        //            case "Red":
-        //                RedBlueMarker = new Polygon(Transform, new Color(255, 0, 0, 0.5f));
-        //                Container.ObjectsToLoad.Add(RedBlueMarker);
-        //                break;
-        //            case "Blue":
-        //                RedBlueMarker = new Polygon(Transform, new Color(0, 0, 255, 0.5f));
-        //                Container.ObjectsToLoad.Add(RedBlueMarker);
-        //                break;
-        //        }
-        //        if (Type.Contains("Goal"))
-        //        {
-        //            Color TextColor = ColorManager.None;
-        //            //string test = Type.Substring(0, 1);
-        //            switch (Type.Substring(0, 1))
-        //            {
-        //                case "G": TextColor = ColorManager.Colors["GSlime"]; break;
-        //                case "R": TextColor = ColorManager.Colors["RSlime"]; break;
-        //                case "B": TextColor = ColorManager.Colors["BSlime"]; break;
-        //                case "Y": TextColor = ColorManager.Colors["YSlime"]; break;
-        //                case "P": TextColor = ColorManager.Colors["PSlime"]; break;
-        //            }
-        //            Transform TextTransform = new Transform(Transform.Rect);
-        //            Text GoalText = new Text(TextTransform, "Goal");
-        //            GoalText.Color = TextColor;
-        //            GoalText.Pos = new Vector2(Transform.Center.X - (GoalText.TextWidth / 2), Transform.Center.Y - (GoalText.TextHeight / 2));
-        //            Polygon GoalOutline = new Polygon(new Transform(Transform.X - 4, Transform.Y - 4, Transform.Width + 8, Transform.Height + 8), TextColor);
-        //            GoalOutline.Sprite.Texture = Shapes.MakeOutline(GoalOutline.Transform.Rect, 6);
-        //            Container.ObjectsToLoad.Add(GoalText);
-        //            Container.ObjectsToLoad.Add(GoalOutline);
-        //        }
-        //    }
-        //}
-        public void NewParseProperties()
+        public void ParseProperties()
         {
-            foreach (CellObjects Property in Properties)
+            Container.Clear();
+            foreach (CELLOBJECTS Property in Properties)
             {
                 Polygon NewObject = new Polygon(Transform, Color.Black);
                 NewObject.Sprite.LayerData.LayerIndex = 9;
                 switch (Property)
                 {
-                    case CellObjects.WALL: 
+                    case CELLOBJECTS.WALL: 
                         break;
-                    case CellObjects.ICE: 
+                    case CELLOBJECTS.ICE: 
                         NewObject.Sprite.Color = ColorManager.Colors["Ice"]; 
                         break;
-                    case CellObjects.PIT: 
+                    case CELLOBJECTS.PIT: 
                         NewObject.Sprite.Texture = Shapes.Circle; 
                         break;
-                    case CellObjects.RCUTTER:
+                    case CELLOBJECTS.RCUTTER:
                         NewObject.Sprite.Texture = Shapes.XCross;
-                        NewObject.Transform = new Transform(Transform.X + Transform.Width - 5, Transform.Y, 10, Transform.Height);
+                        NewObject.Transform = new Transform(Transform.X + Transform.Width - 7, Transform.Y, 16, Transform.Height);
                         break;
-                    case CellObjects.LCUTTER:
+                    case CELLOBJECTS.LCUTTER:
                         NewObject.Sprite.Texture = Shapes.XCross;
-                        NewObject.Transform = new Transform(Transform.X - 10, Transform.Y, 10, Transform.Height);
+                        NewObject.Transform = new Transform(Transform.X - 7, Transform.Y, 16, Transform.Height);
                         break;
-                    case CellObjects.UCUTTER:
+                    case CELLOBJECTS.UCUTTER:
                         NewObject.Sprite.Texture = Shapes.XCross;
-                        NewObject.Transform = new Transform(Transform.X, Transform.Y - 10, Transform.Width, 10);
+                        NewObject.Transform = new Transform(Transform.X, Transform.Y - 7, Transform.Width, 16);
                         break;
-                    case CellObjects.DCUTTER:
+                    case CELLOBJECTS.DCUTTER:
                         NewObject.Sprite.Texture = Shapes.XCross;
-                        NewObject.Transform = new Transform(Transform.X, Transform.Y + Transform.Height - 5, Transform.Width, 10);
+                        NewObject.Transform = new Transform(Transform.X, Transform.Y + Transform.Height - 7, Transform.Width, 16);
                         break;
-                    case CellObjects.SWITCH:
+                    case CELLOBJECTS.RSWITCH:
                         NewObject.Sprite.Texture = Shapes.Circle;
-                        NewObject.Sprite.Color = Color.Red;
+                        NewObject.Sprite.Color = ColorHelp.RedSwitch;
                         NewObject.Transform = new Transform((int)Transform.Center.X - 10, (int)Transform.Center.Y - 10, 20, 20);
                         break;
-                    case CellObjects.RTINT:
-                        NewObject.Sprite.Color = new Color(255, 0, 0, 0.5f);
+                    case CELLOBJECTS.BSWITCH:
+                        NewObject.Sprite.Texture = Shapes.Circle;
+                        NewObject.Sprite.Color = ColorHelp.BlueSwitch;
+                        NewObject.Transform = new Transform((int)Transform.Center.X - 10, (int)Transform.Center.Y - 10, 20, 20);
+                        break;
+                    case CELLOBJECTS.RTINT:
+                        //NewObject.Sprite.Color = new Color(255, 0, 0, 0.3f);
+                        NewObject.Transform = new Transform(Transform.X - CellGap, Transform.Y - CellGap, Transform.Width + (CellGap * 2), Transform.Height + (CellGap *2));
+                        NewObject.Sprite.Texture = Shapes.MakeOutline(NewObject.Transform.Rect, CellGap * 2);
+                        NewObject.Sprite.Color = ColorHelp.RedSwitch;
                         NewObject.Sprite.LayerData.LayerIndex = 8;
                         break;
-                    case CellObjects.BTINT:
-                        NewObject.Sprite.Color = new Color(0, 0, 255, 0.5f);
+                    case CELLOBJECTS.BTINT:
+                        //NewObject.Sprite.Color = new Color(0, 0, 255, 0.3f);
+                        NewObject.Transform = new Transform(Transform.X - CellGap, Transform.Y - CellGap, Transform.Width + (CellGap * 2), Transform.Height + (CellGap * 2));
+                        NewObject.Sprite.Texture = Shapes.MakeOutline(NewObject.Transform.Rect, CellGap * 2);
+                        NewObject.Sprite.Color = ColorHelp.BlueSwitch;
                         NewObject.Sprite.LayerData.LayerIndex = 8;
                         break;
-                    case CellObjects.GGOAL:
+                    case CELLOBJECTS.GGOAL:
                         SetGoal("GGoal");
                         NewObject = null;
                         break;
-                    case CellObjects.RGOAL:
+                    case CELLOBJECTS.RGOAL:
                         SetGoal("RGoal");
                         NewObject = null;
                         break;
-                    case CellObjects.BGOAL:
+                    case CELLOBJECTS.BGOAL:
                         SetGoal("BGoal");
                         NewObject = null;
                         break;
-                    case CellObjects.YGOAL:
+                    case CELLOBJECTS.YGOAL:
                         SetGoal("YGoal");
                         NewObject = null;
                         break;
-                    case CellObjects.PGOAL:
+                    case CELLOBJECTS.PGOAL:
                         SetGoal("PGoal");
                         NewObject = null;
+                        break;
+                    case CELLOBJECTS.BARREL:
+                        NewObject = null;
+                        Slime NewBarrel = new Slime(this, 5);
+                        NewBarrel.CanStick = false;
+                        Barrel = NewBarrel;
+                        Container.ObjectsToLoad.Add(Barrel);
                         break;
                 }
                 if (NewObject != null) Container.ObjectsToLoad.Add(NewObject);
             }
+        }
+        public bool HasCutter()
+        {
+            if (Properties.Contains(CELLOBJECTS.RCUTTER) || Properties.Contains(CELLOBJECTS.LCUTTER) ||
+                Properties.Contains(CELLOBJECTS.DCUTTER) || Properties.Contains(CELLOBJECTS.UCUTTER))
+            {
+                return true; 
+            }
+            return false;
+        }
+        public List<CELLOBJECTS> GetCutters()
+        {
+            List<CELLOBJECTS> CutterType = new();
+
+            if (Properties.Contains(CELLOBJECTS.RCUTTER)) CutterType.Add(CELLOBJECTS.RCUTTER);
+            if (Properties.Contains(CELLOBJECTS.LCUTTER)) CutterType.Add(CELLOBJECTS.LCUTTER);
+            if (Properties.Contains(CELLOBJECTS.DCUTTER)) CutterType.Add(CELLOBJECTS.DCUTTER);
+            if (Properties.Contains(CELLOBJECTS.UCUTTER)) CutterType.Add(CELLOBJECTS.UCUTTER);
+
+            return CutterType;
         }
         private void SetGoal(string GoalType)
         {
@@ -190,30 +150,49 @@ namespace Slimey_Arcades.Objects
             Container.ObjectsToLoad.Add(GoalOutline);
         }
     }
-
     public class Slime : Cell
     {
         public Cell TargetCell { get; set; }
-        public int Distance { get; set; }
-        //public string Type { get => Properties[0]; }
+        public int DistanceToCenter { get; set; }
         public int Type { get; init; }
-        public Slime(Cell Cell, string NewType, int NewSlimeType) : base(new Transform(Cell.Transform.X + 5, Cell.Transform.Y + 5, Cell.Transform.Width - 10, Cell.Transform.Height - 10), Cell.Sprite.Color, Cell.Col, Cell.Row)
+        public bool CanStick { get; set; } = true;
+        public bool WasCut { get; set; } = false;
+        public Slime(Cell Cell, int NewSlimeType) : base(new Transform(Cell.Transform.X + 5, Cell.Transform.Y + 5, Cell.Transform.Width - 10, Cell.Transform.Height - 10), Cell.Sprite.Color, Cell.Col, Cell.Row)
         {
-            //Properties.Add(NewType);
-            //Sprite.Color = ColorManager.Colors[NewType];
             Type = NewSlimeType;
+            TargetCell = Cell;
             switch (Type)
             {
-                case 0: Sprite.Color = ColorManager.Colors["GSlime"]; break;
-                case 1: Sprite.Color = ColorManager.Colors["RSlime"]; break;
-                case 2: Sprite.Color = ColorManager.Colors["BSlime"]; break;
-                case 3: Sprite.Color = ColorManager.Colors["YSlime"]; break;
-                case 4: Sprite.Color = ColorManager.Colors["PSlime"]; break;
+                case 0: Sprite.Color = ColorHelp.GreenSlime; break;
+                case 1: Sprite.Color = ColorHelp.RedSlime; break;
+                case 2: Sprite.Color = ColorHelp.BlueSlime; break;
+                case 3: Sprite.Color = ColorHelp.YellowSlime; break;
+                case 4: Sprite.Color = ColorHelp.PinkSlime; break;
+                case 5: Sprite.Color = ColorHelp.Barrel; break;
             }
+            Properties = null;
+            RedProperties = null;
+            BlueProperties = null;
         }
-        public void MoveToCell(Cell Cell)
+        //public void MoveToCell(Cell Cell)
+        //{
+        //    if (Cell == null)
+        //    {
+        //        Transform.Pos = new Vector2(-100, -100);
+        //        Col = -1;
+        //        Row = -1;
+        //    }
+        //    else
+        //    {
+        //        Transform.Pos = Cell.Transform.Pos + new Vector2(5, 5);
+        //        Col = Cell.Col;
+        //        Row = Cell.Row;
+        //    }
+        //    TargetCell = Cell;
+        //}
+        public void MoveToTarget()
         {
-            if (Cell == null)
+            if (TargetCell == null)
             {
                 Transform.Pos = new Vector2(-100, -100);
                 Col = -1;
@@ -221,15 +200,15 @@ namespace Slimey_Arcades.Objects
             }
             else
             {
-                Transform.Pos = Cell.Transform.Pos + new Vector2(5, 5);
-                Col = Cell.Col;
-                Row = Cell.Row;
+                Transform.Pos = TargetCell.Transform.Pos + new Vector2(5, 5);
+                Col = TargetCell.Col;
+                Row = TargetCell.Row;
             }
-            TargetCell = Cell;
         }
     }
-    public enum CellObjects
+    public enum CELLOBJECTS
     {
+        NONE,
         WALL,
         ICE,
         PIT,
@@ -237,7 +216,9 @@ namespace Slimey_Arcades.Objects
         LCUTTER,
         UCUTTER,
         DCUTTER,
-        SWITCH,
+        RSWITCH,
+        BSWITCH,
+        BARREL,
         RTINT,
         BTINT,
         GGOAL,
@@ -246,63 +227,4 @@ namespace Slimey_Arcades.Objects
         YGOAL,
         PGOAL,
     }
-    //public class CellObjects
-    //{
-    //    public Dictionary<string, Polygon> Objects { get; set; } = new();
-    //    public CellObjects(Transform CellTransform)
-    //    {
-    //        Polygon Wall = new Polygon(CellTransform, ColorManager.Colors["Wall"]);
-    //        //Wall.Sprite.Layer = 0.000008f;
-    //        Objects.Add("Wall", Wall);
-
-    //        Polygon Ice = new Polygon(CellTransform, ColorManager.Colors["Ice"]);
-    //        //Ice.Sprite.Layer = 0.000005f;
-    //        Objects.Add("Ice", Ice);
-
-    //        Polygon Pit = new Polygon(CellTransform, Color.White);
-    //        Pit.Sprite.Texture = Shapes.BackedCircle;
-    //        //Pit.Sprite.Layer = 0.000004f;
-    //        Objects.Add("Pit", Pit);
-
-    //        Transform RCutterTransform = new Transform(CellTransform.X + 45, CellTransform.Y, 12, 50);
-    //        Transform LCutterTransform = new Transform(CellTransform.X - 7, CellTransform.Y, 12, 50);
-    //        Transform UCutterTransform = new Transform(CellTransform.X, CellTransform.Y - 7, 50, 12);
-    //        Transform DCutterTransform = new Transform(CellTransform.X, CellTransform.Y + 45, 50, 12);
-    //        Polygon UCutter = new Polygon(UCutterTransform, Color.White);
-    //        Pit.Sprite.Texture = Shapes.XCross;
-    //        //Pit.Sprite.Layer = 0.000007f;
-    //        //Objects.Add("UCutter", UCutter);
-
-    //        Polygon DCutter = new Polygon(DCutterTransform, Color.White);
-    //        Pit.Sprite.Texture = Shapes.XCross;
-    //        //Pit.Sprite.Layer = 0.000007f;
-    //        //Objects.Add("DCutter", DCutter);
-
-    //        Polygon LCutter = new Polygon(LCutterTransform, Color.White);
-    //        Pit.Sprite.Texture = Shapes.XCross;
-    //        //Pit.Sprite.Layer = 0.000007f;
-    //        //Objects.Add("LCutter", LCutter);
-
-    //        Polygon RCutter = new Polygon(RCutterTransform, Color.White);
-    //        Pit.Sprite.Texture = Shapes.XCross;
-    //        //Pit.Sprite.Layer = 0.000007f;
-    //        //Objects.Add("RCutter", RCutter);
-
-    //        Transform SwitchTransform = new Transform((int)CellTransform.Center.X - 5, (int)CellTransform.Center.Y - 5, 10, 10);
-    //        Polygon RedSwitch = new Polygon(SwitchTransform, Color.Red, "Circle");
-    //        Polygon BlueSwitch = new Polygon(SwitchTransform, Color.Blue, "Circle");
-    //        //RedSwitch.Sprite.Layer = 0.000006f;
-    //        //BlueSwitch.Sprite.Layer = 0.000006f;
-    //        Objects.Add("RedSwitch", RedSwitch);
-    //        Objects.Add("BlueSwitch", BlueSwitch);
-
-    //        Polygon RedTint = new Polygon(CellTransform, new Color(255, 0, 0, 0.5f));
-    //        Polygon BlueTint = new Polygon(CellTransform, new Color(0, 0, 255, 0.5f));
-    //        //RedTint.Sprite.Layer = 0.000009f;
-    //        //BlueTint.Sprite.Layer = 0.000009f;
-    //        Objects.Add("RedTint", RedTint);
-    //        Objects.Add("BueTint", BlueTint);
-    //    }
-    //}
-
 }
