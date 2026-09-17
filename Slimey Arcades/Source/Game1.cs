@@ -29,7 +29,7 @@ namespace Slimey_Arcades
             Shapes.MakeShapes(GraphicsDevice);
             FontManager.Initialize(Content);
             TextureManager.Initialize(Content);
-            SceneController = new SceneController(GraphicsDevice, new optionScences());
+            SceneController = new SceneController(GraphicsDevice, new OptionScene());
         }
         protected override void Update(GameTime gameTime)
         {

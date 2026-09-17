@@ -49,7 +49,7 @@ namespace Slimey_Arcades
             Sprite.Color = BackgroundColor;
             Highlight = BackgroundColor;
             Highlightable = true;   
-            if (TextCentered) CenterText();
+            //if (TextCentered) CenterText();
         }
         public void Update()
         {
@@ -61,9 +61,9 @@ namespace Slimey_Arcades
             }
             if (Click.Click()) Function();
         }
-        public void CenterText()
-        {
-            ButtonText.Pos = new Vector2(Transform.Center.X - ((ButtonText.TextWidth / 2) + 15), Transform.Center.Y - ((ButtonText.TextHeight / 2) + 5));
-        }
+        //public void CenterText()
+        //{
+        //    ButtonText.Pos = new Vector2(Transform.Center.X - ((ButtonText.TextWidth / 2) + 15), Transform.Center.Y - ((ButtonText.TextHeight / 2) + 5));
+        //}
     }
 }

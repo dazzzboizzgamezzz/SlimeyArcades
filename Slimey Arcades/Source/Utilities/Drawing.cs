@@ -55,7 +55,7 @@ namespace Slimey_Arcades
         public Vector2 Origin { get => Transform.Origin; set => Transform.Origin = value; }
         public float Scale { get => Transform.Scale; set => Transform.Scale = value; }
         public Vector2 Pos { get => Transform.Pos; set { Transform.X = (int)value.X; Transform.Y = (int)value.Y; } }
-        public int TextWidth { get => (int)(Font.MeasureString(Txt).X/(Scale*100)); }
+        //public int TextWidth { get => (int)(Font.MeasureString(Txt).X/(Scale*100)); }
         public int TextHeight { get => (int)(Scale * 100); }
         public Text(Transform NewTransform, string NewText, float NewScale = 0.12f, SpriteFont NewFont = null) 
         { 

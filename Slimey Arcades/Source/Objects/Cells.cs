@@ -183,7 +183,7 @@ namespace Slimey_Arcades.Objects
             Transform TextTransform = new Transform(Transform.Rect);
             Text GoalText = new Text(TextTransform, "Goal");
             GoalText.Color = TextColor;
-            GoalText.Pos = new Vector2(Transform.Center.X - (GoalText.TextWidth / 2) - 5, Transform.Center.Y - (GoalText.TextHeight / 2) - 2);
+            //GoalText.Pos = new Vector2(Transform.Center.X - (GoalText.TextWidth / 2) - 5, Transform.Center.Y - (GoalText.TextHeight / 2) - 2);
             Polygon GoalOutline = new Polygon(new Transform(Transform.X - 1, Transform.Y - 1, Transform.Width + 2, Transform.Height + 2), TextColor);
             GoalOutline.Sprite.Texture = Shapes.MakeOutline(GoalOutline.Transform.Rect, 6);
             Container.ObjectsToLoad.Add(GoalText);
