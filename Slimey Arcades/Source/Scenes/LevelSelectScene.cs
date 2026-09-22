@@ -23,7 +23,8 @@ namespace Slimey_Arcades.Scenes
                     int Height = 50;
                     Transform ButtonTransform = new Transform(X, Y, Width, Height);
                     int CurrentLevel = Col + (j * 5);
-                    string LevelName = "Level" + CurrentLevel.ToString();
+                    //string LevelName = "Level" + CurrentLevel.ToString();
+                    string LevelName = "Level " + CurrentLevel.ToString();
                     Button NewButton = new Button(ButtonTransform, Shapes.Square, Color.Gray, LevelName, true);
                     NewButton.Function = () => SetLevel(CurrentLevel);
                     Container.ObjectsToLoad.Add(NewButton);

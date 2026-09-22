@@ -45,7 +45,7 @@ namespace Slimey_Arcades
             Transform = NewTransform;
             Click = new Clicker(NewTransform);
             //ButtonText = new Text(NewTransform, Txt);
-            ButtonText = new Text(new Transform(NewTransform.Rect), Txt);
+            ButtonText = new Text(new Transform(NewTransform.X, NewTransform.Y, NewTransform.Width, NewTransform.Height, NewTransform.Scale), Txt);
             Container.ObjectsToLoad.Add(ButtonText);
             Color BackgroundColor = BGColor == null ? ColorManager.None : (Color)BGColor;
             Sprite.Color = BackgroundColor;
