@@ -19,8 +19,8 @@ namespace Slimey_Arcades
         public bool Destroy { get => Container.Destroy; set => Container.Destroy = value; }
         public IContainer Parent { get => Container.Parent; set => Container.Parent = value; }
         public int ContainerDepth { get => Container.ContainerDepth; set => Container.ContainerDepth = value; }
-        //public Action<IContainer, int> LoadObjects { get => (IContainer ParentContainer, int LayerOffset) => Container.LoadObjects(ParentContainer, LayerOffset); }
-        public Action<IContainer, Vector2, int> LoadObjects { get => (IContainer ParentContainer, Vector2 MousePos, int LayerOffset) => Container.LoadObjects(ParentContainer, ref MousePos, LayerOffset); }
+        public Action<IContainer, int> LoadObjects { get => (IContainer ParentContainer, int LayerOffset) => Container.LoadObjects(ParentContainer, LayerOffset); }
+        //public Action<IContainer, Vector2, int> LoadObjects { get => (IContainer ParentContainer, Vector2 MousePos, int LayerOffset) => Container.LoadObjects(ParentContainer, ref MousePos, LayerOffset); }
         public Action Update { get => () => Container.Update(); }
         public Action<SpriteBatch, float, Vector2> Draw { get => (SpriteBatch SpriteBatch, float WindowScale, Vector2 ScreenOffset) => Container.Draw(SpriteBatch, WindowScale, ScreenOffset); }
         //public Action<SpriteBatch> Draw { get => (SpriteBatch SpriteBatch) => Container.Draw(SpriteBatch); }
@@ -39,8 +39,8 @@ namespace Slimey_Arcades
         public int ContainerDepth { get; set; } = 1;
         public bool Destroy { get; set; } = false;
         public Container() { }
-        //public void LoadObjects(IContainer ParentContainer, int LayerOffset = 0)
-        public void LoadObjects(IContainer ParentContainer, ref Vector2 MousePos, int LayerOffset = 0)
+        public void LoadObjects(IContainer ParentContainer, int LayerOffset = 0)
+        //public void LoadObjects(IContainer ParentContainer, ref Vector2 MousePos, int LayerOffset = 0)
         {
             for (int i = 0; i < ObjectsToLoad.Count; i++) 
             {
@@ -81,19 +81,19 @@ namespace Slimey_Arcades
                     Object.Parent = ParentContainer;
                     Containers.Add(Object);
                 }
-                if (typeof(MouseControl).IsAssignableFrom(Objects.GetType()))
-                {
-                    MouseControl Object = (MouseControl)Objects;
-                    Object.MousePos = MousePos;
-                }
+                //if (typeof(MouseControl).IsAssignableFrom(Objects.GetType()))
+                //{
+                //    MouseControl Object = (MouseControl)Objects;
+                //    Object.MousePos = MousePos;
+                //}
                 LoadedObjects.Add(Objects);
                 ObjectsToLoad.Remove(Objects);
                 i--;
             }
             foreach (IContainer Container in Containers)
             {
-                //Container.LoadObjects(Container, 0);
-                Container.LoadObjects(Container, MousePos, 0);
+                Container.LoadObjects(Container, 0);
+                //Container.LoadObjects(Container, MousePos, 0);
             }
         }
         public void DestroyObjects()

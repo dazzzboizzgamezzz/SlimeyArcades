@@ -75,11 +75,13 @@ namespace Slimey_Arcades
         }
         public Cell GetMouseCell()
         {
-            Vector2 MPos = Mouse.GetState().Position.ToVector2();
+            //Vector2 MPos = Mouse.GetState().Position.ToVector2();
             Cell MouseCell = null;
-            if (Transform.Rect.Contains(MPos))
+            //if (Transform.Rect.Contains(MPos))
+            if (Transform.Rect.Contains(MouseControl.MousePosition))
             {
-                Vector2 Offset = MPos - Transform.Pos;
+                //Vector2 Offset = MPos - Transform.Pos;
+                Vector2 Offset = MouseControl.MousePosition - Transform.Pos;
                 int Col = (int)MathF.Floor(Offset.X / (CellSize + CellGap));
                 int Row = (int)MathF.Floor(Offset.Y / (CellSize + CellGap));
                 MouseCell = GetCell(Col, Row);

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+//using Microsoft.Xna.Framework.Input;
 using System;
 
 namespace Slimey_Arcades
@@ -12,7 +12,7 @@ namespace Slimey_Arcades
         public virtual Scene NextScene { get; set; } = null;
         private Vector3 ScreenTarget {  get; set; } = Vector3.Zero;
         private Matrix TransformMatrix { get; set; } = Matrix.Identity;
-        private Vector2 MousePosition;
+        //private Vector2 MousePosition;
         private float WindowScale { get; set; } = 1;
         public Scene(Color BGColor)
         {
@@ -32,13 +32,14 @@ namespace Slimey_Arcades
         }
         public void Update()
         {
-            MousePosition = Mouse.GetState().Position.ToVector2() + new Vector2(TransformMatrix.M41, TransformMatrix.M42);
+            //MousePosition = Mouse.GetState().Position.ToVector2() + new Vector2(TransformMatrix.M41, TransformMatrix.M42);
             Notifier.Broadcast(this);
             Container.Update();
-            //Container.LoadObjects(this);
-            Container.LoadObjects(this, ref MousePosition);
+            Container.LoadObjects(this);
+            //Container.LoadObjects(this, ref MousePosition);
             Container.DestroyObjects();
             MoveScreen();
+            MouseControl.Reset();
         }
         public abstract void Load();
         public virtual void ProcessNotifications(Notification Notification)
@@ -53,19 +54,23 @@ namespace Slimey_Arcades
                     {
                         case "Left":
                             //TransformMatrix = Matrix.CreateTranslation(new Vector3(-(int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0));
-                            ScreenTarget = new Vector3(-(int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
+                            //ScreenTarget = new Vector3(-(int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
+                            ScreenTarget += new Vector3(-(int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
                             break;
                         case "Right":
                             //TransformMatrix = Matrix.CreateTranslation(new Vector3((int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0));
-                            ScreenTarget = new Vector3((int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
+                            //ScreenTarget = new Vector3((int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
+                            ScreenTarget += new Vector3((int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
                             break;
                         case "Up":
                             //TransformMatrix = Matrix.CreateTranslation(new Vector3(0, (int)SETTINGS.SCREENHEIGHT * WindowScale, 0));
-                            ScreenTarget = new Vector3(0, (int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
+                            //ScreenTarget = new Vector3(0, (int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
+                            ScreenTarget += new Vector3(0, (int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
                             break;
                         case "Down":
                             //TransformMatrix = Matrix.CreateTranslation(new Vector3(0, -(int)SETTINGS.SCREENHEIGHT * WindowScale, 0));
-                            ScreenTarget = new Vector3(0, -(int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
+                            //ScreenTarget = new Vector3(0, -(int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
+                            ScreenTarget += new Vector3(0, -(int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
                             break;
                     }
                     break;
@@ -73,18 +78,23 @@ namespace Slimey_Arcades
         }
         private void MoveScreen()
         {
-            if (ScreenTarget == Vector3.Zero) return;
-            Matrix TargetMatrix = Matrix.CreateTranslation(ScreenTarget);
-            float XDiff = Math.Abs(ScreenTarget.X - TransformMatrix.M41);
-            float YDiff = Math.Abs(ScreenTarget.Y - TransformMatrix.M42);
-            float Speed = 0.1f;
-            if (XDiff < Speed && YDiff < Speed)
+            //if (ScreenTarget == Vector3.Zero) return;
+            if (ScreenTarget != new Vector3(TransformMatrix.M41, TransformMatrix.M42, 0))
             {
-                TransformMatrix = TargetMatrix;
-            }
-            else
-            {
-                TransformMatrix = Matrix.Lerp(TransformMatrix, TargetMatrix, Speed);
+                Matrix TargetMatrix = Matrix.CreateTranslation(ScreenTarget);
+                float XDiff = Math.Abs(ScreenTarget.X - TransformMatrix.M41);
+                float YDiff = Math.Abs(ScreenTarget.Y - TransformMatrix.M42);
+                float Speed = 0.1f;
+                //if (XDiff < Speed && YDiff < Speed)
+                if (XDiff < Speed * 3 && YDiff < Speed * 3)
+                {
+                    TransformMatrix = TargetMatrix;
+                }
+                else
+                {
+                    TransformMatrix = Matrix.Lerp(TransformMatrix, TargetMatrix, Speed);
+                }
+                MouseControl.MouseOffset = new Vector2(-TransformMatrix.M41, -TransformMatrix.M42);
             }
         }
     }
