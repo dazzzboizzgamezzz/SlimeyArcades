@@ -16,10 +16,13 @@ namespace Slimey_Arcades
         }
         public override void Load()
         {
-            Container.LoadObjects(this);
+            Vector2 Temp = Vector2.Zero;
+            //Container.LoadObjects(this);
+            Container.LoadObjects(this, ref Temp);
             PauseWindow = new PauseWindow(new Vector2(400, 300), Level);
             Container.ObjectsToLoad.Add(PauseWindow);
-            Container.LoadObjects(this, 3);
+            Container.LoadObjects(this, ref Temp, 3);
+            //Container.LoadObjects(this, 3);
 
             LevelGrid = new LevelGrid(200, 100, Level);
             Container.ObjectsToLoad.Add(LevelGrid);

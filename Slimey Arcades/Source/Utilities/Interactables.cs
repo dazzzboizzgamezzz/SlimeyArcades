@@ -8,6 +8,39 @@ namespace Slimey_Arcades
     {
         public void Update();
     }
+    public class MouseControl
+    {
+        private Transform ActiveArea { get; set; } = new Transform(0, 0, 0, 0);
+        public Vector2 MousePos { get; set; }
+        public bool LeftClicked { get; set; } = false;
+        public bool RightClicked { get; set; } = false;
+        public MouseControl(Transform NewClickableArea = null)
+        {
+            if (NewClickableArea != null) ActiveArea = NewClickableArea;
+        }
+        public bool LeftClick()
+        {
+            bool Clicked = false;
+            ButtonState LeftState = Mouse.GetState().LeftButton;
+
+            if (LeftClicked && LeftState == ButtonState.Released)
+            {
+                LeftClicked = false;
+            }
+
+            if (ActiveArea.Rect.Contains(MousePos) && LeftState == ButtonState.Pressed && !LeftClicked)
+            {
+                Clicked = true;
+                LeftClicked = true;
+            }
+
+            return Clicked;
+        }
+        public bool Hovering()
+        {
+            return ActiveArea.Rect.Contains(MousePos);
+        }
+    }
     public class Clicker
     {
         private bool Clicked { get; set; } = false;
@@ -115,12 +148,4 @@ namespace Slimey_Arcades
             }
         }
     }
-    //public class Keyer
-    //{
-    //    private List<Keys> PressedKeys { get; set; } = new();
-    //    public Keyer()
-    //    {
-
-    //    }
-    //}
 }

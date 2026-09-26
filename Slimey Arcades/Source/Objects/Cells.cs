@@ -175,22 +175,6 @@ namespace Slimey_Arcades
             RedProperties = null;
             BlueProperties = null;
         }
-        //public void MoveToCell(Cell Cell)
-        //{
-        //    if (Cell == null)
-        //    {
-        //        Transform.Pos = new Vector2(-100, -100);
-        //        Col = -1;
-        //        Row = -1;
-        //    }
-        //    else
-        //    {
-        //        Transform.Pos = Cell.Transform.Pos + new Vector2(5, 5);
-        //        Col = Cell.Col;
-        //        Row = Cell.Row;
-        //    }
-        //    TargetCell = Cell;
-        //}
         public void MoveToTarget()
         {
             if (TargetCell == null)

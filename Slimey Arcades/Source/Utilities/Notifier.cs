@@ -22,7 +22,9 @@ namespace Slimey_Arcades
         }
         public void SendNotification(Notification Notification)
         {
-            RootNotifier.SentNotifications.Add(Notification);
+            if (RootNotifier == null) NotificationsToBroadcast.Add(Notification);
+            else RootNotifier.SentNotifications.Add(Notification);
+            //RootNotifier.SentNotifications.Add(Notification);
         }
         public void Broadcast(IContainer BaseScene)
         {
@@ -60,6 +62,7 @@ namespace Slimey_Arcades
         PAUSED = 0,
         CHANGELEVEL = 1,
         WIN = 2,
-        LOSE = 3
+        LOSE = 3,
+        SCREENCHANGE = 4,
     }
 }
