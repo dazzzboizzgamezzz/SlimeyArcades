@@ -1,4 +1,4 @@
-﻿using Slimey_Arcades.Managers;
+﻿//using Slimey_Arcades.Managers;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
@@ -140,7 +140,8 @@ namespace Slimey_Arcades
                 case "Y": TextColor = ColorManager.Colors["YSlime"]; break;
                 case "P": TextColor = ColorManager.Colors["PSlime"]; break;
             }
-            Transform TextTransform = new Transform(Transform.Rect);
+            //Transform TextTransform = new Transform(Transform.Rect);
+            Transform TextTransform = new Transform(Transform.X, Transform.Y, Transform.Width, Transform.Height);
             Text GoalText = new Text(TextTransform, "Goal");
             GoalText.Color = TextColor;
             GoalText.Pos = new Vector2(Transform.Center.X - (GoalText.TextWidth / 2) - 5, Transform.Center.Y - (GoalText.TextHeight / 2) - 2);
@@ -174,22 +175,6 @@ namespace Slimey_Arcades
             RedProperties = null;
             BlueProperties = null;
         }
-        //public void MoveToCell(Cell Cell)
-        //{
-        //    if (Cell == null)
-        //    {
-        //        Transform.Pos = new Vector2(-100, -100);
-        //        Col = -1;
-        //        Row = -1;
-        //    }
-        //    else
-        //    {
-        //        Transform.Pos = Cell.Transform.Pos + new Vector2(5, 5);
-        //        Col = Cell.Col;
-        //        Row = Cell.Row;
-        //    }
-        //    TargetCell = Cell;
-        //}
         public void MoveToTarget()
         {
             if (TargetCell == null)

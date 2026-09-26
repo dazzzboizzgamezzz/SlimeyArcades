@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Slimey_Arcades.Managers
+namespace Slimey_Arcades
 {
     public static class FontManager
     {

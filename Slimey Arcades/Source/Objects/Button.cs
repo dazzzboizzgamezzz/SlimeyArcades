@@ -11,8 +11,8 @@ namespace Slimey_Arcades
     {
         public Transform Transform { get; set; }
         protected Clicker Click {  get; init; }
+        //protected MouseControl Mouse { get; init; }
         public Sprite Sprite {  get; set; }
-        //protected Text ButtonText { get; init; }
         public Text ButtonText { get; init; }
         public Container Container { get; init; } = new();
         private Color Highlight { get; set; }
@@ -34,6 +34,8 @@ namespace Slimey_Arcades
             Sprite = new Sprite(Texture, BGColor);
             Transform = new Transform(X, Y, NewWidth, NewHeight);
             Click = new Clicker(Transform);
+            //Mouse = new MouseControl(Transform);
+            //Container.ObjectsToLoad.Add(Mouse);
             ButtonText = new Text(new Transform(X, Y, NewWidth, NewHeight), Txt);
             Container.ObjectsToLoad.Add(ButtonText);
             Highlight = BGColor;
@@ -44,8 +46,9 @@ namespace Slimey_Arcades
             Sprite = Texture == null ? new Sprite(Shapes.Square, ColorManager.None) : new Sprite(Texture, ColorManager.None);
             Transform = NewTransform;
             Click = new Clicker(NewTransform);
-            //ButtonText = new Text(NewTransform, Txt);
-            ButtonText = new Text(new Transform(NewTransform.Rect), Txt);
+            //Mouse = new MouseControl(NewTransform);
+            //Container.ObjectsToLoad.Add(Mouse);
+            ButtonText = new Text(new Transform(NewTransform.X, NewTransform.Y, NewTransform.Width, NewTransform.Height, NewTransform.Scale), Txt);
             Container.ObjectsToLoad.Add(ButtonText);
             Color BackgroundColor = BGColor == null ? ColorManager.None : (Color)BGColor;
             Sprite.Color = BackgroundColor;
@@ -60,10 +63,13 @@ namespace Slimey_Arcades
             {
                 if (UnHighlight == ColorManager.None) UnHighlight = new Color(Sprite.Color.R - 30, Sprite.Color.G - 30, Sprite.Color.B - 30);
                 Sprite.Color = (Transform.Rect.Contains(MPos)) ? UnHighlight : Highlight;
+                //Sprite.Color = Mouse.Hovering() ? UnHighlight : Highlight;
             }
             if (Click.Click()) Function();
+            //if (Mouse.LeftClick()) Function();
         }
-        public void CenterText()
+        //public void CenterText()
+        private void CenterText()
         {
             ButtonText.Pos = new Vector2(Transform.Center.X - ((ButtonText.TextWidth / 2) + 15), Transform.Center.Y - ((ButtonText.TextHeight / 2) + 5));
         }

@@ -19,9 +19,11 @@ namespace Slimey_Arcades
         public bool Destroy { get => Container.Destroy; set => Container.Destroy = value; }
         public IContainer Parent { get => Container.Parent; set => Container.Parent = value; }
         public int ContainerDepth { get => Container.ContainerDepth; set => Container.ContainerDepth = value; }
-        public Action<IContainer, int> LoadObjects { get => (IContainer ParentContainer, int LayerOffset) => Container.LoadObjects(ParentContainer, LayerOffset); }
+        //public Action<IContainer, int> LoadObjects { get => (IContainer ParentContainer, int LayerOffset) => Container.LoadObjects(ParentContainer, LayerOffset); }
+        public Action<IContainer, Vector2, int> LoadObjects { get => (IContainer ParentContainer, Vector2 MousePos, int LayerOffset) => Container.LoadObjects(ParentContainer, ref MousePos, LayerOffset); }
         public Action Update { get => () => Container.Update(); }
-        public Action<SpriteBatch> Draw { get => (SpriteBatch SpriteBatch) => Container.Draw(SpriteBatch); }
+        public Action<SpriteBatch, float, Vector2> Draw { get => (SpriteBatch SpriteBatch, float WindowScale, Vector2 ScreenOffset) => Container.Draw(SpriteBatch, WindowScale, ScreenOffset); }
+        //public Action<SpriteBatch> Draw { get => (SpriteBatch SpriteBatch) => Container.Draw(SpriteBatch); }
         public Action DestroyObjects { get => () => Container.DestroyObjects(); }
     }
     public class Container
@@ -37,7 +39,8 @@ namespace Slimey_Arcades
         public int ContainerDepth { get; set; } = 1;
         public bool Destroy { get; set; } = false;
         public Container() { }
-        public void LoadObjects(IContainer ParentContainer, int LayerOffset = 0)
+        //public void LoadObjects(IContainer ParentContainer, int LayerOffset = 0)
+        public void LoadObjects(IContainer ParentContainer, ref Vector2 MousePos, int LayerOffset = 0)
         {
             for (int i = 0; i < ObjectsToLoad.Count; i++) 
             {
@@ -78,13 +81,19 @@ namespace Slimey_Arcades
                     Object.Parent = ParentContainer;
                     Containers.Add(Object);
                 }
+                if (typeof(MouseControl).IsAssignableFrom(Objects.GetType()))
+                {
+                    MouseControl Object = (MouseControl)Objects;
+                    Object.MousePos = MousePos;
+                }
                 LoadedObjects.Add(Objects);
                 ObjectsToLoad.Remove(Objects);
                 i--;
             }
             foreach (IContainer Container in Containers)
             {
-                Container.LoadObjects(Container, 0);
+                //Container.LoadObjects(Container, 0);
+                Container.LoadObjects(Container, MousePos, 0);
             }
         }
         public void DestroyObjects()
@@ -131,22 +140,25 @@ namespace Slimey_Arcades
                 }
             }
         }
-        public void Draw(SpriteBatch SpriteBatch)
+        public void Draw(SpriteBatch SpriteBatch, float WindowScale, Vector2 ScreenOffset)
         {
             foreach(Text Text in Texts)
             {
                 if (Text.Txt != "")
                 {
-                    SpriteBatch.DrawString(Text.Font, Text.Txt, Text.Pos, Text.Color, Text.Rotation, Text.Origin, Text.Scale, Text.Effect, Text.Layer);
+                    //SpriteBatch.DrawString(Text.Font, Text.Txt, Text.Pos, Text.Color, Text.Rotation, Text.Origin, Text.Scale, Text.Effect, Text.Layer);
+                    SpriteBatch.DrawString(Text.Font, Text.Txt, Text.Pos + ScreenOffset, Text.Color, Text.Rotation, Text.Origin, Text.Scale * WindowScale, Text.Effect, Text.Layer);
                 }
             } 
             foreach (IDraw Draw in Draws)
             {
-                SpriteBatch.Draw(Draw.Texture, Draw.Rect, null, Draw.Color, Draw.Rotation, Draw.Origin, Draw.Effect, Draw.Layer);
+                //SpriteBatch.Draw(Draw.Texture, Draw.Rect, null, Draw.Color, Draw.Rotation, Draw.Origin, Draw.Effect, Draw.Layer);
+                SpriteBatch.Draw(Draw.Texture, Draw.Transform.Pos + ScreenOffset, Draw.Rect, Draw.Color, Draw.Rotation, Draw.Origin, Draw.Transform.Scale * WindowScale, Draw.Effect, Draw.Layer); 
                 if (typeof(IContainer).IsAssignableFrom(Draw.GetType()))
                 {
                     IContainer SubContainer = (IContainer)Draw;
-                    SubContainer.Draw(SpriteBatch);
+                    SubContainer.Draw(SpriteBatch, WindowScale, ScreenOffset);
+                    //SubContainer.Draw(SpriteBatch);
                 }
             }
         }

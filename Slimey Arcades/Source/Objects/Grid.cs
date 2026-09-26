@@ -51,7 +51,6 @@ namespace Slimey_Arcades
             for (int i = 0; i < 5; i++)
             {
                 Slime Slime = new Slime(Cells[0, 0], i);
-                //Slime.MoveToCell(null);
                 Slime.TargetCell = null;
                 Slime.MoveToTarget();
                 Slime.Sprite.LayerData.LayerDepth += 1;
@@ -170,7 +169,6 @@ namespace Slimey_Arcades
                             Slime Slime = Slimes[LineCount];
                             Slime.TargetCell = NextCell;
                             Slime.MoveToTarget();
-                            //Slime.MoveToCell(NextCell);
                         }
                         else if (Data.Count > 2)
                         {
@@ -216,7 +214,6 @@ namespace Slimey_Arcades
                 DefaultGrid.Cells[10, i].Properties.Add(CELLOBJECTS.WALL);
                 DefaultGrid.Cells[i, 10].Properties.Add(CELLOBJECTS.WALL);
             }
-            //DefaultGrid.Slimes[0].MoveToCell(Cells[5, 5]);
             DefaultGrid.Slimes[0].TargetCell = Cells[5, 5];
             DefaultGrid.Slimes[0].MoveToTarget();
             DefaultGrid.SaveLevel(-1);

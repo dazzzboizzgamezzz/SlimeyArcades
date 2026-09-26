@@ -1,7 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-//using Slimey_Arcades.Managers;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Slimey_Arcades
 {
@@ -34,6 +35,48 @@ namespace Slimey_Arcades
             Effect = SpriteEffects.None;
         }
     }
+    public class AnimatedSprite : Sprite
+    {
+        private AnimationCycle CurrentAnimation { get; set; }
+        public AnimatedSprite(Texture2D NewTexture, int NewCycleSpeed, Color? NewColor = null, Action NewProcedure = null, List<Sprite> NewKeyFrames = null) : 
+            base(NewTexture, NewColor == null ? Color.White : (Color)NewColor)
+        {
+            CurrentAnimation = new(new Sprite(NewTexture, NewColor == null ? Color.White : (Color)NewColor), NewCycleSpeed, NewKeyFrames, NewProcedure);
+        }
+        public void Update(int AnimationClock)
+        {
+            if (CurrentAnimation != null)
+            {
+                CurrentAnimation.Update(AnimationClock);
+                Texture = CurrentAnimation.DisplaySprite.Texture;
+                Color = CurrentAnimation.DisplaySprite.Color;
+            }
+        }
+    }
+    public class AnimationCycle
+    {
+        public Sprite DisplaySprite { get; set; } 
+        public int CycleSpeed { get; set; }
+        private List<Sprite> KeyFrameSprites { get; set; } = new();
+        private int CurrentFrame { get; set; } = 0;
+        private Action Procedure { get; set; }
+        public AnimationCycle(Sprite NewSprite, int NewCycleSpeed, List<Sprite> NewKeyFrames = null, Action NewProcedure = null)
+        {
+            DisplaySprite = NewSprite;
+            CycleSpeed = NewCycleSpeed;
+            KeyFrameSprites = NewKeyFrames == null ? new() { NewSprite } : NewKeyFrames;
+            Procedure = NewProcedure == null ? () => { } : NewProcedure;
+        }
+        public void Update(int AnimationClock)
+        {
+            if (AnimationClock % CycleSpeed == 0)
+            {
+                Procedure();
+                CurrentFrame = (CurrentFrame + 1) % KeyFrameSprites.Count;
+                DisplaySprite = KeyFrameSprites[CurrentFrame];
+            }
+        }
+    }
     public class Transform
     {
         public Rectangle Rect { get => new Rectangle(X, Y, Width, Height); }
@@ -56,33 +99,6 @@ namespace Slimey_Arcades
             Scale = NewScale;
             Rotation = 0;
             Origin = Vector2.Zero;
-        }
-        public Transform(int NewX, int NewY, int NewWidth, int NewHeight, Vector2 NewOrigin, float NewScale = 1, float NewRotation = 0)
-        {
-            X = NewX;
-            Y = NewY;
-            Width = NewWidth;
-            Height = NewHeight;
-            Origin = NewOrigin;
-            Scale = NewScale;
-            Rotation = NewRotation;
-        }
-        public Transform(Rectangle NewTransform)
-        {
-            X = NewTransform.X;
-            Y = NewTransform.Y;
-            Width = NewTransform.Width;
-            Height = NewTransform.Height;
-            Scale = 1;
-            Rotation = 0;
-            Origin = Vector2.Zero;
-        }
-        public void ScaleObject()
-        {
-            float NewWidth = Width * Scale;
-            float NewHeight = Height * Scale;
-            Width = (int)Math.Round(NewWidth);
-            Height = (int)Math.Round(NewHeight);
         }
     }
     public class LayerData
