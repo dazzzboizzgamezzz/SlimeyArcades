@@ -1,60 +1,152 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--
-This file contains an xml description of a font, and will be read by the XNA
-Framework Content Pipeline. Follow the comments to customize the appearance
-of the font in your game, and to change the characters which are available to draw
-with.
--->
+
 <XnaContent xmlns:Graphics="Microsoft.Xna.Framework.Content.Pipeline.Graphics">
-  <Asset Type="Graphics:FontDescription">
+	<Asset Type="Graphics:FontDescription">
 
-    <!--
-    Modify this string to change the font that will be imported.
-    -->
-    <FontName>Arial</FontName>
+		<FontName>Meiryo</FontName>
 
-    <!--
-    Size is a float value, measured in points. Modify this value to change
-    the size of the font.
-    -->
-    <Size>100</Size>
+		<Size>100</Size>
 
-    <!--
-    Spacing is a float value, measured in pixels. Modify this value to change
-    the amount of spacing in between characters.
-    -->
-    <Spacing>0</Spacing>
+		<Spacing>0</Spacing>
 
-    <!--
-    UseKerning controls the layout of the font. If this value is true, kerning information
-    will be used when placing characters.
-    -->
-    <UseKerning>true</UseKerning>
+		<UseKerning>true</UseKerning>
 
-    <!--
-    Style controls the style of the font. Valid entries are "Regular", "Bold", "Italic",
-    and "Bold, Italic", and are case sensitive.
-    -->
-    <Style>Regular</Style>
+		<Style>Regular</Style>
 
-    <!--
-    If you uncomment this line, the default character will be substituted if you draw
-    or measure text that contains characters which were not included in the font.
-    -->
-    <!-- <DefaultCharacter>*</DefaultCharacter> -->
+		<!-- 登録されていない文字は ? に置き換える -->
+		<DefaultCharacter>?</DefaultCharacter>
 
-    <!--
-    CharacterRegions control what letters are available in the font. Every
-    character from Start to End will be built and made available for drawing. The
-    default range is from 32, (ASCII space), to 126, ('~'), covering the basic Latin
-    character set. The characters are ordered according to the Unicode standard.
-    See the documentation for more information.
-    -->
-    <CharacterRegions>
-      <CharacterRegion>
-        <Start>&#32;</Start>
-        <End>&#126;</End>
-      </CharacterRegion>
-    </CharacterRegions>
-  </Asset>
+		<CharacterRegions>
+
+			<!-- 半角英数字・記号 -->
+			<CharacterRegion>
+				<Start>&#32;</Start>
+				<End>&#126;</End>
+			</CharacterRegion>
+
+			<!-- 丸数字 ①～⑩ -->
+			<CharacterRegion>
+				<Start>&#x2460;</Start>
+				<End>&#x2469;</End>
+			</CharacterRegion>
+
+			<!-- 全角記号 -->
+			<CharacterRegion>
+				<Start>&#x3000;</Start>
+				<End>&#x303F;</End>
+			</CharacterRegion>
+
+			<!-- ひらがな -->
+			<CharacterRegion>
+				<Start>&#x3040;</Start>
+				<End>&#x309F;</End>
+			</CharacterRegion>
+
+			<!-- カタカナ -->
+			<CharacterRegion>
+				<Start>&#x30A0;</Start>
+				<End>&#x30FF;</End>
+			</CharacterRegion>
+
+			<!-- 以下、設定画面で使用する漢字だけ登録 -->
+
+			<!-- 初 -->
+			<CharacterRegion>
+				<Start>&#x521D;</Start>
+				<End>&#x521D;</End>
+			</CharacterRegion>
+
+			<!-- 値 -->
+			<CharacterRegion>
+				<Start>&#x5024;</Start>
+				<End>&#x5024;</End>
+			</CharacterRegion>
+
+			<!-- 変 -->
+			<CharacterRegion>
+				<Start>&#x5909;</Start>
+				<End>&#x5909;</End>
+			</CharacterRegion>
+
+			<!-- 定 -->
+			<CharacterRegion>
+				<Start>&#x5B9A;</Start>
+				<End>&#x5B9A;</End>
+			</CharacterRegion>
+
+			<!-- 戻 -->
+			<CharacterRegion>
+				<Start>&#x623B;</Start>
+				<End>&#x623B;</End>
+			</CharacterRegion>
+
+			<!-- 更 -->
+			<CharacterRegion>
+				<Start>&#x66F4;</Start>
+				<End>&#x66F4;</End>
+			</CharacterRegion>
+
+			<!-- 期 -->
+			<CharacterRegion>
+				<Start>&#x671F;</Start>
+				<End>&#x671F;</End>
+			</CharacterRegion>
+
+			<!-- 決 -->
+			<CharacterRegion>
+				<Start>&#x6C7A;</Start>
+				<End>&#x6C7A;</End>
+			</CharacterRegion>
+
+			<!-- 画 -->
+			<CharacterRegion>
+				<Start>&#x753B;</Start>
+				<End>&#x753B;</End>
+			</CharacterRegion>
+
+			<!-- 示 -->
+			<CharacterRegion>
+				<Start>&#x793A;</Start>
+				<End>&#x793A;</End>
+			</CharacterRegion>
+
+			<!-- 色 -->
+			<CharacterRegion>
+				<Start>&#x8272;</Start>
+				<End>&#x8272;</End>
+			</CharacterRegion>
+
+			<!-- 表 -->
+			<CharacterRegion>
+				<Start>&#x8868;</Start>
+				<End>&#x8868;</End>
+			</CharacterRegion>
+
+			<!-- 設 -->
+			<CharacterRegion>
+				<Start>&#x8A2D;</Start>
+				<End>&#x8A2D;</End>
+			</CharacterRegion>
+
+			<!-- 量 -->
+			<CharacterRegion>
+				<Start>&#x91CF;</Start>
+				<End>&#x91CF;</End>
+			</CharacterRegion>
+
+			<!-- 面 -->
+			<CharacterRegion>
+				<Start>&#x9762;</Start>
+				<End>&#x9762;</End>
+			</CharacterRegion>
+
+			<!-- 音 -->
+			<CharacterRegion>
+				<Start>&#x97F3;</Start>
+				<End>&#x97F3;</End>
+			</CharacterRegion>
+
+		</CharacterRegions>
+
+	</Asset>
 </XnaContent>

@@ -47,7 +47,7 @@ namespace Slimey_Arcades
             Sprite.Color = BackgroundColor;
             Highlight = BackgroundColor;
             Highlightable = true;   
-            if (TextCentered) CenterText();
+            //if (TextCentered) CenterText();
         }
         public void Update()
         {
