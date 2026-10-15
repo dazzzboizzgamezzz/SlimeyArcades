@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+//using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -75,18 +75,28 @@ namespace Slimey_Arcades
         }
         public Cell GetMouseCell()
         {
-            //Vector2 MPos = Mouse.GetState().Position.ToVector2();
             Cell MouseCell = null;
-            //if (Transform.Rect.Contains(MPos))
             if (Transform.Rect.Contains(MouseControl.MousePosition))
             {
-                //Vector2 Offset = MPos - Transform.Pos;
                 Vector2 Offset = MouseControl.MousePosition - Transform.Pos;
                 int Col = (int)MathF.Floor(Offset.X / (CellSize + CellGap));
                 int Row = (int)MathF.Floor(Offset.Y / (CellSize + CellGap));
                 MouseCell = GetCell(Col, Row);
             }
             return MouseCell;
+        }
+        public Slime GetCellSlime(Cell Cell)
+        {
+            Slime Slime = null;
+            foreach (Slime OtherSlime in Slimes)
+            {
+                if (OtherSlime.ColRowVec == Cell.ColRowVec) 
+                { 
+                    Slime = OtherSlime; 
+                    break; 
+                }
+            }
+            return Slime;
         }
         public List<Cell> GetNeighbors(Cell Start)
         {

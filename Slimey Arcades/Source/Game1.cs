@@ -59,6 +59,7 @@ namespace Slimey_Arcades
         protected override void Update(GameTime gameTime)
         {
             SceneController.Update();
+            MouseControl.Reset();
         }
 
         protected override void Draw(GameTime gameTime)

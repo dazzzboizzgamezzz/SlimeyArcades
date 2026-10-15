@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+//using Microsoft.Xna.Framework.Input;
 using System;
 
 namespace Slimey_Arcades
@@ -18,11 +18,6 @@ namespace Slimey_Arcades
         private Button CutterButton { get; set; }
         private Button SwitchButton {  get; set; }
         private Button TintButton { get; set; }
-        //private Clicker SlimeClicker { get; set; }
-        //private Clicker GoalClicker { get; set; }
-        //private Clicker CutterClicker { get; set; }
-        //private Clicker SwitchClicker { get; set; }
-        //private Clicker TintClicker { get; set; }
         private Polygon CutterImage { get; set; }
         private Polygon SwitchImage { get; set; }
         public DebugMenu(int X, int Y) : base(X, Y, 1, 10, Color.DarkMagenta)
@@ -46,7 +41,6 @@ namespace Slimey_Arcades
                         ButtonColor = ColorHelp.GreenSlime;
                         SelectedSlime = CurrentSlime;
                         SlimeButton = NewButton;
-                        //SlimeClicker = new Clicker(Cells[0, i].Transform);
                         break;
                     case 1:
                         NewButton.Text = "Goal";
@@ -54,7 +48,6 @@ namespace Slimey_Arcades
                         ButtonValue = (int)CELLOBJECTS.GGOAL;
                         PointerColor = ColorHelp.GreenSlime;
                         GoalButton = NewButton;
-                        //GoalClicker = new Clicker(Cells[0, i].Transform);
                         break;
                     case 2: 
                         ButtonColor = Color.Black;
@@ -77,7 +70,6 @@ namespace Slimey_Arcades
                         ButtonValue = (int)CELLOBJECTS.RCUTTER;
                         PointerColor = Color.Black;
                         CutterButton = NewButton;
-                        //CutterClicker = new Clicker(Cells[0, i].Transform);
                         break;
                     case 6:
                         Polygon Barrel = new Polygon(new Transform(NewButton.Transform.X + 5, NewButton.Transform.Y + 5, 40, 40), ColorHelp.Barrel);
@@ -88,7 +80,6 @@ namespace Slimey_Arcades
                     case 7:
                         PointerColor = ColorHelp.RedSwitch;
                         ButtonValue = (int)CELLOBJECTS.RSWITCH;
-                        //SwitchClicker = new Clicker(NewButton.Transform);
                         SwitchButton = NewButton;
                         SwitchImage = new Polygon(new Transform((int)NewButton.Transform.Center.X - 10, (int)NewButton.Transform.Center.Y - 10, 20, 20), ColorHelp.RedSwitch, "Circle");
                         Container.ObjectsToLoad.Add(SwitchImage);
@@ -96,7 +87,6 @@ namespace Slimey_Arcades
                     case 8:
                         ButtonColor = ColorHelp.RedSwitch;
                         ButtonValue = (int)CELLOBJECTS.RTINT;
-                        //TintClicker = new Clicker(NewButton.Transform);
                         TintButton = NewButton;
                         break;
                 }
@@ -122,7 +112,6 @@ namespace Slimey_Arcades
         }
         public override void Update()
         {
-            //if (SlimeClicker.Click("Right"))
             if (MouseControl.RightClick(SlimeButton.Transform))
             {
                 CurrentSlime = (CurrentSlime + 1) % 5;
@@ -147,7 +136,6 @@ namespace Slimey_Arcades
                 };
                 SlimeButton.Function();
             }
-            //if (GoalClicker.Click("Right"))
             if (MouseControl.RightClick(GoalButton.Transform))
             {
                     CurrentGoal = ((CurrentGoal + 1) % 5);
@@ -173,7 +161,6 @@ namespace Slimey_Arcades
                 };
                 GoalButton.Function();
             }
-            //if (CutterClicker.Click("Right"))
             if (MouseControl.RightClick(CutterButton.Transform))
             {
                 CurrentCutter = ((CurrentCutter + 1) % 4);
@@ -199,7 +186,6 @@ namespace Slimey_Arcades
                 };
                 CutterButton.Function();
             }
-            //if (SwitchClicker.Click("Right"))
             if (MouseControl.RightClick(SwitchButton.Transform))
             {
                 SwitchButton.Function();
@@ -215,7 +201,6 @@ namespace Slimey_Arcades
                 };
                 SwitchButton.Function();
             }
-            //if (TintClicker.Click("Right"))
             if (MouseControl.RightClick(TintButton.Transform))
             {
                 Color NewColor = TintButton.Sprite.Color == ColorHelp.RedSwitch ? ColorHelp.BlueSwitch : ColorHelp.RedSwitch;
@@ -234,10 +219,8 @@ namespace Slimey_Arcades
     }
     public class DebugGrid : Grid
     {
-        //private Clicker Clicker {  get; set; }
         private Polygon Pointer {  get; set; }
         private DebugMenu DebugMenu { get; }
-        //private Vector2 MPos { get; set; }
         private int SelectedSlime { get => DebugMenu.SelectedSlime; }
         private Cell MouseCell { get; set; }
         private CELLOBJECTS SelectedProperty 
@@ -253,21 +236,18 @@ namespace Slimey_Arcades
         {
             Slimes[0].Transform.Pos = new Vector2(10, 10);
             DebugMenu = NewDebugMenu;
-            //Clicker = new Clicker(Transform);
             Pointer = new Polygon(new Transform(0, 0, 10, 10), ColorManager.None, "Circle");
             Pointer.Sprite.LayerData.LayerDepth += 2;
             Container.ObjectsToLoad.Add(Pointer);
         }
         public override void Update()
         {
-            //MPos = Mouse.GetState().Position.ToVector2();
             MouseCell = GetMouseCell();
             ShowPointer();
             Paint();
         }
         private void Paint()
         {
-            //if (Clicker.Hold())
             if (MouseControl.LeftHold(Transform))
             {
                 if (MouseCell != null)
@@ -276,7 +256,6 @@ namespace Slimey_Arcades
                     {
                         ResetSlimes();
                         Slime Slime = Slimes[SelectedSlime];
-                        //Slime.MoveToCell(MouseCell);
                         Slime.TargetCell = MouseCell;
                         Slime.MoveToTarget();
                     }
@@ -367,10 +346,8 @@ namespace Slimey_Arcades
         private void ShowPointer()
         {
             Color PointerColor = ColorManager.None;
-            //if (Transform.Rect.Contains(MPos))
             if (Transform.Rect.Contains(MouseControl.MousePosition))
             {
-                //Pointer.Transform.Pos = MPos - new Vector2(5, 5);
                 Pointer.Transform.Pos = MouseControl.MousePosition - new Vector2(5, 5);
                 PointerColor = DebugMenu.SelectedColor;
             }
