@@ -16,6 +16,7 @@ namespace Slimey_Arcades
         public int LayerIndex { get => Sprite.LayerData.LayerIndex; set => Sprite.LayerData.LayerIndex = value; }
         public int LayerDepth { get => Sprite.LayerData.LayerDepth; set => Sprite.LayerData.LayerDepth = value; }
         public SpriteEffects Effect { get => Sprite.Effect; }
+        public bool IsVisible { get => Sprite.IsVisible; }
         public float Rotation { get => Transform.Rotation; }
         public Vector2 Origin { get => Transform.Origin; }
         public Rectangle Rect { get => Transform.Rect; }
@@ -28,6 +29,7 @@ namespace Slimey_Arcades
         public SpriteEffects Effect { get; set; }
         public LayerData LayerData { get; set; } = new();
         public float Layer { get => LayerData.Layer; }
+        public bool IsVisible { get; set; } = true;
         public Sprite(Texture2D NewTexture, Color NewColor) 
         { 
             Texture = NewTexture;
@@ -86,7 +88,9 @@ namespace Slimey_Arcades
         public int Width { get; set; }
         public int Height { get; set; }
         public float Scale { get; set; }
-        public float Rotation { get; set; }
+        private float PRotation {  get; set; }
+        public float Rotation { get => PRotation; set => PRotation = value * MathHelper.Pi; }
+        //public float Rotation { get; set; }
         public Vector2 Origin { get; set; }
         public Vector2 Center { get => new Vector2(X + Width / 2, Y + Height / 2); }
         public static Transform None { get => new Transform(0, 0, 0, 0); }

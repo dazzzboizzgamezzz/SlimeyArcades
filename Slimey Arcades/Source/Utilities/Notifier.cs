@@ -18,7 +18,8 @@ namespace Slimey_Arcades
         public Action<Notification> ProcessNotifications {  get; set; }
         public Notifier(Action<Notification> NewProcess = null)
         {
-            ProcessNotifications = NewProcess;
+            //ProcessNotifications = NewProcess;
+            ProcessNotifications = NewProcess == null? (Notification Notification) => { } : NewProcess;
         }
         public void SendNotification(Notification Notification)
         {
@@ -49,7 +50,8 @@ namespace Slimey_Arcades
     public class Notification
     {
         public NOTTYPES Type { get; init; }
-        public object Data { get; init; }
+        //public object Data { get; init; }
+        public object Data { get; set; }
         public Notification(NOTTYPES NewType = NOTTYPES.NONE, object NewData = null)
         {
             Type = NewType;
@@ -64,5 +66,6 @@ namespace Slimey_Arcades
         WIN = 2,
         LOSE = 3,
         SCREENCHANGE = 4,
+        PAINT = 5,
     }
 }

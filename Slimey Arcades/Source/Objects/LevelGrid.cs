@@ -46,7 +46,8 @@ namespace Slimey_Arcades
                     }
                     if (CanRotate && !PressedKeys.Contains(Key))
                     {
-                        if (Key == Keys.Q) { Rotate("Counterclockwise"); PressedKeys.Add(Key); }
+                        //if (Key == Keys.Q) { Rotate("Counterclockwise"); PressedKeys.Add(Key); }
+                        if (Key == Keys.Q) { Rotate("CounterClockwise"); PressedKeys.Add(Key); }
                         if (Key == Keys.E) { Rotate("Clockwise"); PressedKeys.Add(Key); }
                     }
                 }
