@@ -18,11 +18,14 @@ namespace Slimey_Arcades
         public Action<Notification> ProcessNotifications {  get; set; }
         public Notifier(Action<Notification> NewProcess = null)
         {
-            ProcessNotifications = NewProcess;
+            //ProcessNotifications = NewProcess;
+            ProcessNotifications = NewProcess == null? (Notification Notification) => { } : NewProcess;
         }
         public void SendNotification(Notification Notification)
         {
-            RootNotifier.SentNotifications.Add(Notification);
+            if (RootNotifier == null) NotificationsToBroadcast.Add(Notification);
+            else RootNotifier.SentNotifications.Add(Notification);
+            //RootNotifier.SentNotifications.Add(Notification);
         }
         public void Broadcast(IContainer BaseScene)
         {
@@ -47,7 +50,8 @@ namespace Slimey_Arcades
     public class Notification
     {
         public NOTTYPES Type { get; init; }
-        public object Data { get; init; }
+        //public object Data { get; init; }
+        public object Data { get; set; }
         public Notification(NOTTYPES NewType = NOTTYPES.NONE, object NewData = null)
         {
             Type = NewType;
@@ -60,6 +64,8 @@ namespace Slimey_Arcades
         PAUSED = 0,
         CHANGELEVEL = 1,
         WIN = 2,
-        LOSE = 3
+        LOSE = 3,
+        SCREENCHANGE = 4,
+        PAINT = 5,
     }
 }

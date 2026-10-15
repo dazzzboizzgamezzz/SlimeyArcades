@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections;
-using Slimey_Arcades.Managers;
+//using Slimey_Arcades.Managers;
 
 //namespace Slimey_Arcades.Windows
 namespace Slimey_Arcades

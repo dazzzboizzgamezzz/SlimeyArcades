@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+//using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,7 +51,6 @@ namespace Slimey_Arcades
             for (int i = 0; i < 5; i++)
             {
                 Slime Slime = new Slime(Cells[0, 0], i);
-                //Slime.MoveToCell(null);
                 Slime.TargetCell = null;
                 Slime.MoveToTarget();
                 Slime.Sprite.LayerData.LayerDepth += 1;
@@ -76,16 +75,28 @@ namespace Slimey_Arcades
         }
         public Cell GetMouseCell()
         {
-            Vector2 MPos = Mouse.GetState().Position.ToVector2();
             Cell MouseCell = null;
-            if (Transform.Rect.Contains(MPos))
+            if (Transform.Rect.Contains(MouseControl.MousePosition))
             {
-                Vector2 Offset = MPos - Transform.Pos;
+                Vector2 Offset = MouseControl.MousePosition - Transform.Pos;
                 int Col = (int)MathF.Floor(Offset.X / (CellSize + CellGap));
                 int Row = (int)MathF.Floor(Offset.Y / (CellSize + CellGap));
                 MouseCell = GetCell(Col, Row);
             }
             return MouseCell;
+        }
+        public Slime GetCellSlime(Cell Cell)
+        {
+            Slime Slime = null;
+            foreach (Slime OtherSlime in Slimes)
+            {
+                if (OtherSlime.ColRowVec == Cell.ColRowVec) 
+                { 
+                    Slime = OtherSlime; 
+                    break; 
+                }
+            }
+            return Slime;
         }
         public List<Cell> GetNeighbors(Cell Start)
         {
@@ -171,7 +182,6 @@ namespace Slimey_Arcades
                             Slime Slime = Slimes[LineCount];
                             Slime.TargetCell = NextCell;
                             Slime.MoveToTarget();
-                            //Slime.MoveToCell(NextCell);
                         }
                         else if (Data.Count > 2)
                         {
@@ -217,7 +227,6 @@ namespace Slimey_Arcades
                 DefaultGrid.Cells[10, i].Properties.Add(CELLOBJECTS.WALL);
                 DefaultGrid.Cells[i, 10].Properties.Add(CELLOBJECTS.WALL);
             }
-            //DefaultGrid.Slimes[0].MoveToCell(Cells[5, 5]);
             DefaultGrid.Slimes[0].TargetCell = Cells[5, 5];
             DefaultGrid.Slimes[0].MoveToTarget();
             DefaultGrid.SaveLevel(-1);

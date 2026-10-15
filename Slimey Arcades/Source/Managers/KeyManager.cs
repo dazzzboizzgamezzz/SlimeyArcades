@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 
-namespace Slimey_Arcades.Managers
+namespace Slimey_Arcades
 {
     public static class KeyManager
     {

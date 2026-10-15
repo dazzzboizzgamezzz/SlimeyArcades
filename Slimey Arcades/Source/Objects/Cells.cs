@@ -1,5 +1,6 @@
-﻿using Slimey_Arcades.Managers;
+﻿//using Slimey_Arcades.Managers;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 
 namespace Slimey_Arcades
@@ -24,23 +25,30 @@ namespace Slimey_Arcades
         public void ParseProperties()
         {
             Container.Clear();
-            foreach (CELLOBJECTS Property in Properties)
+            //foreach (CELLOBJECTS Property in Properties)
+            for (int i = Properties.Count; i > 0; i--)
             {
+                CELLOBJECTS Property = Properties.ToList()[i - 1];
+                List<CELLOBJECTS> ToDelete = new();
                 Polygon NewObject = new Polygon(Transform, Color.Black);
                 NewObject.Sprite.LayerData.LayerIndex = 9;
                 switch (Property)
                 {
-                    case CELLOBJECTS.WALL: 
+                    case CELLOBJECTS.WALL:
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.ICE, CELLOBJECTS.PIT, CELLOBJECTS.RCUTTER, CELLOBJECTS.LCUTTER, CELLOBJECTS.DCUTTER, CELLOBJECTS.UCUTTER, CELLOBJECTS.RSWITCH, CELLOBJECTS.BSWITCH, CELLOBJECTS.BARREL, CELLOBJECTS.GGOAL, CELLOBJECTS.RGOAL, CELLOBJECTS.BGOAL, CELLOBJECTS.PGOAL, CELLOBJECTS.YGOAL });
                         break;
                     case CELLOBJECTS.ICE: 
                         NewObject.Sprite.Color = ColorManager.Colors["Ice"]; 
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.WALL, CELLOBJECTS.PIT, CELLOBJECTS.GGOAL, CELLOBJECTS.RGOAL, CELLOBJECTS.BGOAL, CELLOBJECTS.PGOAL, CELLOBJECTS.YGOAL });
                         break;
                     case CELLOBJECTS.PIT: 
                         NewObject.Sprite.Texture = Shapes.Circle; 
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.ICE, CELLOBJECTS.WALL, CELLOBJECTS.RCUTTER, CELLOBJECTS.LCUTTER, CELLOBJECTS.DCUTTER, CELLOBJECTS.UCUTTER, CELLOBJECTS.RSWITCH, CELLOBJECTS.BSWITCH, CELLOBJECTS.BARREL, CELLOBJECTS.GGOAL, CELLOBJECTS.RGOAL, CELLOBJECTS.BGOAL, CELLOBJECTS.PGOAL, CELLOBJECTS.YGOAL });
                         break;
                     case CELLOBJECTS.RCUTTER:
                         NewObject.Sprite.Texture = Shapes.XCross;
                         NewObject.Transform = new Transform(Transform.X + Transform.Width - 7, Transform.Y, 16, Transform.Height);
+                        NewObject.Sprite.LayerData.LayerIndex = 7;
                         break;
                     case CELLOBJECTS.LCUTTER:
                         NewObject.Sprite.Texture = Shapes.XCross;
@@ -58,11 +66,15 @@ namespace Slimey_Arcades
                         NewObject.Sprite.Texture = Shapes.Circle;
                         NewObject.Sprite.Color = ColorHelp.RedSwitch;
                         NewObject.Transform = new Transform((int)Transform.Center.X - 10, (int)Transform.Center.Y - 10, 20, 20);
+                        NewObject.Sprite.LayerData.LayerIndex = 8;
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.WALL, CELLOBJECTS.PIT, CELLOBJECTS.BSWITCH});
                         break;
                     case CELLOBJECTS.BSWITCH:
                         NewObject.Sprite.Texture = Shapes.Circle;
                         NewObject.Sprite.Color = ColorHelp.BlueSwitch;
                         NewObject.Transform = new Transform((int)Transform.Center.X - 10, (int)Transform.Center.Y - 10, 20, 20);
+                        NewObject.Sprite.LayerData.LayerIndex = 8;
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.WALL, CELLOBJECTS.PIT, CELLOBJECTS.RSWITCH});
                         break;
                     case CELLOBJECTS.RTINT:
                         //NewObject.Sprite.Color = new Color(255, 0, 0, 0.3f);
@@ -70,6 +82,7 @@ namespace Slimey_Arcades
                         NewObject.Sprite.Texture = Shapes.MakeOutline(NewObject.Transform.Rect, CellGap * 2);
                         NewObject.Sprite.Color = ColorHelp.RedSwitch;
                         NewObject.Sprite.LayerData.LayerIndex = 8;
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.GGOAL, CELLOBJECTS.RGOAL, CELLOBJECTS.BGOAL, CELLOBJECTS.PGOAL, CELLOBJECTS.YGOAL });
                         break;
                     case CELLOBJECTS.BTINT:
                         //NewObject.Sprite.Color = new Color(0, 0, 255, 0.3f);
@@ -77,26 +90,32 @@ namespace Slimey_Arcades
                         NewObject.Sprite.Texture = Shapes.MakeOutline(NewObject.Transform.Rect, CellGap * 2);
                         NewObject.Sprite.Color = ColorHelp.BlueSwitch;
                         NewObject.Sprite.LayerData.LayerIndex = 8;
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.GGOAL, CELLOBJECTS.RGOAL, CELLOBJECTS.BGOAL, CELLOBJECTS.PGOAL, CELLOBJECTS.YGOAL });
                         break;
                     case CELLOBJECTS.GGOAL:
                         SetGoal("GGoal");
                         NewObject = null;
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.RGOAL, CELLOBJECTS.BGOAL, CELLOBJECTS.PGOAL, CELLOBJECTS.YGOAL });
                         break;
                     case CELLOBJECTS.RGOAL:
                         SetGoal("RGoal");
                         NewObject = null;
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.GGOAL, CELLOBJECTS.BGOAL, CELLOBJECTS.PGOAL, CELLOBJECTS.YGOAL });
                         break;
                     case CELLOBJECTS.BGOAL:
                         SetGoal("BGoal");
                         NewObject = null;
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.RGOAL, CELLOBJECTS.GGOAL, CELLOBJECTS.PGOAL, CELLOBJECTS.YGOAL });
                         break;
                     case CELLOBJECTS.YGOAL:
                         SetGoal("YGoal");
                         NewObject = null;
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.RGOAL, CELLOBJECTS.BGOAL, CELLOBJECTS.PGOAL, CELLOBJECTS.GGOAL });
                         break;
                     case CELLOBJECTS.PGOAL:
                         SetGoal("PGoal");
                         NewObject = null;
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.RGOAL, CELLOBJECTS.BGOAL, CELLOBJECTS.GGOAL, CELLOBJECTS.YGOAL });
                         break;
                     case CELLOBJECTS.BARREL:
                         NewObject = null;
@@ -104,9 +123,18 @@ namespace Slimey_Arcades
                         NewBarrel.CanStick = false;
                         Barrel = NewBarrel;
                         Container.ObjectsToLoad.Add(Barrel);
+                        ToDelete.AddRange(new List<CELLOBJECTS> { CELLOBJECTS.WALL, CELLOBJECTS.PIT});
                         break;
                 }
                 if (NewObject != null) Container.ObjectsToLoad.Add(NewObject);
+                foreach (CELLOBJECTS OtherProperty in ToDelete)
+                {
+                    if (Properties.Contains(OtherProperty))
+                    {
+                        Properties.Remove(OtherProperty);
+                        i--;
+                    }
+                }
             }
         }
         public bool HasCutter()
@@ -140,7 +168,8 @@ namespace Slimey_Arcades
                 case "Y": TextColor = ColorManager.Colors["YSlime"]; break;
                 case "P": TextColor = ColorManager.Colors["PSlime"]; break;
             }
-            Transform TextTransform = new Transform(Transform.Rect);
+            //Transform TextTransform = new Transform(Transform.Rect);
+            Transform TextTransform = new Transform(Transform.X, Transform.Y, Transform.Width, Transform.Height);
             Text GoalText = new Text(TextTransform, "Goal");
             GoalText.Color = TextColor;
             //GoalText.Pos = new Vector2(Transform.Center.X - (GoalText.TextWidth / 2) - 5, Transform.Center.Y - (GoalText.TextHeight / 2) - 2);
@@ -174,22 +203,6 @@ namespace Slimey_Arcades
             RedProperties = null;
             BlueProperties = null;
         }
-        //public void MoveToCell(Cell Cell)
-        //{
-        //    if (Cell == null)
-        //    {
-        //        Transform.Pos = new Vector2(-100, -100);
-        //        Col = -1;
-        //        Row = -1;
-        //    }
-        //    else
-        //    {
-        //        Transform.Pos = Cell.Transform.Pos + new Vector2(5, 5);
-        //        Col = Cell.Col;
-        //        Row = Cell.Row;
-        //    }
-        //    TargetCell = Cell;
-        //}
         public void MoveToTarget()
         {
             if (TargetCell == null)

@@ -3,9 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
-//using Slimey_Arcades.Objects;
 
-namespace Slimey_Arcades.Managers
+namespace Slimey_Arcades
 {
     public static class TextureManager
     {
@@ -15,7 +14,8 @@ namespace Slimey_Arcades.Managers
         {
             Content = ContentManager;
             Textures = new();
-            DirectoryInfo Directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Content/Textures");
+            string FolderName = "Content/Sprites";
+            DirectoryInfo Directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory.ToString() + FolderName);
             if (Directory.Exists)
             {
                 FileInfo[] TextureFiles;
@@ -23,7 +23,7 @@ namespace Slimey_Arcades.Managers
                 foreach (FileInfo TextureFile in TextureFiles)
                 {
                     string TextureName = Path.GetFileNameWithoutExtension(TextureFile.Name);
-                    Texture2D NewTexture = Content.Load<Texture2D>("Content/Fonts/" + TextureName);
+                    Texture2D NewTexture = Content.Load<Texture2D>(FolderName + "/" + TextureName);
                     Textures.Add(TextureName, NewTexture);
                 }
             }

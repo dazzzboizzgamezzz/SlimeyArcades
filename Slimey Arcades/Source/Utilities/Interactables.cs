@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System.Collections.Generic;
 
 namespace Slimey_Arcades
 {
@@ -8,119 +7,56 @@ namespace Slimey_Arcades
     {
         public void Update();
     }
-    public class Clicker
+    public static class MouseControl
     {
-        private bool Clicked { get; set; } = false;
-        private Transform ClickArea { get; init; }
-        public Clicker(Transform NewArea)
+        public static Vector2 MouseOffset { get; set; }
+        public static Vector2 MousePosition { get => Mouse.GetState().Position.ToVector2() + MouseOffset; }
+        private static bool LeftClicked { get; set; } = false;
+        private static bool RightClicked { get; set; } = false;
+        public static bool LeftClick(Transform ClickArea)
         {
-            ClickArea = NewArea;
-        }
-        public bool Click(string Button = "Left")
-        {
-            ButtonState CurrentPress = ButtonState.Released;
-            Point MousePos = Mouse.GetState().Position;
-
-            switch (Button)
+            if (ClickArea.Rect.Contains(MousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed && !LeftClicked)
             {
-                case "Left": CurrentPress = Mouse.GetState().LeftButton; break;
-                case "Right": CurrentPress = Mouse.GetState().RightButton; break;
-            }
-
-            if (ClickArea.Rect.Contains(MousePos) && CurrentPress == ButtonState.Pressed && !Clicked)
-            {
-                Clicked = true;
+                LeftClicked = true;
                 return true;
-            }
-            if (CurrentPress == ButtonState.Released && Clicked)
-            {
-                Clicked = false;
             }
             return false;
         }
-        public bool Hold()
+        public static bool LeftHold(Transform ClickArea)
         {
-            Point MousePos = Mouse.GetState().Position;
-
-            if (ClickArea.Rect.Contains(MousePos) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+            Vector2 MousePos = Mouse.GetState().Position.ToVector2() + MouseOffset;
+            return (ClickArea.Rect.Contains(MousePos) && Mouse.GetState().LeftButton == ButtonState.Pressed);
+        }
+        public static bool RightClick(Transform ClickArea)
+        {
+            if (ClickArea.Rect.Contains(MousePosition) && Mouse.GetState().RightButton == ButtonState.Pressed && !RightClicked)
             {
+                RightClicked = true;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
-    }
-    public class Dragger
-    {
-        private Transform Transform { get; set; }
-        public bool Dragging { get; set; } = false;
-        private bool Click { get; set; } = false;
-        Vector2 MouseOffset {  get; set; }
-        public Dragger(Transform NewTransform)
+        public static bool RightHold(Transform ClickArea)
         {
-            Transform = NewTransform;
+            Vector2 MousePos = Mouse.GetState().Position.ToVector2() + MouseOffset;
+            return (ClickArea.Rect.Contains(MousePos) && Mouse.GetState().RightButton == ButtonState.Pressed);
         }
-        public void Drag(IDraw Object) 
+        public static bool Hovering(Transform ActiveArea)
         {
-            Vector2 MPos = Mouse.GetState().Position.ToVector2();
-            if (Transform.Rect.Contains(MPos)) Mouse.SetCursor(MouseCursor.Hand);
-            else Mouse.SetCursor(MouseCursor.Arrow);
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                if (Transform.Rect.Contains(MPos) && !Click)
-                {
-                    Dragging = true;
-                    Click = true;
-                    MouseOffset = MPos - Object.Pos;
-                }
-                if (Dragging)
-                {
-                    OldObjectPos = Object.Pos;
-                    Object.Pos = MPos - MouseOffset;
-                    MoveChildren(Object);
-                }
-            }
-            if (Mouse.GetState().LeftButton == ButtonState.Released) { Dragging = false; Click = false; }
+            Vector2 MousePos = Mouse.GetState().Position.ToVector2() + MouseOffset;
+            return ActiveArea.Rect.Contains(MousePos);
         }
-        private Vector2 OldObjectPos;
-        private void MoveChildren(IDraw Object)
+        public static void Reset()
         {
-            if (typeof(IContainer).IsAssignableFrom(Object.GetType()))
+            if (RightClicked && Mouse.GetState().RightButton == ButtonState.Released)
             {
-                IContainer Container = (IContainer)Object;
-                List<IContainer> ChildContainers = new();
-                ChildContainers.Add(Container);
-                Vector2 Offset = Object.Pos - OldObjectPos;
-                for (int i = 0; i < ChildContainers.Count; i++)
-                {
-                    IContainer ChildContainer = ChildContainers[i];
-                    foreach (IDraw SubObject in ChildContainer.Draws)
-                    {
-                        if (!typeof(Button).IsAssignableFrom(SubObject.GetType()))
-                        {
-                            SubObject.Pos = SubObject.Pos + Offset;
-                        }
-                    }
-                    foreach (Text SubObject in ChildContainer.Texts)
-                    {
-                        SubObject.Pos = SubObject.Pos + (Object.Pos - OldObjectPos);
-                    }
-                    if (ChildContainer.Containers.Count > 0)
-                    {
-                        ChildContainers.AddRange(ChildContainer.Containers);
-                    }
-                }
+                RightClicked = false;
             }
-        }
-    }
-    //public class Keyer
-    //{
-    //    private List<Keys> PressedKeys { get; set; } = new();
-    //    public Keyer()
-    //    {
 
-    //    }
-    //}
+            if (LeftClicked && Mouse.GetState().LeftButton == ButtonState.Released)
+            {
+                LeftClicked = false;
+            }
+        }
+    }
 }
