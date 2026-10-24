@@ -1,22 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
-//using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using Slimey_Arcades.Objects;
 
-//namespace Slimey_Arcades.Windows
 namespace Slimey_Arcades
 {
-    public class SaveLoadWindow : Window
+    public class SaveLoadWindow : Window, INotifier
     {
+        public Notifier Notifier { get; init; } = new();
         public int SelectedLevel { get; set; } = 1;
         private Text LevelText { get; init; }
-        private Button SaveButton { get; init; }
-        private Button LoadButton {  get; init; }
+        //private Button SaveButton { get; init; }
+        //private Button LoadButton {  get; init; }
         public SaveLoadWindow(Vector2 Position) : base(new Transform((int)Position.X, (int)Position.Y, 250, 200), Color.DarkGray)
         {
             Text SelectText = new Text(new Transform((int)(Position.X + 40), (int)(Position.Y + 50), 150, 30), "Select Level:", NewScale: 0.2f);
@@ -55,17 +49,27 @@ namespace Slimey_Arcades
             DownTriangle.Sprite.Effect = SpriteEffects.FlipVertically;
             SubObjects.Add(DownTriangle);
 
-            SaveButton = new Button((int)(Position.X + 20), (int)(Position.Y + 165), 90, 25, Shapes.Square, Color.LightGray, "Save Level");
+            //SaveButton = new Button((int)(Position.X + 20), (int)(Position.Y + 165), 90, 25, Shapes.Square, Color.LightGray, "Save Level");
+            Button SaveButton = new Button((int)(Position.X + 20), (int)(Position.Y + 165), 90, 25, Shapes.Square, Color.LightGray, "Save Level");
+            SaveButton.Function = () =>
+            {
+                Notifier.SendNotification(new Notification(NOTTYPES.SAVELEVEL, SelectedLevel));
+            };
             SubObjects.Add(SaveButton);
 
-            LoadButton = new Button((int)(Position.X + 140), (int)(Position.Y + 165), 90, 25, Shapes.Square, Color.LightGray, "Load Level");
+            //LoadButton = new Button((int)(Position.X + 140), (int)(Position.Y + 165), 90, 25, Shapes.Square, Color.LightGray, "Load Level");
+            Button LoadButton = new Button((int)(Position.X + 140), (int)(Position.Y + 165), 90, 25, Shapes.Square, Color.LightGray, "Load Level");
+            LoadButton.Function = () =>
+            {
+                Notifier.SendNotification(new Notification(NOTTYPES.LOADLEVEL, SelectedLevel));
+            };
             SubObjects.Add(LoadButton);
         }
 
-        public void SetButtonFunctions(Action SaveButtonAction, Action LoadButtonAction)
-        {
-            SaveButton.Function = SaveButtonAction;
-            LoadButton.Function = LoadButtonAction;
-        }
+        //public void SetButtonFunctions(Action SaveButtonAction, Action LoadButtonAction)
+        //{
+        //    SaveButton.Function = SaveButtonAction;
+        //    LoadButton.Function = LoadButtonAction;
+        //}
     }
 }

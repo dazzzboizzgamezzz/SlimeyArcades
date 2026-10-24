@@ -60,12 +60,21 @@ namespace Slimey_Arcades
     }
     public enum NOTTYPES
     {
+        //NONE = -1,
+        //PAUSED = 0,
+        //CHANGELEVEL = 1,
+        //WIN = 2,
+        //LOSE = 3,
+        //SCREENCHANGE = 4,
+        //PAINT = 5,
         NONE = -1,
-        PAUSED = 0,
-        CHANGELEVEL = 1,
-        WIN = 2,
-        LOSE = 3,
-        SCREENCHANGE = 4,
-        PAINT = 5,
+        PAUSED,
+        CHANGELEVEL,
+        WIN,
+        LOSE,
+        SCREENCHANGE,
+        PAINT,
+        SAVELEVEL,
+        LOADLEVEL,
     }
 }

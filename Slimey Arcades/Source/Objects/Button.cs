@@ -36,8 +36,8 @@ namespace Slimey_Arcades
             Highlight = BGColor;
             Highlightable = true;
         }
-        //public Button(Transform NewTransform, Texture2D Texture = null, Color? BGColor = null, string Txt = "", bool TextCentered = false)
-        public Button(Transform NewTransform, Texture2D Texture = null, Color? BGColor = null, string Txt = "", bool TextCentered = true)
+        public Button(Transform NewTransform, Texture2D Texture = null, Color? BGColor = null, string Txt = "", bool TextCentered = false)
+        //public Button(Transform NewTransform, Texture2D Texture = null, Color? BGColor = null, string Txt = "", bool TextCentered = true)
         {
             Sprite = Texture == null ? new Sprite(Shapes.Square, ColorManager.None) : new Sprite(Texture, ColorManager.None);
             Transform = NewTransform;

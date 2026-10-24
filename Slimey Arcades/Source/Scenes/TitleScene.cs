@@ -20,15 +20,16 @@ namespace Slimey_Arcades
             Container.ObjectsToLoad.Add(LevelSelect);
 
             Button Debug = new Button(new Transform(400, 400, 200, 50), Shapes.Square, Color.Gray, "Debug", true);
-            Debug.Function = () => { NextScene = new DebugScene(); };
+            //Debug.Function = () => { NextScene = new DebugScene(); };
+            Debug.Function = () => { NextScene = new NewDebugScene(); };
             Container.ObjectsToLoad.Add(Debug);
 
             Button Options = new Button(new Transform(700, 400, 200, 50), Shapes.Square, Color.Gray, "Options", true);
             Options.Function = () => { };
             Container.ObjectsToLoad.Add(Options);
 
-            DebugSelect Test = new DebugSelect();
-            Container.ObjectsToLoad.Add(Test);
+            //DebugSelect Test = new DebugSelect();
+            //Container.ObjectsToLoad.Add(Test);
 
             //List<Button> TestList = new();
             //Button TestButton = new Button(new Transform(500, 300, 50, 50), BGColor: Color.Red);

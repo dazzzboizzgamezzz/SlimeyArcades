@@ -41,8 +41,9 @@ namespace Slimey_Arcades
                 MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to debug");
                 MenuButton.Function = () =>
                 {
-                    DebugScene NewScene = new DebugScene() { LoadLevel = true };
-                    NextScene = NewScene;
+                    //DebugScene NewScene = new DebugScene() { LoadLevel = true };
+                    //NextScene = NewScene;
+                    NextScene = new NewDebugScene();
                 };
             }
             Container.ObjectsToLoad.Add(MenuButton);

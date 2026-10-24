@@ -14,7 +14,8 @@ namespace Slimey_Arcades
         private Polygon WallOutline { get; set; }
         private int Timer { get; set; } = 0;
         private bool Paused { get; set; } = false;
-        public LevelGrid(int X, int Y, int Level) : base(X, Y, 11, 11, Color.DarkMagenta, 2)
+        //public LevelGrid(int X, int Y, int Level) : base(X, Y, 11, 11, Color.DarkMagenta, 2)
+        public LevelGrid(int X, int Y, int Level) : base(X, Y, NewLevel: Level, BGColor: Color.DarkMagenta, NewCellGap: 2)
         {
             LoadLevel(Level);
 

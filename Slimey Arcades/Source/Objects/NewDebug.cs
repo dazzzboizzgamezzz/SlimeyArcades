@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace Slimey_Arcades
 {
@@ -238,13 +241,13 @@ namespace Slimey_Arcades
         private CELLOBJECTS PaintProperty { get; set; } = (CELLOBJECTS)(-1);
         private int PaintSlime { get; set; } = 0;
         private Pointer Pointer { get; init; } = new();
-        public NewDebugGrid() : base(200, 50, 11, 11, Color.DarkMagenta, 2)
+        //public NewDebugGrid() : base(200, 50, 11, 11, Color.DarkMagenta, 2)
+        public NewDebugGrid(int NewCols, int NewRows) : base(450, 50, NewCols, NewRows, Color.DarkMagenta, 2)
         {
             Pointer.Sprite.LayerData.LayerDepth = 3;
             Container.ObjectsToLoad.Add(Pointer);
-            //PaintSlime = new Slime(Cells[0, 0], 0);
-            //PaintSlime.Sprite.IsVisible = false;
             Container.ObjectsToLoad.Add(PaintSlime);
+            SetBorders(true);
         }
         public override void Update()
         {
@@ -253,6 +256,7 @@ namespace Slimey_Arcades
                 if (MouseControl.LeftHold(Transform))
                 {
                     Cell MouseCell = GetMouseCell();
+                    if (MouseCell == null || MouseCell.Row == 0 || MouseCell.Row == Rows - 1 || MouseCell.Col == 0 || MouseCell.Col == Cols - 1) return;
                     if (PaintProperty == CELLOBJECTS.NONE)
                     {
                         MouseCell.Properties.Clear();
@@ -260,28 +264,8 @@ namespace Slimey_Arcades
                     }
                     else
                     {
-                        //if (PaintProperty == CELLOBJECTS.WALL || PaintProperty == CELLOBJECTS.PIT)
-                        //{
-                        //    foreach(CELLOBJECTS Property in MouseCell.Properties)
-                        //    {
-                        //        if (Property != CELLOBJECTS.RCUTTER &&
-                        //            Property != CELLOBJECTS.LCUTTER &&
-                        //            Property != CELLOBJECTS.UCUTTER && 
-                        //            Property != CELLOBJECTS.DCUTTER &&
-                        //            Property != CELLOBJECTS.RTINT &&
-                        //            Property != CELLOBJECTS.BTINT)
-                        //        {
-                        //            MouseCell.Properties.Remove(Property);
-                        //        }
-                        //    }
-                        //}
                         if ((int)PaintProperty >= (int)CELLOBJECTS.GGOAL && (int)PaintProperty <= (int)CELLOBJECTS.PGOAL)
                         {
-                            //if (MouseCell.Properties.Contains(CELLOBJECTS.GGOAL)) MouseCell.Properties.Remove(CELLOBJECTS.GGOAL);
-                            //if (MouseCell.Properties.Contains(CELLOBJECTS.RGOAL)) MouseCell.Properties.Remove(CELLOBJECTS.RGOAL);
-                            //if (MouseCell.Properties.Contains(CELLOBJECTS.BGOAL)) MouseCell.Properties.Remove(CELLOBJECTS.BGOAL);
-                            //if (MouseCell.Properties.Contains(CELLOBJECTS.YGOAL)) MouseCell.Properties.Remove(CELLOBJECTS.YGOAL);
-                            //if (MouseCell.Properties.Contains(CELLOBJECTS.PGOAL)) MouseCell.Properties.Remove(CELLOBJECTS.PGOAL);
                             foreach (Cell Cell in Cells)
                             {
                                 if (Cell.Properties.Contains(PaintProperty))
@@ -292,6 +276,7 @@ namespace Slimey_Arcades
                                 }
                             }
                         }
+                        SetCutters();
                         MouseCell.Properties.Add(PaintProperty);
                     }
                     MouseCell.ParseProperties();
@@ -302,7 +287,7 @@ namespace Slimey_Arcades
                 if (MouseControl.LeftClick(Transform))
                 {
                     Cell MouseCell = GetMouseCell();
-                    if (MouseCell == null) return;
+                    if (MouseCell == null || MouseCell.Row == 0 || MouseCell.Row == Rows - 1 || MouseCell.Col == 0 || MouseCell.Col == Cols - 1) return;
                     Slime CellSlime = GetCellSlime(MouseCell);
                     ClearSlime(MouseCell);
                     Slimes[PaintSlime].TargetCell = GetMouseCell();
@@ -364,6 +349,85 @@ namespace Slimey_Arcades
                 CellSlime.MoveToTarget();
             }
         }
+        private void SetCutters()
+        {
+            Cell MouseCell = GetMouseCell();
+            Cell AdjacentCell = null;
+            switch (PaintProperty)
+            {
+                case CELLOBJECTS.RCUTTER:
+                    AdjacentCell = GetCell(MouseCell.ColRowVec + Vector2.UnitX);
+                    if (AdjacentCell != null)
+                    {
+                        AdjacentCell.Properties.Add(CELLOBJECTS.LCUTTER);
+                    }
+                    break;
+                case CELLOBJECTS.LCUTTER:
+                    AdjacentCell = GetCell(MouseCell.ColRowVec - Vector2.UnitX);
+                    if (AdjacentCell != null)
+                    {
+                        AdjacentCell.Properties.Add(CELLOBJECTS.RCUTTER);
+                    }
+                    break;
+                case CELLOBJECTS.DCUTTER:
+                    AdjacentCell = GetCell(MouseCell.ColRowVec + Vector2.UnitY);
+                    if (AdjacentCell != null)
+                    {
+                        AdjacentCell.Properties.Add(CELLOBJECTS.UCUTTER);
+                    }
+                    break;
+                case CELLOBJECTS.UCUTTER:
+                    AdjacentCell = GetCell(MouseCell.ColRowVec - Vector2.UnitY);
+                    if (AdjacentCell != null)
+                    {
+                        AdjacentCell.Properties.Add(CELLOBJECTS.DCUTTER);
+                    }
+                    break;
+            }
+            if (AdjacentCell != null) AdjacentCell.ParseProperties();
+        }
+        public void SetBorders(bool SetBorders)
+        {
+            for (int i = 0; i < Rows; i++)
+            {
+                if (SetBorders)
+                {
+                    Cells[0, i].Properties.Add(CELLOBJECTS.WALL);
+                    Cells[Cols - 1, i].Properties.Add(CELLOBJECTS.WALL);
+                }
+                else
+                {
+                    Cells[0, i].Properties.Remove(CELLOBJECTS.WALL);
+                    Cells[Cols - 1, i].Properties.Remove(CELLOBJECTS.WALL);
+                }
+                Cells[0, i].ParseProperties();
+                Cells[Cols - 1, i].ParseProperties();
+            }
+            for (int i = 0; i < Cols; i++)
+            {
+                if (SetBorders)
+                {
+                    Cells[i, 0].Properties.Add(CELLOBJECTS.WALL);
+                    Cells[i, Rows - 1].Properties.Add(CELLOBJECTS.WALL);
+                }
+                else
+                {
+                    Cells[i, 0].Properties.Remove(CELLOBJECTS.WALL);
+                    Cells[i, Rows - 1].Properties.Remove(CELLOBJECTS.WALL);
+                }
+                Cells[i, 0].ParseProperties();
+                Cells[i, Rows - 1].ParseProperties();
+            }
+        }
+        public void ResetGrid()
+        {
+            foreach (Cell Cell in Cells)
+            {
+                Cell.Properties.Clear();
+                Cell.ParseProperties();
+            }
+            SetBorders(true);
+        }
     }
     class Pointer: Polygon, IUpdate
     {
@@ -374,6 +438,118 @@ namespace Slimey_Arcades
         public void Update()
         {
             Transform.Pos = MouseControl.MousePosition;
+        }
+    }
+    
+    //class ScreenScroll: IUpdate, INotifier, IDraw
+    //{
+    //    public Notifier Notifier { get; init; } = new();
+    //    public Transform Transform { get; set; }
+    //    public Sprite Sprite { get; set; }
+    //    private Color HighlightColor { get; init; } = new Color(0, 0, 0, 0.5f);
+    //    public bool IsActive { get; set; } = false;
+    //    private Vector3 Direction { get; init; }
+    //    public ScreenScroll(Transform NewTransform, Vector2 NewDirection)
+    //    {
+    //        Transform = NewTransform;
+    //        Sprite = new Sprite(Shapes.Square, ColorHelp.None);
+    //        Direction = new Vector3(NewDirection.X, NewDirection.Y, 0);
+    //    }
+    //    public void Update() 
+    //    {
+    //        if (IsActive && MouseControl.Hovering(Transform))
+    //        {
+    //            Notifier.SendNotification(new Notification(NOTTYPES.SCREENCHANGE, Direction));
+    //            //Transform = new Transform(Transform.X + (int)Direction.X, Transform.Y - (int)Direction.Y, Transform.Width, Transform.Height);
+    //            Sprite.Color = HighlightColor;
+    //        }
+    //        else
+    //        {
+    //            //Sprite.Color = ColorHelp.None;
+    //        }
+    //    }
+    //}
+    class ScreenMover : IContainer, IDraw, IUpdate, INotifier
+    {
+        public Sprite Sprite { get; set; }
+        public Transform Transform { get; set; }
+        public Container Container { get; init; } = new();
+        public Notifier Notifier { get; init; } = new();
+        public Rectangle OuterScreen { get; init; }
+        private Rectangle InnerScreen { get => Transform.Rect; }
+        private Polygon LeftScroll { get; init; }
+        private Polygon RightScroll { get; init; }
+        private Polygon UpScroll { get; init; }
+        private Polygon DownScroll { get; init; }
+        private Vector2 OffSet { get; set; } = Vector2.Zero;
+        public ScreenMover(Rectangle NewOuterScreen)
+        {
+            Sprite = new Sprite(Shapes.Square, ColorHelp.None);
+            Transform = new Transform(0, 0, (int)SETTINGS.SCREENWIDTH, (int)SETTINGS.SCREENHEIGHT);
+            OuterScreen = NewOuterScreen;
+
+            LeftScroll = new Polygon(new Transform(0, -50, 100, (int)SETTINGS.SCREENHEIGHT + 100), ColorHelp.None);
+            Container.ObjectsToLoad.Add(LeftScroll);
+            RightScroll = new Polygon(new Transform((int)SETTINGS.SCREENWIDTH - 100, -50, 100, (int)SETTINGS.SCREENHEIGHT + 100), ColorHelp.None);
+            Container.ObjectsToLoad.Add(RightScroll);
+            UpScroll = new Polygon(new Transform(-50, 0, (int)SETTINGS.SCREENWIDTH + 100, 100), ColorHelp.None);
+            Container.ObjectsToLoad.Add(UpScroll);
+            DownScroll = new Polygon(new Transform(-50, (int)SETTINGS.SCREENHEIGHT - 100, (int)SETTINGS.SCREENWIDTH + 100, 100), ColorHelp.None);
+            Container.ObjectsToLoad.Add(DownScroll);
+        }
+        public void Update()
+        {
+            if (InnerScreen.X + InnerScreen.Width < OuterScreen.Width
+            && (RightScroll.Transform.Rect.Contains(MouseControl.MousePosition)))
+            {
+                RightScroll.Sprite.Color = new Color(0, 0, 0, 0.5f);
+                Notifier.SendNotification(new Notification(NOTTYPES.SCREENCHANGE, new Vector3(-5, 0, 0)));
+                OffSet += new Vector2(5, 0);
+                Container.MoveAllChildren(this, OffSet);
+            }
+            else
+            {
+                RightScroll.Sprite.Color = Color.Lerp(RightScroll.Sprite.Color, ColorHelp.None, 0.1f);
+            }
+
+            if (InnerScreen.X > OuterScreen.X
+            && (LeftScroll.Transform.Rect.Contains(MouseControl.MousePosition)))
+            {
+                LeftScroll.Sprite.Color = new Color(0, 0, 0, 0.5f);
+                Notifier.SendNotification(new Notification(NOTTYPES.SCREENCHANGE, new Vector3(5, 0, 0)));
+                OffSet += new Vector2(-5, 0);
+                Container.MoveAllChildren(this, OffSet);
+            }
+            else
+            {
+                LeftScroll.Sprite.Color = Color.Lerp(LeftScroll.Sprite.Color, ColorHelp.None, 0.1f);
+            }
+
+            if (InnerScreen.Y + InnerScreen.Height < OuterScreen.Height
+            && (DownScroll.Transform.Rect.Contains(MouseControl.MousePosition)))
+            {
+                DownScroll.Sprite.Color = new Color(0, 0, 0, 0.5f);
+                Notifier.SendNotification(new Notification(NOTTYPES.SCREENCHANGE, new Vector3(0, -5, 0)));
+                OffSet += new Vector2(0, 5);
+                Container.MoveAllChildren(this, OffSet);
+            }
+            else
+            {
+                DownScroll.Sprite.Color = Color.Lerp(DownScroll.Sprite.Color, ColorHelp.None, 0.1f);
+            }
+
+            if (InnerScreen.Y > OuterScreen.Y
+            && (UpScroll.Transform.Rect.Contains(MouseControl.MousePosition)))
+            {
+                UpScroll.Sprite.Color = new Color(0, 0, 0, 0.5f);
+                Notifier.SendNotification(new Notification(NOTTYPES.SCREENCHANGE, new Vector3(0, 5, 0)));
+                OffSet += new Vector2(0, -5);
+                Container.MoveAllChildren(this, OffSet);
+            }
+            else
+            {
+                UpScroll.Sprite.Color = Color.Lerp(UpScroll.Sprite.Color, ColorHelp.None, 0.1f);
+            }
         }
     }
 }

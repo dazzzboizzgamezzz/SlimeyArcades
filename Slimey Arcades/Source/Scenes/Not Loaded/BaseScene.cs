@@ -44,21 +44,22 @@ namespace Slimey_Arcades
                     NextScene = (Scene)Notification.Data;
                     break;
                 case NOTTYPES.SCREENCHANGE:
-                    switch (Notification.Data)
-                    {
-                        case "Left":
-                            ScreenTarget += new Vector3(-(int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
-                            break;
-                        case "Right":
-                            ScreenTarget += new Vector3((int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
-                            break;
-                        case "Up":
-                            ScreenTarget += new Vector3(0, (int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
-                            break;
-                        case "Down":
-                            ScreenTarget += new Vector3(0, -(int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
-                            break;
-                    }
+                    //switch (Notification.Data)
+                    //{
+                    //    case "Left":
+                    //        ScreenTarget += new Vector3(-(int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
+                    //        break;
+                    //    case "Right":
+                    //        ScreenTarget += new Vector3((int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
+                    //        break;
+                    //    case "Up":
+                    //        ScreenTarget += new Vector3(0, (int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
+                    //        break;
+                    //    case "Down":
+                    //        ScreenTarget += new Vector3(0, -(int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
+                    //        break;
+                    //}
+                    ScreenTarget += (Vector3)Notification.Data * WindowScale;
                     break;
             }
         }

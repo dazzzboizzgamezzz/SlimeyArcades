@@ -15,7 +15,10 @@ namespace Slimey_Arcades
             DebugSelect Test = new DebugSelect();
             Container.ObjectsToLoad.Add(Test);
 
-            NewDebugGrid Test2 = new NewDebugGrid();
+            //NewDebugGrid Test2 = new NewDebugGrid();
+            //Container.ObjectsToLoad.Add(Test2);
+
+            NewDebugScene Test2 = new NewDebugScene();
             Container.ObjectsToLoad.Add(Test2);
         }
     }
