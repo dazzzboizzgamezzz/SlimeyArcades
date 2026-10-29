@@ -16,12 +16,9 @@ namespace Slimey_Arcades
         }
         public override void Load()
         {
-            //Vector2 Temp = Vector2.Zero;
             Container.LoadObjects(this);
-            //Container.LoadObjects(this, ref Temp);
             PauseWindow = new PauseWindow(new Vector2(400, 300), Level);
             Container.ObjectsToLoad.Add(PauseWindow);
-            //Container.LoadObjects(this, ref Temp, 3);
             Container.LoadObjects(this, 3);
 
             LevelGrid = new LevelGrid(200, 100, Level);
@@ -41,9 +38,7 @@ namespace Slimey_Arcades
                 MenuButton = new Button(new Transform(800, 300, 200, 50), Shapes.Square, Color.Gray, "Return to debug");
                 MenuButton.Function = () =>
                 {
-                    //DebugScene NewScene = new DebugScene() { LoadLevel = true };
-                    //NextScene = NewScene;
-                    NextScene = new NewDebugScene();
+                    NextScene = new DebugScene();
                 };
             }
             Container.ObjectsToLoad.Add(MenuButton);

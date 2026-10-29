@@ -107,8 +107,12 @@ namespace Slimey_Arcades
     }
     public class LayerData
     {
-        public int LayerDepth {  get; set; } = 1;
-        public int LayerIndex { get; set; } = 1;
+        public int LayerDepth {  get => layerdepth; set => layerdepth = Math.Min(value, 7); }
+        private int layerdepth = 1;
+        public int LayerIndex { get => layerindex; set => layerindex = Math.Min(value, 9); }
+        private int layerindex = 1;
+        //public int LayerDepth {  get; set; } = 1;
+        //public int LayerIndex { get; set; } = 1;
         public float Layer { get => LayerIndex * (float)Math.Pow(10, -LayerDepth); }
         public LayerData() { }
     }

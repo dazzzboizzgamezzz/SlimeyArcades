@@ -1,9 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-//using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
-//using System.Linq;
 
 namespace Slimey_Arcades
 {
@@ -16,9 +14,6 @@ namespace Slimey_Arcades
         public Notifier Notifier { get; init; } = new();
         public int Rows { get; set; }
         public int Cols { get; set; }
-        //protected int Rows { get; init; }
-        //protected int Cols { get; init; }
-        //protected int CellSize { get; init; }
         public int CellSize { get; init; }
         protected int CellGap { get; init; }
         protected Slime[] Slimes { get; init; } = new Slime[5];
@@ -29,7 +24,6 @@ namespace Slimey_Arcades
             SLIME = 2,
             CELLDATA = 3
         }
-        //public Grid(int X, int Y, int NewCols, int NewRows, Color BGColor, int NewCellGap = 5, int NewCellSize = 50, int BorderWidth = 5, Color? CellColor = null)
         public Grid(int X, int Y, int NewCols = 12, int NewRows = 12, Color? BGColor = null, int NewCellGap = 2, int NewCellSize = 50, int BorderWidth = 5, Color? CellColor = null, int? NewLevel = null)
         {
             if (NewLevel != null) GetStartingLevel((int)NewLevel);
@@ -43,7 +37,6 @@ namespace Slimey_Arcades
             int Width = ((CellSize + CellGap) * Cols) - CellGap;
             int Height = ((CellSize + CellGap) * Rows) - CellGap;
             Transform = new Transform(X - BorderWidth, Y - BorderWidth, Width + BorderWidth * 2, Height + BorderWidth * 2);
-            //Sprite = new Sprite(Shapes.Square, BGColor);
             Sprite = new Sprite(Shapes.Square, BGColor == null ? ColorHelp.None : (Color)BGColor);
             Sprite.LayerData.LayerIndex = 9;
             Notifier.ProcessNotifications = ProcessNotifications;
@@ -166,127 +159,109 @@ namespace Slimey_Arcades
         }
         public void SaveLevel(int Level)
         {
-            string SceneFolder = Directory.GetCurrentDirectory() + "\\Levels";
-            Directory.CreateDirectory(SceneFolder);
-            string LevelFile = SceneFolder + "\\Level" + Level.ToString() + ".csv";
-            string Data = "";
-            using (StreamWriter Writer = new StreamWriter(LevelFile))
+            try
             {
-                Data = ((int)GRIDDATA.COLROW).ToString() + "," +  Cols.ToString() + "," + Rows.ToString();
-                Writer.WriteLine(Data);
-                Writer.Flush();
-                foreach (Slime Slime in Slimes)
+                string SceneFolder = Directory.GetCurrentDirectory() + "\\Levels";
+                Directory.CreateDirectory(SceneFolder);
+                string LevelFile = SceneFolder + "\\Level" + Level.ToString() + ".csv";
+                string Data = "";
+                using (StreamWriter Writer = new StreamWriter(LevelFile))
                 {
-                    //Data = Slime.Col.ToString() + "," + Slime.Row.ToString() + "," + Slime.Type.ToString();
-                    Data = ((int)GRIDDATA.SLIME).ToString() + "," +  Slime.Col.ToString() + "," + Slime.Row.ToString() + "," + Slime.Type.ToString();
+                    Data = ((int)GRIDDATA.COLROW).ToString() + "," + Cols.ToString() + "," + Rows.ToString();
                     Writer.WriteLine(Data);
                     Writer.Flush();
-                }
-                foreach (Cell Cell in Cells)
-                {
-                    if (Cell.Properties.Count > 0)
+                    foreach (Slime Slime in Slimes)
                     {
-                        //Data = Cell.Col.ToString() + "," + Cell.Row.ToString() + ",";
-                        Data = ((int)GRIDDATA.CELLDATA).ToString() + "," + Cell.Col.ToString() + "," + Cell.Row.ToString() + ",";
-                        foreach (int Property in Cell.Properties)
-                        {
-                            //Data = Data + Property.ToString() + ",";
-                            Data += Property.ToString() + ",";
-                        }
-                        Data = Data.Remove(Data.Length - 1);
+                        Data = ((int)GRIDDATA.SLIME).ToString() + "," + Slime.Col.ToString() + "," + Slime.Row.ToString() + "," + Slime.Type.ToString();
                         Writer.WriteLine(Data);
                         Writer.Flush();
                     }
+                    foreach (Cell Cell in Cells)
+                    {
+                        if (Cell.Properties.Count > 0)
+                        {
+                            Data = ((int)GRIDDATA.CELLDATA).ToString() + "," + Cell.Col.ToString() + "," + Cell.Row.ToString() + ",";
+                            foreach (int Property in Cell.Properties)
+                            {
+                                Data += Property.ToString() + ",";
+                            }
+                            Data = Data.Remove(Data.Length - 1);
+                            Writer.WriteLine(Data);
+                            Writer.Flush();
+                        }
+                    }
                 }
+            }
+            catch
+            {
+                Container.ObjectsToLoad.Add(new ErrorMessage(this));
+                Container.LoadObjects(this, 1);
             }
         }
         public void LoadLevel(int Level)
         {
-            string LevelFile = Directory.GetCurrentDirectory() + "\\Levels" + "\\Level" + Level.ToString() + ".csv";
-            if (File.Exists(LevelFile))
+            try
             {
-                CELLOBJECTS SwitchType = 0;
-                using (StreamReader Reader = new StreamReader(LevelFile))
+                string LevelFile = Directory.GetCurrentDirectory() + "\\Levels" + "\\Level" + Level.ToString() + ".csv";
+                if (File.Exists(LevelFile))
                 {
-                    string Line;
-                    int LineCount = 0;
-                    while ((Line = Reader.ReadLine()) != null)
+                    CELLOBJECTS SwitchType = 0;
+                    using (StreamReader Reader = new StreamReader(LevelFile))
                     {
-                        //List<string> Data = Line.Split(",").ToList();
-                        string[] Data = Line.Split(",");
-                        GRIDDATA DataType = (GRIDDATA)int.Parse(Data[0]);
-
-                        if (DataType == GRIDDATA.COLROW) continue;
-
-                        Cell NextCell = GetCell(int.Parse(Data[1]), int.Parse(Data[2]));
-                        switch (DataType)
+                        string Line;
+                        int LineCount = 0;
+                        while ((Line = Reader.ReadLine()) != null)
                         {
-                            case GRIDDATA.SLIME:
-                                Slime Slime = Slimes[int.Parse(Data[3])];
-                                Slime.TargetCell = NextCell;
-                                Slime.MoveToTarget();
-                                break;
-                            case GRIDDATA.CELLDATA:
-                                for (int i = 3; i < Data.Length; i++)
-                                {
-                                    CELLOBJECTS Property = (CELLOBJECTS)int.Parse(Data[i]);
-                                    NextCell.Properties.Add(Property);
-                                    if (Property == CELLOBJECTS.RSWITCH)
-                                        SwitchType = CELLOBJECTS.BSWITCH;
-                                    if (Property == CELLOBJECTS.BSWITCH) SwitchType = CELLOBJECTS.RSWITCH;
-                                }
-                                if (NextCell.Properties.Contains(CELLOBJECTS.BTINT))
-                                {
-                                    NextCell.BlueProperties = new(NextCell.Properties);
-                                    NextCell.RedProperties.Add(CELLOBJECTS.BTINT);
-                                }
-                                if (NextCell.Properties.Contains(CELLOBJECTS.RTINT))
-                                {
-                                    NextCell.RedProperties = new(NextCell.Properties);
-                                    NextCell.BlueProperties.Add(CELLOBJECTS.RTINT);
-                                }
-                                if (NextCell.Properties.Count > 0) NextCell.ParseProperties();
-                                break;
+                            string[] Data = Line.Split(",");
+                            GRIDDATA DataType = (GRIDDATA)int.Parse(Data[0]);
+
+                            if (DataType == GRIDDATA.COLROW) continue;
+
+                            Cell NextCell = GetCell(int.Parse(Data[1]), int.Parse(Data[2]));
+                            switch (DataType)
+                            {
+                                case GRIDDATA.SLIME:
+                                    Slime Slime = Slimes[int.Parse(Data[3])];
+                                    Slime.TargetCell = NextCell;
+                                    Slime.MoveToTarget();
+                                    break;
+                                case GRIDDATA.CELLDATA:
+                                    for (int i = 3; i < Data.Length; i++)
+                                    {
+                                        CELLOBJECTS Property = (CELLOBJECTS)int.Parse(Data[i]);
+                                        NextCell.Properties.Add(Property);
+                                        if (Property == CELLOBJECTS.RSWITCH)
+                                            SwitchType = CELLOBJECTS.BSWITCH;
+                                        if (Property == CELLOBJECTS.BSWITCH) SwitchType = CELLOBJECTS.RSWITCH;
+                                    }
+                                    if (NextCell.Properties.Contains(CELLOBJECTS.BTINT))
+                                    {
+                                        NextCell.BlueProperties = new(NextCell.Properties);
+                                        NextCell.RedProperties.Add(CELLOBJECTS.BTINT);
+                                    }
+                                    if (NextCell.Properties.Contains(CELLOBJECTS.RTINT))
+                                    {
+                                        NextCell.RedProperties = new(NextCell.Properties);
+                                        NextCell.BlueProperties.Add(CELLOBJECTS.RTINT);
+                                    }
+                                    if (NextCell.Properties.Count > 0) NextCell.ParseProperties();
+                                    break;
+                            }
+                            LineCount++;
                         }
-                        //Cell NextCell = GetCell(int.Parse(Data[0]), int.Parse(Data[1]));
-                        //if (LineCount < 5)
-                        //{
-                        //Slime Slime = Slimes[LineCount];
-                        //Slime.TargetCell = NextCell;
-                        //Slime.MoveToTarget();
-                        //}
-                        //else if (Data.Count > 2)
-                        //{
-                        //    Data.RemoveRange(0, 2);
-                        //    foreach (string Property in Data)
-                        //    {
-                        //        CELLOBJECTS PropertyValue = (CELLOBJECTS)int.Parse(Property);
-                        //        NextCell.Properties.Add(PropertyValue);
-                        //        if (PropertyValue == CELLOBJECTS.RSWITCH) 
-                        //            SwitchType = CELLOBJECTS.BSWITCH;
-                        //        if (PropertyValue == CELLOBJECTS.BSWITCH) SwitchType = CELLOBJECTS.RSWITCH;
-                        //    }
-                        //    if (NextCell.Properties.Contains(CELLOBJECTS.BTINT))
-                        //    {
-                        //        NextCell.BlueProperties = new(NextCell.Properties);
-                        //        NextCell.RedProperties.Add(CELLOBJECTS.BTINT);
-                        //    }
-                        //    if (NextCell.Properties.Contains(CELLOBJECTS.RTINT))
-                        //    {
-                        //        NextCell.RedProperties = new(NextCell.Properties);
-                        //        NextCell.BlueProperties.Add(CELLOBJECTS.RTINT);
-                        //    }
-                        //    if (NextCell.Properties.Count > 0) NextCell.ParseProperties();
-                        //}
-                        LineCount++;
                     }
+                    if (SwitchType != 0) SwitchRedBlue(SwitchType);
                 }
-                if (SwitchType != 0) SwitchRedBlue(SwitchType);
+                else
+                {
+                    LoadDefaultLevel();
+                    LoadLevel(-1);
+                }
             }
-            else
+            catch
             {
-                LoadDefaultLevel();
-                LoadLevel(-1);
+                Container.ObjectsToLoad.Add(new ErrorMessage(this));
+                Container.LoadObjects(this, 1);
             }
         }
         private void LoadDefaultLevel()

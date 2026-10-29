@@ -11,16 +11,9 @@ namespace Slimey_Arcades
             StartScene.Load();
             ActiveScene = StartScene;
         }
-        //public void Draw(SpriteBatch SpriteBatch)
         public void Draw(SpriteBatch SpriteBatch, float WindowScale, Vector2 ScreenOffset)
         {
-            //back is 1, front is 0
-            //SpriteBatch.Begin(sortMode: SpriteSortMode.BackToFront);
-
-            //ActiveScene.Draw(SpriteBatch);
             ActiveScene.Draw(SpriteBatch, WindowScale, ScreenOffset);
-
-            //SpriteBatch.End();
         }
         public void Update()
         {

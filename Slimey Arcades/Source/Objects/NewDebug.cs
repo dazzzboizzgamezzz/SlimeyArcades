@@ -38,18 +38,8 @@ namespace Slimey_Arcades
                     case 0:
                         for (int j = 0; j < 5; j++)
                         {
-                            //Color SlimeColor = ColorHelp.GreenSlime;
-                            //switch (j)
-                            //{
-                            //case 0: SlimeColor = ColorHelp.GreenSlime; break;
-                            //case 1: SlimeColor = ColorHelp.RedSlime; break;
-                            //case 2: SlimeColor = ColorHelp.BlueSlime; break;
-                            //case 3: SlimeColor = ColorHelp.YellowSlime; break;
-                            //case 4: SlimeColor = ColorHelp.PinkSlime; break;
-                            //}
-                            //Button = new Button(ButtonTransform, BGColor: SlimeColor);
+                            
                             Slime Slime = new Slime(new Cell(new Transform(0, 0, 0, 0), Color.White), j);
-                            //Notification.Data = Slime;
                             Button = new Button(ButtonTransform, BGColor: Slime.Sprite.Color);
                             Button.Function = () => 
                             { 
@@ -62,22 +52,6 @@ namespace Slimey_Arcades
                     case 1:
                         for (int j = 0; j < 5; j++)
                         {
-                            //Color SlimeColor = ColorHelp.GreenSlime;
-                            //switch (j)
-                            //{
-                            //    case 0: SlimeColor = ColorHelp.GreenSlime; Property = CELLOBJECTS.GGOAL; break;
-                            //    case 1: SlimeColor = ColorHelp.RedSlime; Property = CELLOBJECTS.RGOAL; break;
-                            //    case 2: SlimeColor = ColorHelp.BlueSlime; Property = CELLOBJECTS.BGOAL; break;
-                            //    case 3: SlimeColor = ColorHelp.YellowSlime; Property = CELLOBJECTS.YGOAL; break;
-                            //    case 4: SlimeColor = ColorHelp.PinkSlime; Property = CELLOBJECTS.PGOAL; break;
-                            //}
-                            ////Notification.Data = Property;
-                            //Button = new Button(ButtonTransform, Shapes.MakeOutline(ButtonTransform.Rect), SlimeColor, "Goal");
-                            //Button.Function = () => 
-                            //{ 
-                            //    Notifier.SendNotification(new Notification(NOTTYPES.PAINT, Property)); 
-                            //    MoveOutline(); 
-                            //};
                             switch (j)
                             {
                                 case 0: 
@@ -126,29 +100,6 @@ namespace Slimey_Arcades
                         ButtonList.Add(Button);
                         break;
                     case 5:
-                        //Polygon Cross = null;
-                        //Transform CrossTransform = null;
-                        //for (int j = 0; j < 4; j++)
-                        //{
-                        //    switch (j)
-                        //    {
-                        //        case 0: CrossTransform = new Transform((int)ButtonTransform.Center.X, (int)ButtonTransform.Center.Y - 10, 10, 25); Property = CELLOBJECTS.LCUTTER; break;
-                        //        case 1: CrossTransform = new Transform((int)ButtonTransform.Center.X - 10, (int)ButtonTransform.Center.Y - 10, 10, 25); Property = CELLOBJECTS.RCUTTER; break;
-                        //        case 2: CrossTransform = new Transform((int)ButtonTransform.Center.X - 10, (int)ButtonTransform.Center.Y - 10, 25, 10); Property = CELLOBJECTS.UCUTTER; break;
-                        //        case 3: CrossTransform = new Transform((int)ButtonTransform.Center.X - 10, (int)ButtonTransform.Center.Y, 25, 10); Property = CELLOBJECTS.DCUTTER; break;
-                        //    }
-                        //    Cross = new Polygon(CrossTransform, Color.Black);
-                        //    Cross.Sprite.Texture = Shapes.XCross;
-                        //    Button = new Button(ButtonTransform, BGColor: Color.Gray);
-                        //    //Notification.Data = Property;
-                        //    Button.Function = () => 
-                        //    { 
-                        //        Notifier.SendNotification(new Notification(NOTTYPES.PAINT, Property)); 
-                        //        MoveOutline(); 
-                        //    };
-                        //    Button.Container.ObjectsToLoad.Add(Cross);
-                        //    ButtonList.Add(Button);
-                        //}
                         for (int j = 0; j < 4; j++)
                         {
                             Button = new Button(ButtonTransform, BGColor: Color.Gray);
@@ -189,27 +140,19 @@ namespace Slimey_Arcades
                         Button = new Button(ButtonTransform, BGColor: Color.Gray);
                         Polygon Circle = new Polygon(new Transform((int)ButtonTransform.Center.X - 8, (int)ButtonTransform.Center.Y - 8, 15, 15), ColorHelp.RedSwitch, "Circle");
                         Button.Container.ObjectsToLoad.Add(Circle);
-                        //Property = CELLOBJECTS.RSWITCH;
-                        //Notification.Data = Property;
                         Button.Function = () => { Notifier.SendNotification(new Notification(NOTTYPES.PAINT, CELLOBJECTS.RSWITCH)); MoveOutline(); };
                         ButtonList.Add(Button);
                         Button = new Button(ButtonTransform, BGColor: Color.Gray);
                         Circle = new Polygon(new Transform((int)ButtonTransform.Center.X - 8, (int)ButtonTransform.Center.Y - 8, 15, 15), ColorHelp.BlueSwitch, "Circle");
                         Button.Container.ObjectsToLoad.Add(Circle);
-                        //Property = CELLOBJECTS.BSWITCH;
-                        //Notification.Data = Property;
                         Button.Function = () => { Notifier.SendNotification(new Notification(NOTTYPES.PAINT, CELLOBJECTS.BSWITCH)); MoveOutline(); };
                         ButtonList.Add(Button);
                         break;
                     case 8:
                         Button = new Button(ButtonTransform, BGColor: ColorHelp.RedSwitch);
-                        //Property = CELLOBJECTS.RTINT;
-                        //Notification.Data = Property;
                         Button.Function = () => { Notifier.SendNotification(new Notification(NOTTYPES.PAINT, CELLOBJECTS.RTINT)); MoveOutline(); };
                         ButtonList.Add(Button);
                         Button = new Button(ButtonTransform, BGColor: ColorHelp.BlueSwitch);
-                        //Property = CELLOBJECTS.BTINT;
-                        //Notification.Data = Property;
                         Button.Function = () => { Notifier.SendNotification(new Notification(NOTTYPES.PAINT, CELLOBJECTS.BTINT)); MoveOutline(); };
                         ButtonList.Add(Button);
                         break;
@@ -236,13 +179,13 @@ namespace Slimey_Arcades
             Outline.Transform.Pos = NewPos;
         }
     }
-    class NewDebugGrid : Grid
+    //class NewDebugGrid : Grid
+    class DebugGrid : Grid
     {
         private CELLOBJECTS PaintProperty { get; set; } = (CELLOBJECTS)(-1);
         private int PaintSlime { get; set; } = 0;
         private Pointer Pointer { get; init; } = new();
-        //public NewDebugGrid() : base(200, 50, 11, 11, Color.DarkMagenta, 2)
-        public NewDebugGrid(int NewCols, int NewRows) : base(450, 50, NewCols, NewRows, Color.DarkMagenta, 2)
+        public DebugGrid(int NewCols, int NewRows) : base(450, 50, NewCols, NewRows, Color.DarkMagenta, 2)
         {
             Pointer.Sprite.LayerData.LayerDepth = 3;
             Container.ObjectsToLoad.Add(Pointer);
@@ -251,55 +194,62 @@ namespace Slimey_Arcades
         }
         public override void Update()
         {
-            if ((int)PaintProperty >= 0)
-            {
-                if (MouseControl.LeftHold(Transform))
+            try {
+                if ((int)PaintProperty >= 0)
                 {
-                    Cell MouseCell = GetMouseCell();
-                    if (MouseCell == null || MouseCell.Row == 0 || MouseCell.Row == Rows - 1 || MouseCell.Col == 0 || MouseCell.Col == Cols - 1) return;
-                    if (PaintProperty == CELLOBJECTS.NONE)
+                    if (MouseControl.LeftHold(Transform))
                     {
-                        MouseCell.Properties.Clear();
-                        ClearSlime(MouseCell);
-                    }
-                    else
-                    {
-                        if ((int)PaintProperty >= (int)CELLOBJECTS.GGOAL && (int)PaintProperty <= (int)CELLOBJECTS.PGOAL)
+                        Cell MouseCell = GetMouseCell();
+                        if (MouseCell == null || MouseCell.Row == 0 || MouseCell.Row == Rows - 1 || MouseCell.Col == 0 || MouseCell.Col == Cols - 1) return;
+                        if (PaintProperty == CELLOBJECTS.NONE)
                         {
-                            foreach (Cell Cell in Cells)
+                            MouseCell.Properties.Clear();
+                            ClearSlime(MouseCell);
+                        }
+                        else
+                        {
+                            if ((int)PaintProperty >= (int)CELLOBJECTS.GGOAL && (int)PaintProperty <= (int)CELLOBJECTS.PGOAL)
                             {
-                                if (Cell.Properties.Contains(PaintProperty))
+                                foreach (Cell Cell in Cells)
                                 {
-                                    Cell.Properties.Remove(PaintProperty);
-                                    Cell.ParseProperties();
-                                    break;
+                                    if (Cell.Properties.Contains(PaintProperty))
+                                    {
+                                        Cell.Properties.Remove(PaintProperty);
+                                        Cell.ParseProperties();
+                                        break;
+                                    }
                                 }
                             }
+                            SetCutters();
+                            MouseCell.Properties.Add(PaintProperty);
                         }
-                        SetCutters();
-                        MouseCell.Properties.Add(PaintProperty);
+                        MouseCell.ParseProperties();
                     }
-                    MouseCell.ParseProperties();
+                }
+                else
+                {
+                    if (MouseControl.LeftClick(Transform))
+                    {
+                        Cell MouseCell = GetMouseCell();
+                        if (MouseCell == null || MouseCell.Row == 0 || MouseCell.Row == Rows - 1 || MouseCell.Col == 0 || MouseCell.Col == Cols - 1) return;
+                        Slime CellSlime = GetCellSlime(MouseCell);
+                        ClearSlime(MouseCell);
+                        Slimes[PaintSlime].TargetCell = GetMouseCell();
+                        Slimes[PaintSlime].MoveToTarget();
+
+                        if (MouseCell.Properties.Contains(CELLOBJECTS.WALL)) MouseCell.Properties.Remove(CELLOBJECTS.WALL);
+                        if (MouseCell.Properties.Contains(CELLOBJECTS.PIT)) MouseCell.Properties.Remove(CELLOBJECTS.PIT);
+                        if (MouseCell.Properties.Contains(CELLOBJECTS.BSWITCH)) MouseCell.Properties.Remove(CELLOBJECTS.BSWITCH);
+                        if (MouseCell.Properties.Contains(CELLOBJECTS.RSWITCH)) MouseCell.Properties.Remove(CELLOBJECTS.RSWITCH);
+                        if (MouseCell.Properties.Contains(CELLOBJECTS.BARREL)) MouseCell.Properties.Remove(CELLOBJECTS.BARREL);
+                        MouseCell.ParseProperties();
+                    }
                 }
             }
-            else
+            catch
             {
-                if (MouseControl.LeftClick(Transform))
-                {
-                    Cell MouseCell = GetMouseCell();
-                    if (MouseCell == null || MouseCell.Row == 0 || MouseCell.Row == Rows - 1 || MouseCell.Col == 0 || MouseCell.Col == Cols - 1) return;
-                    Slime CellSlime = GetCellSlime(MouseCell);
-                    ClearSlime(MouseCell);
-                    Slimes[PaintSlime].TargetCell = GetMouseCell();
-                    Slimes[PaintSlime].MoveToTarget();
-
-                    if (MouseCell.Properties.Contains(CELLOBJECTS.WALL)) MouseCell.Properties.Remove(CELLOBJECTS.WALL);
-                    if (MouseCell.Properties.Contains(CELLOBJECTS.PIT)) MouseCell.Properties.Remove(CELLOBJECTS.PIT);
-                    if (MouseCell.Properties.Contains(CELLOBJECTS.BSWITCH)) MouseCell.Properties.Remove(CELLOBJECTS.BSWITCH);
-                    if (MouseCell.Properties.Contains(CELLOBJECTS.RSWITCH)) MouseCell.Properties.Remove(CELLOBJECTS.RSWITCH);
-                    if (MouseCell.Properties.Contains(CELLOBJECTS.BARREL)) MouseCell.Properties.Remove(CELLOBJECTS.BARREL);
-                    MouseCell.ParseProperties();
-                }
+                Container.ObjectsToLoad.Add(new ErrorMessage(this));
+                Container.LoadObjects(this, 1);
             }
         }
         protected override void ProcessNotifications(Notification Notification)
@@ -441,34 +391,6 @@ namespace Slimey_Arcades
         }
     }
     
-    //class ScreenScroll: IUpdate, INotifier, IDraw
-    //{
-    //    public Notifier Notifier { get; init; } = new();
-    //    public Transform Transform { get; set; }
-    //    public Sprite Sprite { get; set; }
-    //    private Color HighlightColor { get; init; } = new Color(0, 0, 0, 0.5f);
-    //    public bool IsActive { get; set; } = false;
-    //    private Vector3 Direction { get; init; }
-    //    public ScreenScroll(Transform NewTransform, Vector2 NewDirection)
-    //    {
-    //        Transform = NewTransform;
-    //        Sprite = new Sprite(Shapes.Square, ColorHelp.None);
-    //        Direction = new Vector3(NewDirection.X, NewDirection.Y, 0);
-    //    }
-    //    public void Update() 
-    //    {
-    //        if (IsActive && MouseControl.Hovering(Transform))
-    //        {
-    //            Notifier.SendNotification(new Notification(NOTTYPES.SCREENCHANGE, Direction));
-    //            //Transform = new Transform(Transform.X + (int)Direction.X, Transform.Y - (int)Direction.Y, Transform.Width, Transform.Height);
-    //            Sprite.Color = HighlightColor;
-    //        }
-    //        else
-    //        {
-    //            //Sprite.Color = ColorHelp.None;
-    //        }
-    //    }
-    //}
     class ScreenMover : IContainer, IDraw, IUpdate, INotifier
     {
         public Sprite Sprite { get; set; }

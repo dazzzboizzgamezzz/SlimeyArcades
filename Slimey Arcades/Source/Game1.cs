@@ -65,7 +65,6 @@ namespace Slimey_Arcades
         protected override void Draw(GameTime gameTime)
         {
             Graphics.GraphicsDevice.Clear(Color.Black);
-            //SceneController.Draw(SpriteBatch);
             SceneController.Draw(SpriteBatch, WindowScale, ScreenOffset);
         }
     }

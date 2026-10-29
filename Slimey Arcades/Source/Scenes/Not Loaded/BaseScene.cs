@@ -28,12 +28,20 @@ namespace Slimey_Arcades
         }
         public void Update()
         {
-            Notifier.Broadcast(this);
-            Container.Update();
-            Container.LoadObjects(this);
-            Container.DestroyObjects();
-            MoveScreen();
-            //MouseControl.Reset();
+            try
+            {
+                Notifier.Broadcast(this);
+                Container.Update();
+                Container.LoadObjects(this);
+                Container.DestroyObjects();
+                MoveScreen();
+                //MouseControl.Reset();
+            }
+            catch
+            {
+                Container.ObjectsToLoad.Add(new ErrorMessage(this));
+                Container.LoadObjects(this, 3);
+            }
         }
         public abstract void Load();
         public virtual void ProcessNotifications(Notification Notification)
@@ -44,21 +52,6 @@ namespace Slimey_Arcades
                     NextScene = (Scene)Notification.Data;
                     break;
                 case NOTTYPES.SCREENCHANGE:
-                    //switch (Notification.Data)
-                    //{
-                    //    case "Left":
-                    //        ScreenTarget += new Vector3(-(int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
-                    //        break;
-                    //    case "Right":
-                    //        ScreenTarget += new Vector3((int)SETTINGS.SCREENWIDTH * WindowScale, 0, 0);
-                    //        break;
-                    //    case "Up":
-                    //        ScreenTarget += new Vector3(0, (int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
-                    //        break;
-                    //    case "Down":
-                    //        ScreenTarget += new Vector3(0, -(int)SETTINGS.SCREENHEIGHT * WindowScale, 0);
-                    //        break;
-                    //}
                     ScreenTarget += (Vector3)Notification.Data * WindowScale;
                     break;
             }

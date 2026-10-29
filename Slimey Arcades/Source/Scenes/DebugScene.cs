@@ -1,15 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-//using Slimey_Arcades.Managers;
 
 namespace Slimey_Arcades
 {
-    class NewDebugScene : Scene
+    //class NewDebugScene : Scene
+    class DebugScene : Scene
     {
-        //public Transform Transform { get; set; }
-        //public Sprite Sprite { get; set; }
-        //public Container Container { get; init; } = new();
-        public NewDebugGrid Grid { get; set; }
+        public DebugGrid Grid { get; set; }
         private int Rows { get; set; } = 11;
         private int Cols { get; set; } = 11;
         private Button ColDownButton { get; set; }
@@ -18,38 +15,14 @@ namespace Slimey_Arcades
         private Button RowDownButton { get; set; }
         private SaveLoadWindow SaveLoadWindow { get; set; }
         private ScreenMover ScreenMover { get; set; }
-        public NewDebugScene() : base(Color.CornflowerBlue)
+        //public NewDebugScene() : base(Color.CornflowerBlue)
+        public DebugScene() : base(Color.CornflowerBlue)
         {
-            //Transform = Transform.None;
-            //Sprite = new Sprite(Shapes.Square, ColorHelp.None);
-            //Grid = new NewDebugGrid(Cols, Rows);
-            //Container.ObjectsToLoad.Add(Grid);
-
-            //Transform ColButtonTransform = new Transform(Grid.Transform.X + Grid.Transform.Width + 10, (int)Grid.Transform.Center.Y - 10, 10, 20);
-            //ColDownButton = new Button(ColButtonTransform, Shapes.Square, Color.LightGray, "<", false);
-            //ColDownButton.Function = () => ChangeGrid(-1, 0);
-            //ColUpButton = new Button(new Transform(ColButtonTransform.X + 15, ColButtonTransform.Y, ColButtonTransform.Width, ColButtonTransform.Height), Shapes.Square, Color.LightGray, ">", false);
-            //ColUpButton.Function = () => ChangeGrid(1, 0);
-            //Container.ObjectsToLoad.Add(ColDownButton);
-            //Container.ObjectsToLoad.Add(ColUpButton);
-
-            //Transform RowButtonTransform = new Transform((int)Grid.Transform.Center.X - 5, Grid.Transform.Y + Grid.Transform.Height + 10, 20, 10);
-            //RowDownButton = new Button(RowButtonTransform, Shapes.Square, Color.LightGray, "^");
-            //RowDownButton.Function = () => ChangeGrid(0, -1);
-            //RowUpButton = new Button(new Transform(RowButtonTransform.X, RowButtonTransform.Y + 15, RowButtonTransform.Width, RowButtonTransform.Height), Shapes.Square, Color.LightGray, "V");
-            //RowUpButton.Function = () => ChangeGrid(0, 1);
-            //Container.ObjectsToLoad.Add(RowDownButton);
-            //Container.ObjectsToLoad.Add(RowUpButton);
-
-            //ScreenMover = new ScreenMover(new Rectangle(0, 0, 1800, 1300));
-            //Container.ObjectsToLoad.Add(ScreenMover);
-
-            //SaveLoadWindow = new SaveLoadWindow(new Vector2(175, 250));
-            //Container.ObjectsToLoad.Add(SaveLoadWindow);
+            
         }
         public override void Load()
         {
-            Grid = new NewDebugGrid(Cols, Rows);
+            Grid = new DebugGrid(Cols, Rows);
             Container.ObjectsToLoad.Add(Grid);
 
             DebugSelect Test = new DebugSelect();
@@ -89,10 +62,6 @@ namespace Slimey_Arcades
             };
             Container.ObjectsToLoad.Add(PlayLevel);
         }
-        //public void Update()
-        //{
-
-        //}
         public override void ProcessNotifications(Notification Notification)
         {
             base.ProcessNotifications(Notification);
@@ -119,7 +88,7 @@ namespace Slimey_Arcades
             Cols += ChangeCol;
             UpdateButtons(ChangeCol, ChangeRow);
             Grid.Container.Destroy = true;
-            Grid = new NewDebugGrid(Cols, Rows);
+            Grid = new DebugGrid(Cols, Rows);
             Grid.LoadLevel(0);
             Container.ObjectsToLoad.Add(Grid);
         }
@@ -149,46 +118,4 @@ namespace Slimey_Arcades
             else RowUpButton.IsActive = true;
         }
     }
-    //public class DebugScene :Scene
-    //{
-    //    public bool LoadLevel { get; init; }
-    //    public DebugScene() : base (Color.LightGray)
-    //    {
-
-    //    }
-    //    public override void Load()
-    //    {
-    //        DebugMenu Debug = new DebugMenu(100, 100);
-    //        Container.ObjectsToLoad.Add(Debug);
-
-    //        DebugGrid Grid = new DebugGrid(200, 100, ref Debug);
-    //        if (LoadLevel)
-    //        {
-    //            Grid.LoadLevel(0);
-    //        }
-    //        else
-    //        {
-    //            Grid.LoadLevel(-1);
-    //        }
-
-    //        Container.ObjectsToLoad.Add(Grid);
-
-    //        Button PlayLevel = new Button(800, 100, 200, 50, Shapes.Square, Color.DarkGray, "Play Level");
-    //        PlayLevel.Function = () =>
-    //        {
-    //            Grid.SaveLevel(0);
-    //            LevelScene NewScene = new LevelScene(0) { Debug = true };
-    //            NextScene = NewScene;
-    //        };
-    //        Container.ObjectsToLoad.Add(PlayLevel);
-
-    //        Button ReturnToTitle = new Button(800, 200, 200, 50, Shapes.Square, Color.DarkGray, "Return To Title");
-    //        ReturnToTitle.Function = () => { NextScene = new TitleScene(); };
-    //        Container.ObjectsToLoad.Add(ReturnToTitle);
-
-    //        //SaveLoadWindow SaveLoadWindow = new SaveLoadWindow(new Vector2(800, 300));
-    //        //SaveLoadWindow.SetButtonFunctions(() => Grid.SaveLevel(SaveLoadWindow.SelectedLevel), () => Grid.LoadLevel(SaveLoadWindow.SelectedLevel));
-    //        //Container.ObjectsToLoad.Add(SaveLoadWindow);
-    //    }
-    //}
 }

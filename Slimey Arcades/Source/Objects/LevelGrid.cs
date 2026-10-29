@@ -14,7 +14,6 @@ namespace Slimey_Arcades
         private Polygon WallOutline { get; set; }
         private int Timer { get; set; } = 0;
         private bool Paused { get; set; } = false;
-        //public LevelGrid(int X, int Y, int Level) : base(X, Y, 11, 11, Color.DarkMagenta, 2)
         public LevelGrid(int X, int Y, int Level) : base(X, Y, NewLevel: Level, BGColor: Color.DarkMagenta, NewCellGap: 2)
         {
             LoadLevel(Level);
@@ -30,6 +29,8 @@ namespace Slimey_Arcades
         }
         public override void Update()
         {
+            try
+            {
             if (!Paused)
             {
                 List<Keys> CurrentKeys = Keyboard.GetState().GetPressedKeys().ToList();
@@ -47,7 +48,6 @@ namespace Slimey_Arcades
                     }
                     if (CanRotate && !PressedKeys.Contains(Key))
                     {
-                        //if (Key == Keys.Q) { Rotate("Counterclockwise"); PressedKeys.Add(Key); }
                         if (Key == Keys.Q) { Rotate("CounterClockwise"); PressedKeys.Add(Key); }
                         if (Key == Keys.E) { Rotate("Clockwise"); PressedKeys.Add(Key); }
                     }
@@ -64,6 +64,12 @@ namespace Slimey_Arcades
             {
                 Timer--;
                 if (Timer == 0) WallOutline.Transform.Pos = new Vector2(-100, -100);
+            }
+            }
+            catch
+            {
+                Container.ObjectsToLoad.Add(new ErrorMessage(this));
+                Container.LoadObjects(this, 1);
             }
         }
         protected override void ProcessNotifications(Notification Notification)
@@ -187,6 +193,7 @@ namespace Slimey_Arcades
         }
         private Cell GetTargetCell(Cell StartingCell, string Direction)
         {
+            if (StartingCell == null) return null;
             Cell TargetCell;
             int ColOffset = 0;
             int RowOffset = 0;

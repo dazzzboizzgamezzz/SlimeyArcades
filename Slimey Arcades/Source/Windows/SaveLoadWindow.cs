@@ -9,8 +9,6 @@ namespace Slimey_Arcades
         public Notifier Notifier { get; init; } = new();
         public int SelectedLevel { get; set; } = 1;
         private Text LevelText { get; init; }
-        //private Button SaveButton { get; init; }
-        //private Button LoadButton {  get; init; }
         public SaveLoadWindow(Vector2 Position) : base(new Transform((int)Position.X, (int)Position.Y, 250, 200), Color.DarkGray)
         {
             Text SelectText = new Text(new Transform((int)(Position.X + 40), (int)(Position.Y + 50), 150, 30), "Select Level:", NewScale: 0.2f);
@@ -49,7 +47,6 @@ namespace Slimey_Arcades
             DownTriangle.Sprite.Effect = SpriteEffects.FlipVertically;
             SubObjects.Add(DownTriangle);
 
-            //SaveButton = new Button((int)(Position.X + 20), (int)(Position.Y + 165), 90, 25, Shapes.Square, Color.LightGray, "Save Level");
             Button SaveButton = new Button((int)(Position.X + 20), (int)(Position.Y + 165), 90, 25, Shapes.Square, Color.LightGray, "Save Level");
             SaveButton.Function = () =>
             {
@@ -57,7 +54,6 @@ namespace Slimey_Arcades
             };
             SubObjects.Add(SaveButton);
 
-            //LoadButton = new Button((int)(Position.X + 140), (int)(Position.Y + 165), 90, 25, Shapes.Square, Color.LightGray, "Load Level");
             Button LoadButton = new Button((int)(Position.X + 140), (int)(Position.Y + 165), 90, 25, Shapes.Square, Color.LightGray, "Load Level");
             LoadButton.Function = () =>
             {
@@ -65,11 +61,5 @@ namespace Slimey_Arcades
             };
             SubObjects.Add(LoadButton);
         }
-
-        //public void SetButtonFunctions(Action SaveButtonAction, Action LoadButtonAction)
-        //{
-        //    SaveButton.Function = SaveButtonAction;
-        //    LoadButton.Function = LoadButtonAction;
-        //}
     }
 }

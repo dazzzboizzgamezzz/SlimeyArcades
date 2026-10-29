@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Slimey_Arcades
 {
@@ -51,13 +52,21 @@ namespace Slimey_Arcades
         }
         public void Update()
         {
-            if (!IsActive) return;
-            if (Highlightable)
+            try
             {
-                if (UnHighlight == ColorManager.None) UnHighlight = new Color(Sprite.Color.R - 30, Sprite.Color.G - 30, Sprite.Color.B - 30);
-                Sprite.Color = MouseControl.Hovering(Transform) ? UnHighlight : Highlight;
+                if (!IsActive) return;
+                if (Highlightable)
+                {
+                    if (UnHighlight == ColorManager.None) UnHighlight = new Color(Sprite.Color.R - 30, Sprite.Color.G - 30, Sprite.Color.B - 30);
+                    Sprite.Color = MouseControl.Hovering(Transform) ? UnHighlight : Highlight;
+                }
+                if (MouseControl.LeftClick(Transform)) Function();
             }
-            if (MouseControl.LeftClick(Transform)) Function();
+            catch
+            {
+                Container.ObjectsToLoad.Add(new ErrorMessage(this));
+                Container.LoadObjects(this, 1);
+            }
         }
         private void CenterText()
         {
@@ -79,24 +88,12 @@ namespace Slimey_Arcades
 
             int ArrowSize = Base.Width < Base.Height ? (int)(Base.Width / 2) : (int)(Base.Height / 2);
             int HalfSize = (int)(ArrowSize / 2);
-            //Color TriangleColor = NewTriangleColor == null ? Color.White : (Color)NewTriangleColor;
-            //Polygon LeftTriangle = new Polygon(new Transform(Base.X - TSize / 2, (int)Base.Center.Y, TSize, TSize / 2), TriangleColor);
-            //LeftTriangle.Sprite.Texture = Shapes.Square;
-            //LeftTriangle.Transform.Origin = LeftTriangle.Transform.Center;
-            //LeftTriangle.Transform.Rotation = -0.5f;
-            //Button LeftButton = new Button(new Transform((int)LeftTriangle.Transform.X, (int)LeftTriangle.Transform.Y, LeftTriangle.Transform.Height, LeftTriangle.Transform.Width));
-            //LeftButton.Function = () => { LoopButtons(-1); };
-            //Container.ObjectsToLoad.Add(LeftButton);
-            //Container.ObjectsToLoad.Add(LeftTriangle);
-            //Button RightTriangle = new Button(new Transform(Base.X + Base.Width + 3, (int)Base.Center.Y, TSize, TSize / 2), Shapes.ETriangle, TriangleColor);
             if (Buttons.Count > 1)
             {
                 Button RightTriangle = new Button(new Transform(Base.X + Base.Width + 3, (int)Base.Center.Y - HalfSize, HalfSize, ArrowSize), Txt: ">", TextCentered: false);
-                //RightTriangle.Transform.Rotation = 0.5f;
                 RightTriangle.Function = () => { LoopButtons(1); };
                 Container.ObjectsToLoad.Add(RightTriangle);
                 Button LeftTriangle = new Button(new Transform(Base.X - HalfSize - 3, (int)Base.Center.Y - HalfSize, HalfSize, ArrowSize), Txt: "<", TextCentered: false);
-                //RightTriangle.Transform.Rotation = 0.5f;
                 LeftTriangle.Function = () => { LoopButtons(-1); };
                 Container.ObjectsToLoad.Add(LeftTriangle);
             }

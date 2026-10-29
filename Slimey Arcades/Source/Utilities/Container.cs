@@ -123,11 +123,18 @@ namespace Slimey_Arcades
         {
             foreach (IUpdate Update in Updates)
             {
-                Update.Update();
-                if (typeof(IContainer).IsAssignableFrom(Update.GetType()))
+                try
                 {
-                    IContainer SubContainer = (IContainer)Update;
-                    SubContainer.Update();
+                    Update.Update();
+                    if (typeof(IContainer).IsAssignableFrom(Update.GetType()))
+                    {
+                        IContainer SubContainer = (IContainer)Update;
+                        SubContainer.Update();
+                    }
+                }
+                catch
+                {
+                    ObjectsToLoad.Add(new ErrorMessage(Update));
                 }
             }
         }
